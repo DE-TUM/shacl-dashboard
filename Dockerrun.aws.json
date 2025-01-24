@@ -2,12 +2,12 @@
     "AWSEBDockerrunVersion": "1",
     "Image": {
       "Name": "zenontum/my-shacl-app:latest",
-      "Update": true
+      "Update": "true"
     },
     "Ports": [
       {
-        "ContainerPort": 80,
-        "HostPort": 80
+        "ContainerPort": "80",
+        "HostPort": "80"
       }
     ]
   }
