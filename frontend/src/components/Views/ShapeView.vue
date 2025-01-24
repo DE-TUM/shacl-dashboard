@@ -70,15 +70,6 @@
 
     <!-- Plots Section -->
     <div class="grid grid-cols-3 gap-4 mb-4">
-      <!-- Scatter Plot -->
-      <ScatterPlotChart
-          :title="'Violation Impact vs. Complexity'"
-          :xAxisLabel="'Number of Constraints'"
-          :yAxisLabel="'Number of Violations'"
-          :data="scatterPlotData"
-          :explanationText="'This scatter plot shows how violations correlate with the number of constraints4.'"
-        />
-
       <!-- Heatmap -->
       <HeatmapChart
           :title="'Violation Heatmap'"
@@ -86,6 +77,7 @@
           :yAxisLabel="'Property Shapes'"
           :data="heatmapData"
           :explanationText="'This scatter plot shows how violations correlate with the number of constraints 1.'"
+          class="col-span-2"
         />
 
       <!-- Pareto Chart -->
@@ -95,6 +87,7 @@
           :yAxisLabel="'Cumulative Violations'"
           :data="paretoData"
           :explanationText="'This scatter plot shows how violations correlate with the number of constraints 1.'"
+          class="col-span-1"
         />
     </div>
 

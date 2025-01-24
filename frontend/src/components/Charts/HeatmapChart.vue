@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-card">
+  <div class="chart-card w-full">
     <div class="chart-header flex justify-between items-center">
       <h3 class="inline-flex items-center gap-2">
         {{ title }}
@@ -7,7 +7,7 @@
       <ToggleQuestionMark :explanation="explanationText" />
     </div>
     
-    <div class="chart-body" ref="chartContainer">
+    <div class="chart-body w-full" ref="chartContainer">
       <svg
         :width="responsiveWidth"
         :height="responsiveHeight"
@@ -217,11 +217,11 @@ const margin = {
   top: 40,    // Reduced from 50
   right: 40,
   bottom: 40, // Increased to create more space below
-  left: 160,
+  left: 200,
 };
 
-const baseWidth = 800;
-const baseHeight = 300; // Slightly increased height
+const baseWidth = 1800;
+const baseHeight = 350; // Slightly increased height
 
 // Responsive setup
 const chartContainer = ref(null);
@@ -250,17 +250,17 @@ const tooltipStyle = ref({});
 const showTooltip = (i, j, event) => {
   tooltipContent.value = `${props.data.properties[i]}: ${props.data.violations[i][j]} violations for ${props.data.constraints[j]}`;
   tooltipVisible.value = true;
-  
-  // Fix the tooltip position to be relative to the chart container
-  const rect = chartContainer.value.getBoundingClientRect();
-  const targetRect = event.target.getBoundingClientRect();
+
+  // Use the event position instead of manually computing the heatmap's box position
+  const mouseX = event.clientX; // Mouse X position in viewport
+  const mouseY = event.clientY; // Mouse Y position in viewport
+
   tooltipStyle.value = {
-    left: `${targetRect.left - rect.left + targetRect.width / 2}px`,
-    top: `${targetRect.top - rect.top - 10}px`,
-    transform: 'translate(-50%, -100%)',
+    left: `${mouseX + 10}px`, // Position tooltip slightly to the right of the cursor
+    top: `${mouseY}px`,  // Align with cursor's Y position
+    transform: 'translate(0, -50%)', // Adjust tooltip so it aligns correctly with row
   };
 };
-
 const hideTooltip = () => {
   tooltipVisible.value = false;
 };
