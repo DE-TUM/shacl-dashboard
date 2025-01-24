@@ -3,8 +3,9 @@ import os
 import subprocess
 
 # Resolve STATIC_FOLDER to an absolute path
-STATIC_FOLDER = os.path.abspath(os.path.join('src', 'service', 'frontend'))
-VUE_SOURCE_FOLDER = os.path.abspath('.')
+
+STATIC_FOLDER = os.path.abspath(os.path.join('..', 'frontend', 'dist'))
+VUE_SOURCE_FOLDER = os.path.abspath('../frontend')
 
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')  # Use the build output folder as the static folder
 
