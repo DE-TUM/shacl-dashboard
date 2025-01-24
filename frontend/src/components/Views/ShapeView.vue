@@ -40,7 +40,7 @@
           <div v-if="showDefinition" class="bg-gray-50 p-4 rounded mb-4 shadow">
             <p class="font-medium text-lg mb-2">Shape Definition:</p>
             <code
-              class="text-sm bg-gray-200 text-gray-700 p-2 rounded block"
+              class="text-sm bg-gray-50 text-gray-700 p-2 rounded block"
               style="white-space: pre-wrap;"
             >
               {{ shapeDefinition }}
@@ -62,7 +62,7 @@
         </div>
         <div>
           <h3 class="text-sm font-medium text-gray-500 mb-1">{{ metric.titleMaxViolated }}</h3>
-          <p class="text-xl font-medium text-blue-600">{{ metric.maxViolated }}</p>
+          <p class="text-xl font-medium" :style="{ color: 'rgb(227,114,34)' }">{{ metric.maxViolated }}</p>
         </div>
       </div>
     </div>
