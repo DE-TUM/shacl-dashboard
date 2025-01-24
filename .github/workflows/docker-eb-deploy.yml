@@ -24,15 +24,15 @@ jobs:
       # Step 3: Build and push the Docker image
       - name: Build and Push Docker Image
         run: |
-          docker build -t zenontum/my-shacl-env:latest .
-          docker push zenontum/my-shacl-env:latest
+          docker build -t zenontum/my-shacl-app:latest .
+          docker push zenontum/my-shacl-app:latest
 
       # Step 4: Deploy to Elastic Beanstalk
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: eb-shacl-app # Replace with your Elastic Beanstalk application name
           environment_name: ${{ secrets.EB_ENV_NAME }}
           region: ${{ secrets.AWS_REGION }}
