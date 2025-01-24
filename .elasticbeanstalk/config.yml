@@ -1,20 +1,20 @@
 branch-defaults:
   default:
-    environment: shacl-dashboard
+    environment: shacl-dashboard-app
     group_suffix: null
   main:
     environment: shacl-dashboard-app
 global:
   application_name: eb-shacl-app
-  branch: null
+  branch: main
   default_ec2_keyname: aws-eb
   default_platform: Docker running on 64bit Amazon Linux 2023
   default_region: eu-north-1
   include_git_submodules: true
-  instance_profile: null
-  platform_name: null
-  platform_version: null
-  profile: null
+  instance_profile: aws-elasticbeanstalk-ec2-role
+  platform_name: Docker
+  platform_version: latest
+  profile: default
   repository: null
-  sc: null
+  sc: git
   workspace_type: Application
