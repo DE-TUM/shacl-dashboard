@@ -1,0 +1,26 @@
+[
+    {
+        "property_shape_name": " ex:AgeShape",
+        "number_of_violations": 15,
+        "number_of_constraints": 5,
+        "most_violated_constraint": "Constraint A"
+    },
+    {
+        "property_shape_name": " ex:NameShape",
+        "number_of_violations": 8,
+        "number_of_constraints": 3,
+        "most_violated_constraint": "Constraint B"
+    },
+    {
+        "property_shape_name": "ex:BrithdayShape",
+        "number_of_violations": 20,
+        "number_of_constraints": 7,
+        "most_violated_constraint": "Constraint C"
+    },
+    {
+        "property_shape_name": "ex:DeathdayShape",
+        "number_of_violations": 2,
+        "number_of_constraints": 4,
+        "most_violated_constraint": "Constraint D"
+    }
+]

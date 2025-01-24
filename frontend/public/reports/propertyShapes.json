@@ -1,0 +1,26 @@
+[
+    {
+        "property_shape_name": " shaclshapes:instanceTypeGolfLeagueShapeProperty",
+        "number_of_violations": 15,
+        "number_of_constraints": 5,
+        "most_violated_constraint": "sh:in"
+    },
+    {
+        "property_shape_name": " shaclshapes:instanceTypeTennisTournamentShapeProperty",
+        "number_of_violations": 8,
+        "number_of_constraints": 3,
+        "most_violated_constraint": "sh:in"
+    },
+    {
+        "property_shape_name": "shaclshapes:instanceTypeCongressmanShapeProperty",
+        "number_of_violations": 20,
+        "number_of_constraints": 7,
+        "most_violated_constraint": "sh:in"
+    },
+    {
+        "property_shape_name": "shaclshapes:instanceTypeGolfLeagueShapeProperty",
+        "number_of_violations": 2,
+        "number_of_constraints": 4,
+        "most_violated_constraint": "sh:in"
+    }
+]

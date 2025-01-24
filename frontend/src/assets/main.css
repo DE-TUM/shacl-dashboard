@@ -1,0 +1,53 @@
+@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* main.css or App.vue <style> block */
+:root {
+  --true-blue: #0466c8ff;
+  --sapphire: #0353a4ff;
+  --yale-blue: #023e7dff;
+  --oxford-blue: #002855ff;
+  --oxford-blue-2: #001845ff;
+  --oxford-blue-3: #001233ff;
+  --delft-blue: #33415cff;
+  --paynes-gray: #5c677dff;
+  --slate-gray: #7d8597ff;
+  --cool-gray: #c7cddcff;
+}
+
+
+
+#app {
+  margin: 0 auto;
+  padding: 0rem;
+  font-weight: normal;
+  width: 100vw;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    padding: 0 5rem 0 0;
+  }
+}

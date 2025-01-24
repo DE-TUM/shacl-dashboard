@@ -1,0 +1,25 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/> .
+@prefix ex: <http://example.org/> .
+
+<http://example.org/ValidationReport>
+    a sh:ValidationReport ;
+    sh:conforms false ;
+    sh:result [
+        a sh:ValidationResult ;
+        sh:focusNode ex:Person1 ;
+        sh:resultPath foaf:age ;
+        sh:value "-5"^^xsd:integer ;
+        sh:resultMessage "Age must be a non-negative integer." ;
+        sh:sourceShape ex:AgeShape ;
+        sh:severity sh:Violation
+    ] , [
+        a sh:ValidationResult ;
+        sh:focusNode ex:Person2 ;
+        sh:resultPath foaf:name ;
+        sh:value "" ;
+        sh:resultMessage "Name cannot be empty." ;
+        sh:sourceShape ex:NameShape ;
+        sh:severity sh:Warning
+    ] .
