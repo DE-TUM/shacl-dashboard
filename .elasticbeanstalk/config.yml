@@ -1,14 +1,14 @@
 branch-defaults:
-  api-backend:
-    environment: null
   default:
     environment: shacl-dashboard
     group_suffix: null
+  main:
+    environment: shacl-dashboard-app
 global:
-  application_name: shacl-dashboard
+  application_name: eb-shacl-app
   branch: null
   default_ec2_keyname: aws-eb
-  default_platform: Node.js 20 running on 64bit Amazon Linux 2023
+  default_platform: Docker running on 64bit Amazon Linux 2023
   default_region: eu-north-1
   include_git_submodules: true
   instance_profile: null

@@ -1,19 +1,29 @@
-# Start from your base image with Node+Python
+# Start from your base image with Node and Python
 FROM zenontum/my-shacl-env:v1.0.0
 
-# Set a working directory
+# Set the working directory for the container
 WORKDIR /app
 
-# Copy your code into the container
-COPY . .
+# Copy backend files and install dependencies
+COPY ./backend ./backend
+WORKDIR /app/backend
+RUN pip3 install -r requirements.txt
 
-# (Optional) Build the Vue frontend
-# - If you want to serve a production build, do:
+# Copy frontend files and install dependencies
+WORKDIR /app
+COPY ./frontend ./frontend
+WORKDIR /app/frontend
 RUN npm install && npm run build
 
-# For Python, if your base already installed requirements, we may skip.
-# But if you have a separate requirements.txt or changed dependencies, do:
-RUN pip3 install -r ./src/service/requirements.txt
+# (Optional) If you need to serve the frontend build with the backend,
+# copy the build artifacts to the backend's static directory
+# RUN cp -r /app/frontend/build /app/backend/static/
 
-# Example: If you want to run the Python server only:
-CMD [ "python3", "src/service/app.py" ]
+# Set the working directory to backend to run the server
+WORKDIR /app/backend
+
+# Expose the necessary port
+EXPOSE 80
+
+# Specify the command to run the Python backend server
+CMD ["python3", "app.py"]
