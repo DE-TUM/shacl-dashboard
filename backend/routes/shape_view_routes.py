@@ -80,3 +80,50 @@ def get_violations_for_node_shape():
         return jsonify({'nodeShape': nodeshape_name, 'violationCount': result}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+# Route to get the number of violations per constraint type for each Property Shape in a Node Shape
+@shape_view_bp.route('/shape_view/violations/property-shapes/constraint-types', methods=['GET'])
+def get_violations_per_constraint_type_for_property_shape():
+    """
+    Route to retrieve the number of violations per constraint type for each Property Shape 
+    associated with a Node Shape.
+    """
+    try:
+        node_shape = request.args.get("node_shape")
+        if not node_shape:
+            return jsonify({'error': 'node_shape is required'}), 400
+
+        result = get_number_of_violations_per_constraint_type_for_property_shape(node_shape)
+        return jsonify({'nodeShape': node_shape, 'propertyShapes': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the total constraints count per Node Shape
+@shape_view_bp.route('/shape_view/node-shapes/constraints/total-count', methods=['GET'])
+def get_total_constraints_count_per_node_shape_route():
+    """
+    Route to retrieve the total constraints count for each Node Shape in the Shapes Graph.
+    """
+    try:
+        result = get_total_constraints_count_per_node_shape()
+        return jsonify({'totalConstraintsCountPerNodeShape': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the constraints count for Property Shapes in a Node Shape
+@shape_view_bp.route('/shape_view/property-shapes/constraints/count', methods=['GET'])
+def get_constraints_count_for_property_shapes_route():
+    """
+    Route to retrieve the constraints count for each Property Shape in a specific Node Shape.
+    """
+    try:
+        nodeshape_name = request.args.get("nodeshape_name")
+        if not nodeshape_name:
+            return jsonify({'error': 'nodeshape_name is required'}), 400
+
+        result = get_constraints_count_for_property_shapes(nodeshape_name)
+        return jsonify({'nodeShape': nodeshape_name, 'propertyShapesConstraints': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
