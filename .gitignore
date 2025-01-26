@@ -130,3 +130,10 @@ dist
 .pnp.*
 *.pyc
 /frontend/src/service/frontend
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+.elasticbeanstalk/config.yml
+.elasticbeanstalk/config.yml

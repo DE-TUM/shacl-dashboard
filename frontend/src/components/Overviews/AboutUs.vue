@@ -230,7 +230,7 @@
       return {
         source: sourceEdge,
         target: targetEdge,
-        label: ":isEmployedBy", // Removed colon if not needed
+        label: ":isSupervisedBy", // Removed colon if not needed
         targetName: doctoralStudents[index].name,
         angleDeg,
       };

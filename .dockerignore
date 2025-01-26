@@ -1,0 +1,27 @@
+# General exclusions
+*.log
+*.env
+*.DS_Store
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+
+# Python virtual environments
+venv/
+.env/
+*.egg-info/
+
+# Node.js exclusions
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# Version control
+.git/
+.gitignore
