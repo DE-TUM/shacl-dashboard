@@ -1,26 +1,98 @@
 [
     {
-        "property_shape_name": " shaclshapes:instanceTypeGolfLeagueShapeProperty",
-        "number_of_violations": 15,
-        "number_of_constraints": 5,
-        "most_violated_constraint": "sh:in"
+       "PropertyShapeName":"http://shaclshapes.org/homepageCricketTeamShapeProperty",
+       "NumViolations":22,
+       "NumConstraints":1,
+       "MostViolatedConstraint":"http://www.w3.org/ns/shacl#MinCountConstraintComponent"
     },
     {
-        "property_shape_name": " shaclshapes:instanceTypeTennisTournamentShapeProperty",
-        "number_of_violations": 8,
-        "number_of_constraints": 3,
-        "most_violated_constraint": "sh:in"
+       "PropertyShapeName":"http://shaclshapes.org/instanceTypeCricketTeamShapeProperty",
+       "NumViolations":1181,
+       "NumConstraints":1,
+       "MostViolatedConstraint":"http://www.w3.org/ns/shacl#InConstraintComponent"
     },
     {
-        "property_shape_name": "shaclshapes:instanceTypeCongressmanShapeProperty",
-        "number_of_violations": 20,
-        "number_of_constraints": 7,
-        "most_violated_constraint": "sh:in"
+       "PropertyShapeName":"http://shaclshapes.org/capacityCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
     },
     {
-        "property_shape_name": "shaclshapes:instanceTypeGolfLeagueShapeProperty",
-        "number_of_violations": 2,
-        "number_of_constraints": 4,
-        "most_violated_constraint": "sh:in"
+       "PropertyShapeName":"http://shaclshapes.org/ceoCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/chairmanCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/cityCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/coachCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/differentFromCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/formationDateCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/groundCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/labelCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/managerCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/nameCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/ownerCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/seeAlsoCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
+    },
+    {
+       "PropertyShapeName":"http://shaclshapes.org/titleCricketTeamShapeProperty",
+       "NumViolations":0,
+       "NumConstraints":0,
+       "MostViolatedConstraint":"None"
     }
-]
+ ]

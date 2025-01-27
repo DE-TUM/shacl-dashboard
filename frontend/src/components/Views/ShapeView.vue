@@ -73,7 +73,7 @@
       <!-- Heatmap -->
       <HeatmapChart
           :title="'Violation Heatmap'"
-          :xAxisLabel="'Constraint Types'"
+          :xAxisLabel="'Constraint Components'"
           :yAxisLabel="'Property Shapes'"
           :data="heatmapData"
           :explanationText="'This scatter plot shows how violations correlate with the number of constraints 1.'"
@@ -154,7 +154,7 @@ const paretoData = ref({
 
 const metrics = ref([
   { id: "violations", label: "Total Violations", value: totalViolations, titleMaxViolated: "", maxViolated: ""},
-  { id: "focus-nodes", label: "Focus Nodes", value: affectedFocusNodes, titleMaxViolated: "Most Focus Node", maxViolated: "dbpedia:PGA_Tour"},
+  { id: "focus-nodes", label: "Focus Nodes", value: affectedFocusNodes, titleMaxViolated: "Most Focus Node", maxViolated: "db:PGA_Tour"},
   { id: "property-paths", label: "Property Paths", value: affectedPropertyPaths, titleMaxViolated: "Most Property Path", maxViolated: " rdf:type"},
   { id: "constraints", label: "Constraints Triggered", value: constraintsTriggered, titleMaxViolated: "Most triggered Constrain", maxViolated: "sh:in"},
 ]);

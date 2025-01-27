@@ -99,7 +99,7 @@
               class="font-medium text-sm responsive-text"
               :fill="chartTheme.defaults.textColor"
             >
-              Constraint Types
+              Constraint Components 
             </text>
             
             <text

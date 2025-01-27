@@ -4,10 +4,10 @@
       <td class="text-left px-6 py-4 border-b border-gray-300 font-medium text-gray-800">{{ propertyShapeName }}</td> <!-- Row number column -->
   
       <!-- Display the RDF Triple in a single cell -->
-      <td class="text-center px-6 py-4 border-b border-gray-300">{{ numberOfViolations }}</td>
+      <td class="text-left px-6 py-4 border-b border-gray-300">{{ numberOfViolations }}</td>
       
       <!-- Error message column -->
-      <td  class="text-center px-6 py-4 border-b border-gray-300">  {{ numberOfConstraints }} </td>
+      <td  class="text-left px-6 py-4 border-b border-gray-300">  {{ numberOfConstraints }} </td>
       
     
       <td class="text-left px-6 py-4 border-b border-gray-300">

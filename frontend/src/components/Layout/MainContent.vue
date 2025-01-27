@@ -104,9 +104,9 @@ import ViolationTable from "./../Reusable/ViolationTable.vue";
 
 const tags = [
   { title: "Violations", value: "5432", titleMaxViolated: "", maxViolated: "" },
-  { title: "Violated Shapes", value: "54/200 (27%)", titleMaxViolated: "Most Violated Shape", maxViolated: "shaclshapes:TennisTournamentShape"},
+  { title: "Violated Shapes", value: "54/200 (27%)", titleMaxViolated: "Most Violated Shape", maxViolated: "shs:TennisTournamentShape"},
   { title: "Violated Paths", value: " 75/500 (15%)", titleMaxViolated: "Most Violated Path", maxViolated: "rdf:type" },
-  { title: "Violated Focus Nodes", value: "150", titleMaxViolated: "Most Violated Focus Node", maxViolated: "dbpedia:PGA_Tour" },
+  { title: "Violated Focus Nodes", value: "150", titleMaxViolated: "Most Violated Focus Node", maxViolated: "db:PGA_Tour" },
 ];
 
 const shapeHistogramData = ref({
