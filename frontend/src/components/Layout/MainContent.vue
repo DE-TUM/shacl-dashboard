@@ -1,22 +1,23 @@
 <template>
   <div class="main-content p-4">
     <!-- Tags Section -->
-    <div class="grid grid-cols-4 gap-6 mb-6">
-      <div
-        v-for="(tag, index) in tags"
-        :key="index"
-        class="card flex flex-row items-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
-      >
-        <div class="flex-grow">
-          <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.title }}</h3>
-          <p class="text-3xl font-bold text-gray-800">{{ tag.value }}</p>
-        </div>
-        <div>
-          <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.titleMaxViolated }}</h3>
-          <p class="text-xl font-medium" :style="{ color: 'rgb(227,114,34)' }">{{ tag.maxViolated }}</p>
-        </div>
-      </div>
+    <div class="grid gap-6 mb-6"
+     style="grid-template-columns: minmax(150px, 0.2fr) 1fr 1fr 1fr 1fr;">
+  <div
+    v-for="(tag, index) in tags"
+    :key="index"
+    class="card flex flex-row items-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
+  >
+    <div class="flex-grow">
+      <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.title }}</h3>
+      <p class="text-3xl font-bold text-gray-800">{{ tag.value }}</p>
     </div>
+    <div>
+      <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.titleMaxViolated }}</h3>
+      <p class="text-xl font-medium" :style="{ color: 'rgb(227,114,34)' }">{{ tag.maxViolated }}</p>
+    </div>
+  </div>
+</div>
 
     <!-- Plots Section -->
     <!-- <div class="grid grid-cols-3 gap-6 mb-6">
@@ -103,10 +104,11 @@ import Tag from "./../Reusable/Tag.vue";
 import ViolationTable from "./../Reusable/ViolationTable.vue";
 
 const tags = [
-  { title: "Violations", value: "5432", titleMaxViolated: "", maxViolated: "" },
+  { title: "Total Violations", value: "5432", titleMaxViolated: "", maxViolated: "" },
   { title: "Violated Shapes", value: "54/200 (27%)", titleMaxViolated: "Most Violated Shape", maxViolated: "shs:TennisTournamentShape"},
   { title: "Violated Paths", value: " 75/500 (15%)", titleMaxViolated: "Most Violated Path", maxViolated: "rdf:type" },
   { title: "Violated Focus Nodes", value: "150", titleMaxViolated: "Most Violated Focus Node", maxViolated: "db:PGA_Tour" },
+  { title: "Violated Constraint Component", value: "150", titleMaxViolated: "Most Violated Constraint Component", maxViolated: "sh:minCount" },
 ];
 
 const shapeHistogramData = ref({
