@@ -147,6 +147,204 @@ const heatmapData = ref({
   ],
 });
 
+const heatmapData2 = ref(
+   {
+      "PropertyShape":"http://shaclshapes.org/costStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"http://www.w3.org/ns/shacl#ClassConstraintComponent",
+            "Violations":18
+         }
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/homepageStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"http://www.w3.org/ns/shacl#MinCountConstraintComponent",
+            "Violations":93
+         }
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/instanceTypeStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"http://www.w3.org/ns/shacl#InConstraintComponent",
+            "Violations":2214
+         }
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/labelStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"http://www.w3.org/ns/shacl#MinCountConstraintComponent",
+            "Violations":27
+         }
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/sameAsStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"http://www.w3.org/ns/shacl#MinCountConstraintComponent",
+            "Violations":27
+         }
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/addressStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/architectStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/areaTotalStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/buildingStartDateStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/closingDateStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/countryStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/demolitionDateStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/differentFromStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/formerNameStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/genreStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/locationStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/nameStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/nickStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/nrhpReferenceNumberStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/numberOfSuitesStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/openingDateStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/operatorStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/originalNameStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/ownerStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/rebuildingDateStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/seatingCapacityStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/seeAlsoStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/tenantStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/typeStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   },
+   {
+      "PropertyShape":"http://shaclshapes.org/yearOfConstructionStadiumShapeProperty",
+      "Constraints":[
+         
+      ]
+   }
+  );
+
 const paretoData = ref({
   labels: ["Property Shape 1", "Property Shape 2", "Property Shape 3"],
   values: [20, 30, 50],
@@ -167,7 +365,7 @@ onMounted(() => {
   const shapeId = route.params.shapeId;
   const shapes = {
     1: {
-      name: "PersonShape",
+      name: "shs:StadiumShape",
       definition: `@prefix sh: <http://www.w3.org/ns/shacl#> . 
                     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
                     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
