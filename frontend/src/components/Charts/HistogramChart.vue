@@ -1,10 +1,10 @@
 <template>
-  <div class="chart-card w-full max-w-full overflow-hidden">
+  <div class="chart-card ">
     <div class="chart-header flex justify-between items-center">
       <h3 class="inline-flex items-center gap-2" v-html="title"></h3>
       <ToggleQuestionMark :explanation="explanationText" />
     </div>
-    <div class="chart-body w-full h-auto">
+    <div class="chart-body w-full ">
       <canvas ref="histogramCanvas"></canvas>
     </div>
   </div>
