@@ -1,22 +1,23 @@
 <template>
   <div class="main-content p-4">
     <!-- Tags Section -->
-    <div class="grid grid-cols-4 gap-6 mb-6">
-      <div
-        v-for="(tag, index) in tags"
-        :key="index"
-        class="card flex flex-row items-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
-      >
-        <div class="flex-grow">
-          <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.title }}</h3>
-          <p class="text-3xl font-bold text-gray-800">{{ tag.value }}</p>
-        </div>
-        <div>
-          <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.titleMaxViolated }}</h3>
-          <p class="text-xl font-medium" :style="{ color: 'rgb(227,114,34)' }">{{ tag.maxViolated }}</p>
-        </div>
-      </div>
+    <div class="grid gap-6 mb-6"
+     style="grid-template-columns: minmax(150px, 0.2fr) 1fr 1fr 1fr 1fr;">
+  <div
+    v-for="(tag, index) in tags"
+    :key="index"
+    class="card flex flex-col sm:flex-row items-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
+  >
+    <div class="flex-grow">
+      <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.title }}</h3>
+      <p class="text-3xl font-bold text-gray-800">{{ tag.value }}</p>
     </div>
+    <div>
+      <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.titleMaxViolated }}</h3>
+      <p class="text-xl font-medium" :style="{ color: 'rgb(227,114,34)' }">{{ tag.maxViolated }}</p>
+    </div>
+  </div>
+</div>
 
     <!-- Plots Section -->
     <!-- <div class="grid grid-cols-3 gap-6 mb-6">
@@ -64,10 +65,10 @@
       />
     </div> -->
 <!-- Histograms Section -->
-<div class="grid grid-cols-3 gap-4 mb-4">
+<div class="grid grid-cols-4 gap-4 mb-4 w-full max-w-full overflow-hidden transition">
       <!-- Histogram for Violations per Shape -->
       <HistogramChart
-        :title="`Distribution of <span style='color: rgba(94, 148, 212, 1);; font-weight: bold;'>Violations per Shape</span>`"
+        :title="`Distribution of <span style='color: rgba(154, 188, 228);; font-weight: bold;'>Violations per Node Shape</span>`"
         :xAxisLabel="'Number of Violations (Bins)'"
         :yAxisLabel="'Frequency'"
         :data="shapeHistogramData"
@@ -75,7 +76,7 @@
 
       <!-- Histogram for Violations per Path -->
       <HistogramChart
-        :title="`Distribution of <span style='color: rgba(22, 93, 177, 1);; font-weight: bold;'>Violations per Path</span>`"
+        :title="`Distribution of <span style='color: rgba(94, 148, 212, 1);; font-weight: bold;'>Violations per Path</span>`"
         :xAxisLabel="'Number of Violations (Bins)'"
         :yAxisLabel="'Frequency'"
         :data="pathHistogramData"
@@ -83,15 +84,22 @@
 
       <!-- Histogram for Violations per Focus Node -->
       <HistogramChart
-        :title="`Distribution of <span style='color: rgba(10, 45, 87);; font-weight: bold;'>Violations per Focus Node</span>`"
+        :title="`Distribution of <span style='color: rgba(22, 93, 177, 1);; font-weight: bold;'>Violations per Focus Node</span>`"
         :xAxisLabel="'Number of Violations (Bins)'"
         :yAxisLabel="'Frequency'"
         :data="focusNodeHistogramData"
       />
+
+      <HistogramChart
+        :title="`Distribution of <span style='color: rgba(10, 45, 87);; font-weight: bold;'>Violations per Constraint Component</span>`"
+        :xAxisLabel="'Number of Violations (Bins)'"
+        :yAxisLabel="'Frequency'"
+        :data="constraintComponentHistogramData"
+      />
     </div>
 
     <!-- Table Section -->
-    <ViolationTable class="card bg-white shadow-lg rounded-lg p-6" style="grid-column: span 3;" />
+    <ViolationTable class="card bg-white shadow-lg rounded-lg p-6 w-full max-w-full overflow-hidden" style="grid-column: span 3;" />
   </div>
 </template>
 
@@ -103,18 +111,33 @@ import Tag from "./../Reusable/Tag.vue";
 import ViolationTable from "./../Reusable/ViolationTable.vue";
 
 const tags = [
-  { title: "Violations", value: "5432", titleMaxViolated: "", maxViolated: "" },
-  { title: "Violated Shapes", value: "54/200 (27%)", titleMaxViolated: "Most Violated Shape", maxViolated: "shaclshapes:TennisTournamentShape"},
-  { title: "Violated Paths", value: " 75/500 (15%)", titleMaxViolated: "Most Violated Path", maxViolated: "rdf:type" },
-  { title: "Violated Focus Nodes", value: "150", titleMaxViolated: "Most Violated Focus Node", maxViolated: "dbpedia:PGA_Tour" },
+  { title: "Total Violations", value: "27392", titleMaxViolated: "", maxViolated: "" },
+  { title: "Violated Node Shapes", value: "27/30 (90%)", titleMaxViolated: "Most Violated Node Shape", maxViolated: "shs:StadiumShape"},
+  { title: "Violated Paths", value: " 30/255 (11.76%)", titleMaxViolated: "Most Violated Path", maxViolated: "rdf:type" },
+  { title: "Violated Focus Nodes", value: "1388", titleMaxViolated: "Most Violated Focus Node", maxViolated: "dbr:Steve_Davis" },
+  { title: "Violated Constraint Components", value: "4/5 (80%)", titleMaxViolated: "Most Violated Constraint Component", maxViolated: "sh:InConstraintComponent" },
 ];
 
 const shapeHistogramData = ref({
-  labels: ["0-5", "5-10", "10-15", "15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50"],
+  labels: ["0-237", "238-475", "476-713", "714-951", "952-1189", "1190-1427", "1428-1665", "1666-1903", "1904-2141", "2142-2379"],
   datasets: [
     {
       label: "Violations",
-      data: [2, 5, 8, 10, 12, 7, 6, 4, 3, 2],
+      data: [5, 2, 4, 6, 5, 2, 2, 1, 1, 2],
+      backgroundColor: "rgba(154, 188, 228)", // Light blue with transparency
+      borderColor: "rgba(154, 188, 228)", // Solid blue border
+      borderWidth: 1, // Optional: sets the border width of bars
+    },
+  ],
+});
+
+
+const pathHistogramData = ref({
+  labels: ["0-2586", "2587-5173", "5174-7760", "7761-10347", "10348-12934", "12935-15521", "15522-18108", "18109-20695", "20696-23282", "23283-25869"],
+  datasets: [
+    {
+      label: "Violations",
+      data: [29, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       backgroundColor: "rgba(94, 148, 212, 1)", // Light blue with transparency
       borderColor: "rgba(94, 148, 212, 1)", // Solid blue border
       borderWidth: 1, // Optional: sets the border width of bars
@@ -122,12 +145,12 @@ const shapeHistogramData = ref({
   ],
 });
 
-const pathHistogramData = ref({
-  labels: ["0-5", "5-10", "10-15", "15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50"],
+const focusNodeHistogramData = ref({
+  labels: ["0-10", "11-21", "22-32", "33-43", "44-54", "55-65", "66-76", "77-87", "88-98", "99-109"],
   datasets: [
     {
       label: "Violations",
-      data: [1, 3, 5, 8, 9, 6, 5, 4, 2, 1],
+      data: [268, 609, 378, 81, 21, 14, 10, 4, 1, 2],
       backgroundColor: "rgba(22, 93, 177, 1)", // Light blue with transparency
       borderColor: "rgba(22, 93, 177, 1)", // Solid blue border
       borderWidth: 1, // Optional: sets the border width of bars
@@ -135,18 +158,19 @@ const pathHistogramData = ref({
   ],
 });
 
-const focusNodeHistogramData = ref({
-  labels: ["0-5", "5-10", "10-15", "15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50"],
+const constraintComponentHistogramData = ref({
+  labels: ["0-2586", "2587-5173", "5174-7760", "7761-10347", "10348-12934", "12935-15521", "15522-18108", "18109-20695", "20696-23282", "23283-25869"],
   datasets: [
     {
       label: "Violations",
-      data: [3, 6, 10, 9, 8, 5, 4, 3, 2, 1],
+      data: [4, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       backgroundColor: "rgba(10, 45, 87)", // Light blue with transparency
       borderColor: "rgba(10, 45, 87)", // Solid blue border
       borderWidth: 1, // Optional: sets the border width of bars
     },
   ],
 });
+
 </script>
 
 <style scoped>

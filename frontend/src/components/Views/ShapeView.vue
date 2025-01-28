@@ -73,9 +73,9 @@
       <!-- Heatmap -->
       <HeatmapChart
           :title="'Violation Heatmap'"
-          :xAxisLabel="'Constraint Types'"
+          :xAxisLabel="'Constraint Components'"
           :yAxisLabel="'Property Shapes'"
-          :data="heatmapData"
+          :data="heatmapData2"
           :explanationText="'This scatter plot shows how violations correlate with the number of constraints 1.'"
           class="col-span-2"
         />
@@ -147,6 +147,54 @@ const heatmapData = ref({
   ],
 });
 
+const heatmapData2 = ref([
+   {
+      "PropertyShape":"shs:costStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:ClassConstraintComponent",
+            "Violations":18
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:homepageStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":93
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:instanceTypeStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:InConstraintComponent",
+            "Violations":2214
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:labelStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":27
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:sameAsStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":27
+         }
+      ]
+   }
+  ]);
+
 const paretoData = ref({
   labels: ["Property Shape 1", "Property Shape 2", "Property Shape 3"],
   values: [20, 30, 50],
@@ -154,7 +202,7 @@ const paretoData = ref({
 
 const metrics = ref([
   { id: "violations", label: "Total Violations", value: totalViolations, titleMaxViolated: "", maxViolated: ""},
-  { id: "focus-nodes", label: "Focus Nodes", value: affectedFocusNodes, titleMaxViolated: "Most Focus Node", maxViolated: "dbpedia:PGA_Tour"},
+  { id: "focus-nodes", label: "Focus Nodes", value: affectedFocusNodes, titleMaxViolated: "Most Focus Node", maxViolated: "db:PGA_Tour"},
   { id: "property-paths", label: "Property Paths", value: affectedPropertyPaths, titleMaxViolated: "Most Property Path", maxViolated: " rdf:type"},
   { id: "constraints", label: "Constraints Triggered", value: constraintsTriggered, titleMaxViolated: "Most triggered Constrain", maxViolated: "sh:in"},
 ]);
@@ -167,8 +215,8 @@ onMounted(() => {
   const shapeId = route.params.shapeId;
   const shapes = {
     1: {
-      name: "PersonShape",
-      definition: `@prefix sh: <http://www.w3.org/ns/shacl#> . 
+      name: "shs:StadiumShape",
+      definition: `@prefix sh: <sh:> . 
                     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
                     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
                     @prefix ex: <http://example.org/> .

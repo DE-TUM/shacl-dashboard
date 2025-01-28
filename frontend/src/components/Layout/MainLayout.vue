@@ -37,7 +37,7 @@ onMounted(() => {
   <v-main style="height: calc(100vh - 64px); display: flex; margin-top: 64px; padding: 0;">
     <v-row no-gutters style="width: 100%; height: 100%;">
       <!-- Sidebar with auto width -->
-      <v-col style="padding: 0; margin: 0; max-width: 300px;">
+      <v-col style="padding: 0; margin: 0; max-width: 250px;">
         <SideBar @updateView="handleViewUpdate" />
       </v-col>
 
