@@ -6,14 +6,14 @@
       </h3>
       <ToggleQuestionMark :explanation="explanationText" />
     </div>
-    
+
     <div class="chart-body w-full" ref="chartContainer">
       <svg
         :width="responsiveWidth"
         :height="responsiveHeight"
-        :viewBox="`0 0 ${baseWidth} ${baseHeight + margin.bottom}`" 
+        :viewBox="`0 0 ${responsiveWidth} ${responsiveHeight + margin.bottom}`"
       >
-        <!-- Legend (positioned higher) -->
+        <!-- Legend -->
         <g :transform="`translate(${margin.left}, 10)`">
           <defs>
             <linearGradient id="legend-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -23,46 +23,29 @@
           </defs>
 
           <rect
-            :width="baseWidth - margin.left - margin.right"
+            :width="responsiveWidth - margin.left - margin.right"
             height="10"
             fill="url(#legend-gradient)"
             rx="2"
           />
 
-          <text
-            y="25"
-            text-anchor="start"
-            class="text-xs"
-            :fill="chartTheme.defaults.textColor"
-          >
+          <text y="25" text-anchor="start" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
             0
           </text>
-          <text
-            x="600"
-            y="25"
-            text-anchor="end"
-            class="text-xs"
-            :fill="chartTheme.defaults.textColor"
-          >
+          <text x="1410" y="25" text-anchor="end" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
             {{ maxValue }}
           </text>
-          <text
-            x="300"
-            y="25"
-            text-anchor="middle"
-            class="text-xs font-medium"
-            :fill="chartTheme.defaults.textColor"
-          >
+          <text x="707" y="25" text-anchor="middle" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
             Number of Violations
           </text>
         </g>
 
-        <!-- Main chart group moved up -->
-        <g :transform="`translate(0, ${margin.top - 40})`"> 
+        <!-- Main chart -->
+        <g :transform="`translate(0, ${margin.top - 40})`">
           <!-- Y-axis labels -->
           <g>
             <text
-              v-for="(prop, i) in data.properties"
+              v-for="(prop, i) in processedData.properties"
               :key="`y-${i}`"
               :x="margin.left - 10"
               :y="margin.top + (i + 0.5) * cellHeight"
@@ -75,13 +58,13 @@
             </text>
           </g>
 
-          <!-- X-axis labels positioned higher -->
+          <!-- X-axis labels -->
           <g>
             <text
-              v-for="(constraint, i) in data.constraints"
+              v-for="(constraint, i) in processedData.constraints"
               :key="`x-${i}`"
               :x="margin.left + (i + 0.5) * cellWidth"
-              :y="baseHeight - margin.bottom + 20" 
+              :y="responsiveHeight - margin.bottom + 20"
               text-anchor="middle"
               class="text-sm responsive-text"
               :fill="chartTheme.defaults.textColor"
@@ -90,20 +73,20 @@
             </text>
           </g>
 
-          <!-- Axis titles positioned higher -->
+          <!-- Axis titles -->
           <g>
             <text
-              :x="baseWidth / 2"
-              :y="baseHeight - margin.bottom + 55"
+              :x="responsiveWidth / 2"
+              :y="responsiveHeight - margin.bottom + 55"
               text-anchor="middle"
               class="font-medium text-sm responsive-text"
               :fill="chartTheme.defaults.textColor"
             >
-              Constraint Components 
+              Constraint Components
             </text>
-            
+
             <text
-              :x="-baseHeight / 2 + 10"
+              :x="-responsiveHeight / 2 + 10"
               :y="25"
               text-anchor="middle"
               transform="rotate(-90)"
@@ -114,12 +97,12 @@
             </text>
           </g>
 
-          <!-- Grid and cells -->
+          <!-- Grid and heatmap cells -->
           <g :transform="`translate(${margin.left}, ${margin.top})`">
             <!-- Grid lines -->
             <g>
               <line
-                v-for="(_, i) in data.properties"
+                v-for="(_, i) in processedData.properties"
                 :key="`h-${i}`"
                 :x1="0"
                 :y1="i * cellHeight"
@@ -129,7 +112,7 @@
                 stroke-width="1"
               />
               <line
-                v-for="(_, i) in data.constraints"
+                v-for="(_, i) in processedData.constraints"
                 :key="`v-${i}`"
                 :x1="i * cellWidth"
                 :y1="0"
@@ -142,7 +125,7 @@
 
             <!-- Heatmap cells -->
             <g>
-              <template v-for="(row, i) in data.violations" :key="`row-${i}`">
+              <template v-for="(row, i) in processedData.violations" :key="`row-${i}`">
                 <template v-for="(value, j) in row" :key="`cell-${i}-${j}`">
                   <g 
                     @mouseenter="showTooltip(i, j, $event)" 
@@ -178,113 +161,152 @@
         </g>
       </svg>
     </div>
-
-    <div
-      v-show="tooltipVisible"
-      class="custom-tooltip"
-      :style="tooltipStyle"
-    >
-      {{ tooltipContent }}
-    </div>
   </div>
 </template>
 
+
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { chartTheme } from './../../assets/chartTheme';
+import { computed, ref , onMounted, onUnmounted} from "vue";
+import { chartTheme } from "./../../assets/chartTheme";
 import ToggleQuestionMark from "../Reusable/ToggleQuestionMark.vue";
+import * as d3 from "d3-scale";
 
 const props = defineProps({
-  title: {
-    type: String,
-    default: 'Violation Heatmap',
-  },
-  data: {
-    type: Object,
-    default: () => ({
-      properties: ['Property Shape 1', 'Property Shape 2', 'Property Shape 3'],
-      constraints: ['sh:minCount', 'sh:maxCount', 'sh:datatype'],
-      violations: [
-        [3, 0, 0],
-        [0, 2, 0],
-        [0, 0, 1],
-      ],
-    }),
-  },
+  title: { type: String, default: "Violation Heatmap" },
+  data: { type: Array, required: true },
 });
 
+// Ensure margin is defined before being used
 const margin = {
-  top: 40,    // Reduced from 50
+  top: 40,
   right: 40,
-  bottom: 40, // Increased to create more space below
-  left: 200,
+  bottom: 30,
+  left: 350,
 };
+
+const chartContainer = ref(null);
+const responsiveWidth = ref(1800);
+const responsiveHeight = ref(350);
+
+// Observing container size to make it responsive
+const resizeObserver = new ResizeObserver((entries) => {
+  for (let entry of entries) {
+    responsiveWidth.value = entry.contentRect.width;
+    responsiveHeight.value = entry.contentRect.height;
+  }
+});
+
+// Attach observer on mount
+onMounted(() => {
+  if (chartContainer.value) {
+    resizeObserver.observe(chartContainer.value);
+  }
+});
+
+// Clean up observer on unmount
+onUnmounted(() => {
+  if (chartContainer.value) {
+    resizeObserver.unobserve(chartContainer.value);
+  }
+});
+
 
 const baseWidth = 1800;
-const baseHeight = 350; // Slightly increased height
+const baseHeight = 350;
 
-// Responsive setup
-const chartContainer = ref(null);
-const responsiveWidth = ref(baseWidth);
-const responsiveHeight = ref(baseHeight);
+// Computed responsive width and height
+const innerWidth = computed(() => responsiveWidth.value - margin.left - margin.right);
+const innerHeight = computed(() => responsiveHeight.value - margin.top - margin.bottom);
+// Compute cell sizes based on chart dimensions
+const cellWidth = computed(() => {
+  return processedData.value.constraints.length > 0
+    ? innerWidth.value / processedData.value.constraints.length
+    : 0;
+});
 
-// Computed dimensions
-const innerWidth = computed(() => baseWidth - margin.left - margin.right);
-const innerHeight = computed(() => baseHeight - margin.top - margin.bottom);
-const cellWidth = computed(() => innerWidth.value / props.data.constraints.length);
-const cellHeight = computed(() => innerHeight.value / props.data.properties.length);
-const maxValue = computed(() => Math.max(...props.data.violations.flat()));
+const cellHeight = computed(() => {
+  return processedData.value.properties.length > 0
+    ? innerHeight.value / processedData.value.properties.length
+    : 0;
+});
 
-// Color scaling
-const getCellColor = (value) => {
-  if (value === 0) return chartTheme.colors.neutral;
-  const intensity = (value / maxValue.value) * 100;
-  return `hsl(211, 95%, ${80 - intensity * 0.4}%)`;
-};
-
-// Tooltip logic
 const tooltipVisible = ref(false);
-const tooltipContent = ref('');
+const tooltipContent = ref("");
 const tooltipStyle = ref({});
 
 const showTooltip = (i, j, event) => {
-  tooltipContent.value = `${props.data.properties[i]}: ${props.data.violations[i][j]} violations for ${props.data.constraints[j]}`;
+  tooltipContent.value = `${processedData.value.properties[i]}: ${processedData.value.violations[i][j]} violations for ${processedData.value.constraints[j]}`;
   tooltipVisible.value = true;
 
-  // Use the event position instead of manually computing the heatmap's box position
-  const mouseX = event.clientX; // Mouse X position in viewport
-  const mouseY = event.clientY; // Mouse Y position in viewport
+  const mouseX = event.clientX; 
+  const mouseY = event.clientY; 
 
   tooltipStyle.value = {
-    left: `${mouseX + 10}px`, // Position tooltip slightly to the right of the cursor
-    top: `${mouseY}px`,  // Align with cursor's Y position
-    transform: 'translate(0, -50%)', // Adjust tooltip so it aligns correctly with row
+    left: `${mouseX + 10}px`,
+    top: `${mouseY}px`,
+    transform: "translate(0, -50%)",
   };
 };
+
 const hideTooltip = () => {
   tooltipVisible.value = false;
 };
 
-// Resize handling using ResizeObserver
-const resizeObserver = ref(null);
-const handleResize = () => {
-  const containerWidth = chartContainer.value.clientWidth;
-  const containerHeight = baseHeight; // Fixed height for the chart component
-  
-  responsiveWidth.value = containerWidth;
-  responsiveHeight.value = containerHeight;
+// Process the data dynamically
+const processedData = computed(() => {
+  if (!props.data) {
+    return { properties: [], constraints: [], violations: [] };
+  }
+
+  // Ensure props.data is always an array
+  const inputData = Array.isArray(props.data) ? props.data : [props.data];
+
+  const propertiesSet = new Set();
+  const constraintsSet = new Set();
+
+  inputData.forEach((entry) => {
+    if (!entry.PropertyShape || !entry.Constraints) return;
+    
+    propertiesSet.add(entry.PropertyShape);
+    entry.Constraints.forEach((constraint) => {
+      if (constraint.Constraint) constraintsSet.add(constraint.Constraint);
+    });
+  });
+
+  const properties = Array.from(propertiesSet);
+  const constraints = Array.from(constraintsSet);
+
+  const violationsMatrix = Array.from({ length: properties.length }, () =>
+    Array(constraints.length).fill(0)
+  );
+
+  inputData.forEach((entry) => {
+    const propIndex = properties.indexOf(entry.PropertyShape);
+    entry.Constraints.forEach((constraint) => {
+      if (constraint.Constraint) {
+        const constraintIndex = constraints.indexOf(constraint.Constraint);
+        violationsMatrix[propIndex][constraintIndex] = constraint.Violations;
+      }
+    });
+  });
+
+  return { properties, constraints, violations: violationsMatrix };
+});
+
+const maxValue = computed(() => {
+  if (processedData.value.violations.length === 0) return 1; // Avoid division by zero
+  return Math.max(...processedData.value.violations.flat());
+});
+
+const quantileScale = d3.scaleQuantile()
+  .domain([18, 27, 93, 2214]) // Your actual values
+  .range(["hsl(211, 95%, 85%)", "hsl(211, 95%, 70%)", "hsl(211, 95%, 55%)", "hsl(211, 95%, 40%)"]);
+
+const getCellColor = (value) => {
+  if (value === 0) return chartTheme.colors.neutral;
+  return quantileScale(value);
 };
 
-onMounted(() => {
-  resizeObserver.value = new ResizeObserver(handleResize);
-  resizeObserver.value.observe(chartContainer.value);
-});
-
-onUnmounted(() => {
-  if (resizeObserver.value) {
-    resizeObserver.value.disconnect();
-  }
-});
 </script>
 
 <style scoped>

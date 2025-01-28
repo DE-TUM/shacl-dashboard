@@ -75,7 +75,7 @@
           :title="'Violation Heatmap'"
           :xAxisLabel="'Constraint Components'"
           :yAxisLabel="'Property Shapes'"
-          :data="heatmapData"
+          :data="heatmapData2"
           :explanationText="'This scatter plot shows how violations correlate with the number of constraints 1.'"
           class="col-span-2"
         />
@@ -147,203 +147,53 @@ const heatmapData = ref({
   ],
 });
 
-const heatmapData2 = ref(
+const heatmapData2 = ref([
    {
-      "PropertyShape":"http://shaclshapes.org/costStadiumShapeProperty",
+      "PropertyShape":"shs:costStadiumShapeProperty",
       "Constraints":[
          {
-            "Constraint":"http://www.w3.org/ns/shacl#ClassConstraintComponent",
+            "Constraint":"sh:ClassConstraintComponent",
             "Violations":18
          }
       ]
    },
    {
-      "PropertyShape":"http://shaclshapes.org/homepageStadiumShapeProperty",
+      "PropertyShape":"shs:homepageStadiumShapeProperty",
       "Constraints":[
          {
-            "Constraint":"http://www.w3.org/ns/shacl#MinCountConstraintComponent",
+            "Constraint":"sh:MinCountConstraintComponent",
             "Violations":93
          }
       ]
    },
    {
-      "PropertyShape":"http://shaclshapes.org/instanceTypeStadiumShapeProperty",
+      "PropertyShape":"shs:instanceTypeStadiumShapeProperty",
       "Constraints":[
          {
-            "Constraint":"http://www.w3.org/ns/shacl#InConstraintComponent",
+            "Constraint":"sh:InConstraintComponent",
             "Violations":2214
          }
       ]
    },
    {
-      "PropertyShape":"http://shaclshapes.org/labelStadiumShapeProperty",
+      "PropertyShape":"shs:labelStadiumShapeProperty",
       "Constraints":[
          {
-            "Constraint":"http://www.w3.org/ns/shacl#MinCountConstraintComponent",
+            "Constraint":"sh:MinCountConstraintComponent",
             "Violations":27
          }
       ]
    },
    {
-      "PropertyShape":"http://shaclshapes.org/sameAsStadiumShapeProperty",
+      "PropertyShape":"shs:sameAsStadiumShapeProperty",
       "Constraints":[
          {
-            "Constraint":"http://www.w3.org/ns/shacl#MinCountConstraintComponent",
+            "Constraint":"sh:MinCountConstraintComponent",
             "Violations":27
          }
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/addressStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/architectStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/areaTotalStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/buildingStartDateStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/closingDateStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/countryStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/demolitionDateStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/differentFromStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/formerNameStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/genreStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/locationStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/nameStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/nickStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/nrhpReferenceNumberStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/numberOfSuitesStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/openingDateStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/operatorStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/originalNameStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/ownerStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/rebuildingDateStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/seatingCapacityStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/seeAlsoStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/tenantStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/typeStadiumShapeProperty",
-      "Constraints":[
-         
-      ]
-   },
-   {
-      "PropertyShape":"http://shaclshapes.org/yearOfConstructionStadiumShapeProperty",
-      "Constraints":[
-         
       ]
    }
-  );
+  ]);
 
 const paretoData = ref({
   labels: ["Property Shape 1", "Property Shape 2", "Property Shape 3"],
@@ -366,7 +216,7 @@ onMounted(() => {
   const shapes = {
     1: {
       name: "shs:StadiumShape",
-      definition: `@prefix sh: <http://www.w3.org/ns/shacl#> . 
+      definition: `@prefix sh: <sh:> . 
                     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
                     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
                     @prefix ex: <http://example.org/> .

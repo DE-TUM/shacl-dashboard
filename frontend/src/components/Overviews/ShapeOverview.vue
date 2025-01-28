@@ -283,12 +283,12 @@ const columns = ref([
 ]);
 
 const shapes = ref([
+  {'id': 26, 'name': 'shs:StadiumShape', 'violations': 2379, 'propertyPaths': 30, 'focusNodes': 118, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 30, 'violationToConstraintRatio': 793.0}, 
   {'id': 1, 'name': 'shs:AmphibianShape', 'violations': 729, 'propertyPaths': 14, 'focusNodes': 50, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 14, 'violationToConstraintRatio': 364.5},
   {'id': 2, 'name': 'shs:ComicStripShape', 'violations': 718, 'propertyPaths': 6, 'focusNodes': 42, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 6, 'violationToConstraintRatio': 718.0}, 
   {'id': 3, 'name': 'shs:CongressmanShape', 'violations': 1896, 'propertyPaths': 48, 'focusNodes': 51, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 48, 'violationToConstraintRatio': 948.0},
   {'id': 4, 'name': 'shs:ConiferShape', 'violations': 830, 'propertyPaths': 15, 'focusNodes': 50, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 15, 'violationToConstraintRatio': 415.0}, 
   {'id': 5, 'name': 'shs:CricketTeamShape', 'violations': 1203, 'propertyPaths': 16, 'focusNodes': 53, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 16, 'violationToConstraintRatio': 601.5},
-  {'id': 26, 'name': 'shs:StadiumShape', 'violations': 2379, 'propertyPaths': 30, 'focusNodes': 118, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 30, 'violationToConstraintRatio': 793.0}, 
   {'id': 7, 'name': 'shs:FernShape', 'violations': 576, 'propertyPaths': 15, 'focusNodes': 50, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 15, 'violationToConstraintRatio': 288.0}, 
   {'id': 8, 'name': 'shs:FootballMatchShape', 'violations': 1283, 'propertyPaths': 16, 'focusNodes': 86, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 16, 'violationToConstraintRatio': 427.67}, 
   {'id': 9, 'name': 'shs:GolfLeagueShape', 'violations': 384, 'propertyPaths': 12, 'focusNodes': 17, 'mostViolatedConstraint': 'sh:InConstraintComponent', 'propertyShapes': 12, 'violationToConstraintRatio': 192.0},
