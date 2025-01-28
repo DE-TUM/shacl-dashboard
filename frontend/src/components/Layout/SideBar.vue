@@ -83,7 +83,8 @@ const logoutConfirmed = () => {
   display: flex;
   flex-direction: column;
   padding: 20px 0;
-  overflow-y: auto; /* Add this to ensure scrolling works if needed */
+  overflow-y: auto; 
+  z-index: 50;/* Add this to ensure scrolling works if needed */
 }
 
 .confirmation-modal {

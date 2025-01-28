@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-card w-full">
+  <div class="chart-card w-full overflow-hidden">
     <div class="chart-header flex justify-between items-center">
       <h3 class="inline-flex items-center gap-2">
         {{ title }}

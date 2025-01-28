@@ -6,7 +6,7 @@
   <div
     v-for="(tag, index) in tags"
     :key="index"
-    class="card flex flex-row items-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
+    class="card flex flex-col sm:flex-row items-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
   >
     <div class="flex-grow">
       <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.title }}</h3>
@@ -65,7 +65,7 @@
       />
     </div> -->
 <!-- Histograms Section -->
-<div class="grid grid-cols-4 gap-4 mb-4">
+<div class="grid grid-cols-4 gap-4 mb-4 w-full max-w-full overflow-hidden transition">
       <!-- Histogram for Violations per Shape -->
       <HistogramChart
         :title="`Distribution of <span style='color: rgba(154, 188, 228);; font-weight: bold;'>Violations per Node Shape</span>`"
@@ -99,7 +99,7 @@
     </div>
 
     <!-- Table Section -->
-    <ViolationTable class="card bg-white shadow-lg rounded-lg p-6" style="grid-column: span 3;" />
+    <ViolationTable class="card bg-white shadow-lg rounded-lg p-6 w-full max-w-full overflow-hidden" style="grid-column: span 3;" />
   </div>
 </template>
 
