@@ -32,10 +32,10 @@
           <text y="25" text-anchor="start" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
             0
           </text>
-          <text x="1410" y="25" text-anchor="end" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
+          <text :x="innerWidth" y="25" text-anchor="end" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
             {{ maxValue }}
           </text>
-          <text x="707" y="25" text-anchor="middle" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
+          <text :x="innerWidth / 2" y="25" text-anchor="middle" class="text-s font-medium" :fill="chartTheme.defaults.textColor">
             Number of Violations
           </text>
         </g>

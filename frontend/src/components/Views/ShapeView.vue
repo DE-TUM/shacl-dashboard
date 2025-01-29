@@ -75,7 +75,7 @@
           :title="'Violation Heatmap'"
           :xAxisLabel="'Constraint Components'"
           :yAxisLabel="'Property Shapes'"
-          :data="heatmapData2"
+          :data="heatmapData26"
           :explanationText="'This scatter plot shows how violations correlate with the number of constraints 1.'"
           class="col-span-2"
         />
@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ScatterPlotChart from "./../Charts/ScatterPlotChart.vue";
 import HeatmapChart from "./../Charts/HeatmapChart.vue";
@@ -132,7 +132,7 @@ const scatterPlotData = ref({
   ],
 });
 
-const heatmapData = ref({
+const heatmapDatas = ref({
   properties: ["Property Shape 1", "Property Shape 2", "Property Shape 3", "Property Shape 4", "Property Shape 1", "Property Shape 2", "Property Shape 3", "Property Shape 4"],
   constraints: ["sh:minCount", "sh:maxCount", "sh:datatype", "sh:minCount", "sh:maxCount", "sh:datatype"],
   violations: [
@@ -147,7 +147,7 @@ const heatmapData = ref({
   ],
 });
 
-const heatmapData2 = ref([
+const heatmapData26 = ref([
    {
       "PropertyShape":"shs:costStadiumShapeProperty",
       "Constraints":[
@@ -195,6 +195,73 @@ const heatmapData2 = ref([
    }
   ]);
 
+
+  const heatmapData3 = ref([
+   {
+      "PropertyShape":"shs:costShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:ClassConstraintComponent",
+            "Violations":3
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:instanceTypeShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:InConstraintComponent",
+            "Violations":1394
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:lengthShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:DatatypeConstraintComponent",
+            "Violations":14
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:sameAsShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":11
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:timeZoneShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":75
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:topSpeedShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:DatatypeConstraintComponent",
+            "Violations":9
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:heightShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:DatatypeConstraintComponent",
+            "Violations":1
+         }
+      ]
+   }
+])
+
 const paretoData = ref({
   labels: ["Property Shape 1", "Property Shape 2", "Property Shape 3"],
   values: [20, 30, 50],
@@ -213,9 +280,11 @@ const toggleDefinition = () => {
 
 onMounted(() => {
   const shapeId = route.params.shapeId;
+
+  console.log("Retrieved shapeId:", shapeId); // Debugging Log
   const shapes = {
-    1: {
-      name: "shs:StadiumShape",
+    26: {
+      name: 'shs:StadiumShape',
       definition: `@prefix sh: <sh:> . 
                     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
                     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
