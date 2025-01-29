@@ -355,10 +355,14 @@ def get_property_shapes(node_shape: str, limit: int = None, offset: int = None, 
     return property_shapes_info
 
 
-def get_number_of_violations_per_constraint_type_for_property_shape(node_shape: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> list:
+def get_number_of_violations_per_constraint_type_for_property_shape(
+    node_shape: str,
+    shapes_graph_uri: str = SHAPES_GRAPH_URI,
+    validation_report_uri: str = VALIDATION_REPORT_URI,
+) -> list:
     """
     Retrieve the number of violations per constraint type (sh:sourceConstraintComponent) for each
-    Property Shape associated with the given Node Shape.
+    Property Shape associated with the given Node Shape. Property Shapes with no violations are excluded.
 
     Args:
         node_shape (str): The URI of the Node Shape to query.
@@ -422,14 +426,14 @@ def get_number_of_violations_per_constraint_type_for_property_shape(node_shape: 
             for result in violations_results["results"]["bindings"]
         ]
 
-        # Append information for the current Property Shape
-        property_shapes_info.append({
-            "PropertyShape": property_shape,
-            "Constraints": constraints_info
-        })
+        # Only include Property Shapes with non-empty Constraints
+        if constraints_info:
+            property_shapes_info.append({
+                "PropertyShape": property_shape,
+                "Constraints": constraints_info
+            })
 
     return property_shapes_info
-
 
 def get_total_constraints_count_per_node_shape(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> list:
     """
@@ -880,3 +884,153 @@ def get_correlation_of_constraints_and_violations(
         result_data.append(entry)
 
     return result_data
+
+
+
+
+def get_node_shape_details_table(limit: int = None, offset: int = None, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> list:
+    """
+    Generate data for the Node Shape Details table.
+
+    Args:
+        shapes_graph_uri (str): The URI of the Shapes Graph.
+        validation_report_uri (str): The URI of the Validation Report.
+        limit (int): The maximum number of results to return. Default is None (no limit).
+        offset (int): The number of results to skip before starting to return results. Default is None (no offset).
+
+    Returns:
+        list: A list of dictionaries containing Node Shape details.
+    """
+
+    # SPARQL query to fetch Node Shape details
+    query = f"""
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+    SELECT ?nodeShape (COUNT(DISTINCT ?propertyShape) AS ?propertyShapeCount)
+           (COUNT(DISTINCT ?path) AS ?propertyPathCount)
+           (COUNT(DISTINCT ?focusNode) AS ?focusNodeCount)
+           (COUNT(?violation) AS ?violationCount)
+           (GROUP_CONCAT(?constraintComponent; SEPARATOR=",") AS ?constraintComponents)
+    WHERE {{
+      GRAPH <{shapes_graph_uri}> {{
+        ?nodeShape a sh:NodeShape ;
+                   sh:property ?propertyShape .
+        ?propertyShape sh:path ?path .
+      }}
+
+      OPTIONAL {{
+        GRAPH <{validation_report_uri}> {{
+          ?violation sh:sourceShape ?propertyShape ;
+                     sh:sourceConstraintComponent ?constraintComponent ;
+                     sh:focusNode ?focusNode .
+        }}
+      }}
+    }}
+    GROUP BY ?nodeShape
+    ORDER BY ?nodeShape
+    """
+
+    # Apply limit and offset if provided
+    if limit is not None:
+        query += f"LIMIT {limit}\n"
+    if offset is not None:
+        query += f"OFFSET {offset}\n"
+
+    # Execute the query
+    response = requests.get(
+        ENDPOINT_URL,
+        params={"query": query, "format": "json"},
+    )
+    response.raise_for_status()
+    results = response.json()["results"]["bindings"]
+
+    # Process results
+    node_shapes_details = []
+    for idx, row in enumerate(results, start=1):
+        node_shape = row["nodeShape"]["value"]
+        property_shape_count = int(row["propertyShapeCount"]["value"])
+        property_path_count = int(row["propertyPathCount"]["value"])
+        focus_node_count = int(row["focusNodeCount"]["value"])
+        violation_count = int(row["violationCount"]["value"])
+
+        # Parse constraint components and calculate most violated constraint
+        constraint_components = row["constraintComponents"]["value"].split(",") if "constraintComponents" in row else []
+        constraint_counts = {comp: constraint_components.count(comp) for comp in set(constraint_components)}
+        most_violated_constraint = max(constraint_counts, key=constraint_counts.get, default="None")
+
+        # Calculate violation-to-constraint ratio
+        total_constraints = len(set(constraint_components))
+        violation_to_constraint_ratio = round(violation_count / total_constraints, 2) if total_constraints > 0 else 0.0
+
+        # Append processed data to the result list
+        node_shapes_details.append({
+            "id": offset + idx if offset else idx,
+            "name": node_shape,
+            "violations": violation_count,
+            "propertyPaths": property_path_count,
+            "focusNodes": focus_node_count,
+            "mostViolatedConstraint": most_violated_constraint,
+            "propertyShapes": property_shape_count,
+            "violationToConstraintRatio": violation_to_constraint_ratio,
+        })
+
+    return node_shapes_details
+
+
+def get_node_shape_with_most_unique_constraints(validation_report_uri: str = VALIDATION_REPORT_URI,
+                                                shapes_graph_uri: str = SHAPES_GRAPH_URI) -> dict:
+    """
+    Find the Node Shape that has the most unique constraint components (sh:sourceConstraintComponent) in the validation report.
+
+    Args:
+        validation_report_uri (str): The URI of the Validation Report.
+        shapes_graph_uri (str): The URI of the Shapes Graph.
+
+    Returns:
+        dict: A dictionary containing the Node Shape with the most unique constraint components and its count.
+              Example: {"nodeShape": "http://example.org/NodeShape1", "uniqueConstraintsCount": 15}
+    """
+
+    query = f"""
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+    SELECT ?nodeShape (COUNT(DISTINCT ?constraintComponent) AS ?numConstraints)
+    WHERE {{
+      GRAPH <{shapes_graph_uri}> {{
+        ?nodeShape a sh:NodeShape ;
+                   sh:property ?propertyShape .
+      }}
+      GRAPH <{validation_report_uri}> {{
+        ?violation sh:sourceShape ?propertyShape ;
+                   sh:sourceConstraintComponent ?constraintComponent .
+      }}
+    }}
+    GROUP BY ?nodeShape
+    ORDER BY DESC(?numConstraints)
+    LIMIT 1
+    """
+
+    # Execute the query
+    response = requests.get(
+        ENDPOINT_URL,
+        params={"query": query, "format": "json"},
+    )
+    response.raise_for_status()
+    results = response.json()["results"]["bindings"]
+
+    # Process results
+    if results:
+        most_constrained_node_shape = results[0]["nodeShape"]["value"]
+        constraint_count = int(results[0]["numConstraints"]["value"])
+        return {"nodeShape": most_constrained_node_shape, "uniqueConstraintsCount": constraint_count}
+    else:
+        return {"nodeShape": None, "uniqueConstraintsCount": 0}
+
+
+
+
+
+#result = get_number_of_violations_per_constraint_type_for_property_shape("http://shaclshapes.org/StadiumShape")
+
+result = get_number_of_violations_per_constraint_type_for_property_shape("http://shaclshapes.org/ShipShape")
+print(result)

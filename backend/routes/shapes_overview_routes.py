@@ -5,7 +5,6 @@ from functions import (
     get_all_property_path_names,
     get_all_constraint_components_names,
     get_violations_for_shape_name,
-    # get_number_of_shapes_in_shapes_graph,
     get_number_of_node_shapes,
     get_number_of_node_shapes_with_violations,
     map_property_shapes_to_node_shapes,
@@ -21,7 +20,8 @@ from functions import (
     get_total_constraints_count_per_node_shape,
     get_constraints_count_for_property_shapes,
     get_distribution_of_violations_per_constraint,
-    get_correlation_of_constraints_and_violations
+    get_correlation_of_constraints_and_violations,
+    get_node_shape_details_table,
 )
 
 shapes_overview_bp = Blueprint('shapes_overview', __name__)
@@ -309,3 +309,16 @@ def get_correlation_constraints_violations():
         return jsonify(correlation_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# Route to get Node Shape details table
+@shapes_overview_bp.route('/overview/shapes/details', methods=['GET'])
+def get_node_shape_details():
+    try:
+        # Retrieve optional limit and offset parameters from the request
+        limit = request.args.get("limit", type=int)
+        offset = request.args.get("offset", type=int)
+        
+        result = get_node_shape_details_table(limit=limit, offset=offset)
+        return jsonify({'nodeShapes': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400

@@ -12,7 +12,15 @@ from functions import (
     distribution_of_violations_per_shape,
     distribution_of_violations_per_path,
     distribution_of_violations_per_focus_node,
-    generate_validation_details_report
+    generate_validation_details_report,
+    get_most_violated_path,
+    get_most_violated_node_shape,
+    get_most_violated_focus_node,
+    get_most_frequent_constraint_component,
+    get_distinct_constraint_components_count,
+    get_distinct_constraints_count_in_shapes,
+    get_distribution_of_violations_per_constraint_component,
+    
 )
 
 homepage_bp = Blueprint('homepage', __name__)
@@ -192,3 +200,81 @@ def get_validation_details_report():
         # Handle exceptions and return an error response
         return jsonify({'error': str(e)}), 400
 
+# Route to get the number of node shapes in the shapes graph
+@homepage_bp.route('/homepage/nodeshapes/count', methods=['GET'])
+def get_number_of_node_shapes_route():
+    try:
+        result = get_number_of_node_shapes()
+        return jsonify({'nodeShapeCount': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the most violated node shape
+@homepage_bp.route('/homepage/violations/most-violated-node-shape', methods=['GET'])
+def get_most_violated_node_shape_route():
+    try:
+        result = get_most_violated_node_shape()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the most violated path
+@homepage_bp.route('/homepage/violations/most-violated-path', methods=['GET'])
+def get_most_violated_path_route():
+    try:
+        result = get_most_violated_path()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the most violated focus node
+@homepage_bp.route('/homepage/violations/most-violated-focus-node', methods=['GET'])
+def get_most_violated_focus_node_route():
+    try:
+        result = get_most_violated_focus_node()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the most frequent constraint component
+@homepage_bp.route('/homepage/violations/most-frequent-constraint-component', methods=['GET'])
+def get_most_frequent_constraint_component_route():
+    try:
+        result = get_most_frequent_constraint_component()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the count of distinct constraint components in the validation report
+@homepage_bp.route('/homepage/violations/distinct-constraint-components/count', methods=['GET'])
+def get_distinct_constraint_components_count_route():
+    try:
+        result = get_distinct_constraint_components_count()
+        return jsonify({'distinctConstraintComponentCount': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the count of distinct constraints in the shapes graph
+@homepage_bp.route('/homepage/shapes/distinct-constraints/count', methods=['GET'])
+def get_distinct_constraints_count_in_shapes_route():
+    try:
+        result = get_distinct_constraints_count_in_shapes()
+        return jsonify({'distinctConstraintsCount': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# Route to get the distribution of violations per constraint component
+@homepage_bp.route('/homepage/violations/distribution-per-constraint-component', methods=['GET'])
+def get_distribution_of_violations_per_constraint_component_route():
+    try:
+        result = get_distribution_of_violations_per_constraint_component()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
