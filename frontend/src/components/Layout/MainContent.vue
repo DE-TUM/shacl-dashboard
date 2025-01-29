@@ -3,20 +3,28 @@
     <!-- Tags Section -->
     <div class="grid gap-6 mb-6"
      style="grid-template-columns: minmax(150px, 0.2fr) 1fr 1fr 1fr 1fr;">
-  <div
-    v-for="(tag, index) in tags"
-    :key="index"
-    class="card flex flex-col sm:flex-row items-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
-  >
-    <div class="flex-grow">
-      <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.title }}</h3>
-      <p class="text-3xl font-bold text-gray-800">{{ tag.value }}</p>
-    </div>
-    <div>
-      <h3 class="text-sm font-medium text-gray-500 mb-1">{{ tag.titleMaxViolated }}</h3>
-      <p class="text-xl font-medium" :style="{ color: 'rgb(227,114,34)' }">{{ tag.maxViolated }}</p>
-    </div>
+     <div
+  v-for="(tag, index) in tags"
+  :key="index"
+  class="card flex flex-col sm:flex-row items-center justify-center text-center bg-white shadow rounded-lg p-6 hover:shadow-md transition"
+>
+  <div class="flex-grow flex flex-col items-center text-center">
+    <h3 class="text-xs sm:text-sm md:text-base font-medium text-gray-500 mb-1">
+      {{ tag.title }}
+    </h3>
+    <p class="font-bold text-[18px] text-gray-800">
+      {{ tag.value }}
+    </p>
+      <!-- Added spacing here -->
+    <div class="h-4 sm:h-5"></div> <!-- Spacer div for consistent spacing -->
+    <h3 class="text-xs sm:text-sm md:text-base font-medium text-gray-500 mb-1">
+      {{ tag.titleMaxViolated }}
+    </h3>
+    <p class="font-bold text-[18px]" :style="{ color: 'rgb(227,114,34)' }">
+      {{ tag.maxViolated }}
+    </p>
   </div>
+</div>
 </div>
 
     <!-- Plots Section -->
