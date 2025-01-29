@@ -76,7 +76,8 @@
 <div class="grid grid-cols-4 gap-4 mb-4 w-full max-w-full overflow-hidden transition">
       <!-- Histogram for Violations per Shape -->
       <HistogramChart
-        :title="`Distribution of <span style='color: rgba(154, 188, 228);; font-weight: bold;'>Violations per Node Shape</span>`"
+        :title="`<span style='color: rgba(154, 188, 228);; font-weight: bold;'>Violations per Node Shape</span>`"
+        titleAlign="center"
         :xAxisLabel="'Number of Violations (Bins)'"
         :yAxisLabel="'Frequency'"
         :data="shapeHistogramData"
@@ -84,7 +85,7 @@
 
       <!-- Histogram for Violations per Path -->
       <HistogramChart
-        :title="`Distribution of <span style='color: rgba(94, 148, 212, 1);; font-weight: bold;'>Violations per Path</span>`"
+        :title="`<span style='color: rgba(94, 148, 212, 1);; font-weight: bold;'>Violations per Path</span>`"
         :xAxisLabel="'Number of Violations (Bins)'"
         :yAxisLabel="'Frequency'"
         :data="pathHistogramData"
@@ -92,14 +93,14 @@
 
       <!-- Histogram for Violations per Focus Node -->
       <HistogramChart
-        :title="`Distribution of <span style='color: rgba(22, 93, 177, 1);; font-weight: bold;'>Violations per Focus Node</span>`"
+        :title="`<span style='color: rgba(22, 93, 177, 1);; font-weight: bold;'>Violations per Focus Node</span>`"
         :xAxisLabel="'Number of Violations (Bins)'"
         :yAxisLabel="'Frequency'"
         :data="focusNodeHistogramData"
       />
 
       <HistogramChart
-        :title="`Distribution of <span style='color: rgba(10, 45, 87);; font-weight: bold;'>Violations per Constraint Component</span>`"
+        :title="`<span style='color: rgba(10, 45, 87);; font-weight: bold;'>Violations per Constraint Component</span>`"
         :xAxisLabel="'Number of Violations (Bins)'"
         :yAxisLabel="'Frequency'"
         :data="constraintComponentHistogramData"
