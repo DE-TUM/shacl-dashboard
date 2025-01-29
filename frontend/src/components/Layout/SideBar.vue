@@ -1,5 +1,9 @@
 <template>
-  <div class="sidebar">
+  <div 
+    class="sidebar" 
+    @mouseenter="isExpanded = true" 
+    @mouseleave="isExpanded = false"
+  >
     <ul class="menu-list">
       <li v-for="item in menuItems" :key="item.name">
         <router-link 
@@ -17,7 +21,7 @@
               class="menu-icon" 
               :class="{ 'active-icon': activeView === item.name }" 
             />
-            <span class="menu-text">{{ item.label }}</span>
+            <span v-if="isExpanded" class="menu-text">{{ item.label }}</span>
           </div>
         </router-link>
       </li>
@@ -25,26 +29,26 @@
       <!-- Logout button -->
       <li @click="handleLogout" class="logout-item">
         <FontAwesomeIcon :icon="faPowerOff" class="menu-icon" />
-        <span class="menu-text">Log out</span>
+        <span v-if="isExpanded" class="menu-text">Log out</span>
       </li>
     </ul>
 
     <!-- Confirmation Modal -->
     <ConfirmationModal ref="confirmationModal" @confirmed="logoutConfirmed" @cancelled="handleCancel" />
-
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineProps, watch } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faHome, faShapes, faProjectDiagram, faRoute, faPuzzlePiece, faPowerOff, faInfo } from '@fortawesome/free-solid-svg-icons';
 import ConfirmationModal from './../Reusable/ConfirmationModal.vue';
 
-const emit = defineEmits(['updateView']);
-const confirmationModal = ref(null); // Reference to the modal
+const emit = defineEmits(['updateView', 'sidebarWidthChanged']);
+const confirmationModal = ref(null);
 const activeView = ref('Home');
-const showModal = ref(false);
+const isExpanded = ref(false);
+const sidebarWidth = ref(60);
 
 const menuItems = [
   { name: 'Home', label: 'Home', icon: faHome, route: '/home' },
@@ -58,24 +62,27 @@ const menuItems = [
 const buttonClicked = (viewName, navigate) => {
   activeView.value = viewName;
   emit('updateView', viewName);
-  navigate(); // Execute the router-link navigation
+  navigate();
 };
 
 const handleLogout = () => {
-  confirmationModal.value.show(); // Call the show function to display the modal
+  confirmationModal.value.show();
 };
 
 const logoutConfirmed = () => {
   emit('updateView', 'LandingPage');
-  showModal.value = false;
 };
+
+watch(isExpanded, (newValue) => {
+  sidebarWidth.value = newValue ? 250 : 60;
+  emit('sidebarWidthChanged', sidebarWidth.value);
+});
 </script>
 
 <style scoped>
-/* Sidebar Styling */
 .sidebar {
   position: fixed;
-  width: 250px;
+  width: v-bind(sidebarWidth + 'px');
   height: 100vh;
   background-color: #ffffff;
   border-right: 1px solid #ddd;
@@ -83,52 +90,9 @@ const logoutConfirmed = () => {
   display: flex;
   flex-direction: column;
   padding: 20px 0;
-  overflow-y: auto; 
-  z-index: 50;/* Add this to ensure scrolling works if needed */
-}
-
-.confirmation-modal {
-  position: fixed;
-  z-index: 1000; /* Ensure it's above other elements */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.profile-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px; /* Space between photo and menu */
-}
-
-.profile-photo {
-  width: 100px; /* Adjust size as needed */
-  height: 100px;
-  border-radius: 50%; /* This makes the photo circular */
-  object-fit: cover; /* Ensures the photo fits nicely within the circle */
-  border: 2px solid #ddd; /* Optional: Add a border around the circle */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
-}
-
-.profile-text {
-  font-weight: 800;
-  color: black;
-  display: inline-block;
-  text-decoration: none; /* Removes underline on the link */
-}
-
-.profile-link:hover {
-  background-color: #fff !important;
-}
-
-.profile-text:hover {
-  background-color: #afafaf !important;
+  overflow-y: auto;
+  z-index: 50;
+  transition: width 0.3s ease-in-out;
 }
 
 .menu-list {
@@ -138,13 +102,14 @@ const logoutConfirmed = () => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 100%; /* Change height to min-height */
+  min-height: 100%;
 }
+
 .menu-item {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 10px 40px;
+  padding: 10px 20px;
   font-size: 16px;
   color: #828282;
   cursor: pointer;
@@ -166,25 +131,19 @@ const logoutConfirmed = () => {
   transition: color 0.3s;
 }
 
-.menu-icon.active-icon {
-  color: rgb(24, 103, 192);
-}
-
 .menu-text {
   font-size: 16px;
   text-align: left;
 }
 
 .logout-item {
-  /* margin-top: auto; */
   cursor: pointer;
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 10px 40px;
+  padding: 10px 20px;
   font-size: 16px;
   color: #828282;
-  /* border-top: 1px solid #ddd; */
 }
 
 .logout-item:hover {
