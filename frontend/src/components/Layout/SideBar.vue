@@ -27,10 +27,10 @@
       </li>
 
       <!-- Logout button -->
-      <li @click="handleLogout" class="logout-item">
+      <!-- <li @click="handleLogout" class="logout-item">
         <FontAwesomeIcon :icon="faPowerOff" class="menu-icon" />
         <span v-if="isExpanded" class="menu-text">Log out</span>
-      </li>
+      </li> -->
     </ul>
 
     <!-- Confirmation Modal -->
@@ -51,7 +51,7 @@ const isExpanded = ref(false);
 const sidebarWidth = ref(60);
 
 const menuItems = [
-  { name: 'Home', label: 'Home', icon: faHome, route: '/home' },
+  { name: 'Home', label: 'Home', icon: faHome, route: '/' },
   { name: 'Shape View', label: 'Shapes', icon: faShapes, route: '/shapes' },
   { name: 'Focus Node View', label: 'Focus Nodes', icon: faProjectDiagram, route: '/focus-nodes' },
   { name: 'Property Path View', label: 'Property Paths', icon: faRoute, route: '/property-paths' },

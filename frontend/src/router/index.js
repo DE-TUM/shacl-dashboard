@@ -18,8 +18,8 @@ import PropertyPathView from "@/components/Views/PropertyPathView.vue";
 import AboutUs from "@/components/Overviews/AboutUs.vue";
 
 const routes = [
-  { path: "/", name: "LandingPage", component: LandingPage }, // Landing page route
-  { path: "/home", name: "Home", component: MainContent }, // Main content after landing page
+  //{ path: "/", name: "LandingPage", component: LandingPage }, // Landing page route
+  { path: "/", name: "Home", component: MainContent }, // Main content after landing page
   { path: "/shapes", name: "ShapeOverview", component: ShapeOverview },
   { path: "/shapes/:shapeId", name: "ShapeView", component: ShapeView },
   { path: "/constraints", name: "ConstraintOverview", component: ConstraintOverview },
