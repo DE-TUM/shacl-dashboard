@@ -18,7 +18,7 @@ const buttonClicked = (viewName) => {
         <v-btn text class="button-text-wrap blue-btn">Shapes View</v-btn>
       </router-link>
     </v-list-item>
-    <v-list-item>
+    <!-- <v-list-item>
       <router-link :to="'/focus-nodes'" @click.native="buttonClicked('Focus Node View')">
         <v-btn text class="button-text-wrap blue-btn">Focus Nodes View</v-btn>
       </router-link>
@@ -32,7 +32,7 @@ const buttonClicked = (viewName) => {
       <router-link :to="'/constraints'" @click.native="buttonClicked('Constraint View')">
         <v-btn text class="button-text-wrap blue-btn">Constraints View</v-btn>
       </router-link>
-    </v-list-item>
+    </v-list-item> -->
 
     <v-list-item>
       <router-link :to="'/'" @click.native="buttonClicked('LandingPage')">
