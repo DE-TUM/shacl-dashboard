@@ -1,12 +1,47 @@
 import subprocess
 from SPARQLWrapper import SPARQLWrapper, JSON
+import os 
 
 # Global variables
 ENDPOINT_URL = "http://localhost:8890/sparql"
 SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
 VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
+DATA_DIR_IN_DOCKER = "/data"  # Directory in Docker container
+DOCKER_CONTAINER_NAME = "virtuoso"  # Name of the Docker container
 
 # ############ TODO to fix to use global variables #################
+
+def clear_graphs_only():
+    """
+    Clear specific graphs from Virtuoso using ISQL via Docker.
+
+    Raises:
+        CalledProcessError: If clearing a graph fails.
+        FileNotFoundError: If ISQL or Docker is not found.
+    """
+
+    DOCKER_CONTAINER_NAME = "virtuoso"  # Replace with actual name
+    isql_port = "1111"
+    username = "dba"
+    password = "dba"
+
+    test_command = "SELECT 1;\n"
+
+    print("Running ISQL test command...")
+
+    try:
+        result = subprocess.run(
+            ["docker", "exec", "-i", DOCKER_CONTAINER_NAME, "isql", isql_port, username, password],
+            input=test_command,
+            text=True,
+            capture_output=True,
+            check=True
+        )
+        print("✅ Output:\n", result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("❌ Error:\n", e.stderr)
+            
+#clear_graphs_only()
 
 def load_graphs(directory: str, shapes_file: str, report_file: str):
     """
@@ -35,38 +70,74 @@ def load_graphs(directory: str, shapes_file: str, report_file: str):
     username = "dba"
     password = "dba"
 
-    
+    # Graph URIs
+    shapes_graph_uri = "http://ex.org/ShapesGraph"
+    report_graph_uri = "http://ex.org/ValidationReport"
+
+    # Clean graphs before loading
+    for graph_uri in [shapes_graph_uri, report_graph_uri]:
+        isql_command_clear = f"SPARQL DROP GRAPH <{graph_uri}>;"
+        try:
+            subprocess.run(
+                ["docker", "exec", "-i", DOCKER_CONTAINER_NAME, "isql", isql_port, username, password],
+                input=isql_command_clear,
+                text=True,
+                check=True
+            )
+            print(f"🧹 Cleared graph <{graph_uri}>")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to clear graph <{graph_uri}>")
+            print(e.stderr)
+
+    # Clean load list
+    for ttl_file in [shapes_file, report_file]:
+        ttl_filename = os.path.basename(ttl_file)
+        isql_command_cleanup = f"""
+        DELETE FROM DB.DBA.load_list WHERE ll_file LIKE '%{ttl_filename}%';
+        """
+        try:
+            subprocess.run(
+                ["docker", "exec", "-i", DOCKER_CONTAINER_NAME, "isql", isql_port, username, password],
+                input=isql_command_cleanup,
+                text=True,
+                check=True
+            )
+            print(f"🧹 Cleaned up load_list for {ttl_filename}")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to clean load_list for {ttl_filename}")
+            print(e.stderr)
+
     # ISQL commands for both files
     isql_command = f"""
-    ld_dir('{directory}', '{shapes_file}', 'http://ex.org/ShapesGraph');
-    ld_dir('{directory}', '{report_file}', 'http://ex.org/ValidationReport');
+    ld_dir('{DATA_DIR_IN_DOCKER}', '{shapes_file}', '{shapes_graph_uri}');
+    ld_dir('{DATA_DIR_IN_DOCKER}', '{report_file}', '{report_graph_uri}');
     rdf_loader_run();
-
     """
 
-    print("Executing ISQL command to load graphs...")
+    print("🚀 Executing ISQL command to load graphs...")
 
     try:
         # Execute ISQL command
         process = subprocess.run(
-            ["isql", isql_port, username, password],
+            ["docker", "exec", "-i", DOCKER_CONTAINER_NAME, "isql", isql_port, username, password],
             input=isql_command,
             text=True,
             capture_output=True,
             check=True
         )
-
-        print("ISQL command executed successfully!")
+        print("✅ ISQL command executed successfully!")
         print(process.stdout)
 
     except subprocess.CalledProcessError as e:
-        print("ISQL command execution failed!")
+        print("❌ ISQL command execution failed!")
         print(e.stderr)
 
     except FileNotFoundError:
-        print("ISQL tool not found. Please check if Virtuoso is installed correctly.")
-
-
+        print("❌ ISQL tool not found. Please check if Virtuoso is installed correctly.")
+        
+        
+#clear_graphs_only()
+load_graphs("shacl", r"schema2_updated.ttl", r"LKG3_Schema2_result.ttl")
 
 def get_all_shapes_names(graph_uri: str = "http://ex.org/ValidationReport") -> list:
     """
