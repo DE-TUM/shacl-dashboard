@@ -9,6 +9,8 @@ __pycache__/
 *.pyd
 *.sqlite3
 *.db
+data/*
+backend/evaluation/*
 
 # Python virtual environments
 venv/

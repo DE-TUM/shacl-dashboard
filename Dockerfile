@@ -1,5 +1,5 @@
 # Start from your base image with Node and Python
-FROM zenontum/my-shacl-env:v1.0.0
+FROM zenontum/my-shacl-app:v1.0.0
 
 # Set the working directory for the container
 WORKDIR /app
