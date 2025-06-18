@@ -92,6 +92,33 @@
 </template>
 
 <script setup>
+/**
+ * PropertyPathOverview component
+ *
+ * Provides a comprehensive overview of property paths in the dataset.
+ * Displays statistics, visualizations, and listings of property paths with usage and validation results.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <PropertyPathOverview />
+ *
+ * @prop {Array} [propertyPaths=[]] - List of property paths to display
+ * @prop {Boolean} [showViolations=true] - Whether to show violation data
+ * @prop {Boolean} [showCharts=true] - Whether to show visualization charts
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ../Charts/StackedBarChart.vue
+ *
+ * @style
+ * - Responsive layout with cards and data tables.
+ * - Data visualization components for property path statistics.
+ * - Filterable and sortable property path listings.
+ * 
+ * @returns {HTMLElement} A dashboard page showing property path statistics in summary cards at 
+ * the top, three data visualizations (histogram, bar chart, and box plot) in the middle, and a
+ * paginated data table listing all property paths with their types and descriptions at the bottom.
+ */
 // Importing components
 import HistogramChart from './../Charts/HistogramChart.vue';
 import BarChart from './../Charts/BarChart.vue';

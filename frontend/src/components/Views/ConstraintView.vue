@@ -86,6 +86,37 @@
 </template>
 
 <script setup>
+/**
+ * ConstraintView component
+ *
+ * Detailed view for a specific SHACL constraint.
+ * Displays constraint information, metrics, visualizations, and associated violations.
+ *
+ * @example
+ * // Basic usage in router view:
+ * // <router-view /> with route to ConstraintView with constraint ID parameter
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router - For navigation and route parameter access
+ * - ../ConstraintView/Metrics.vue
+ * - ../Charts/BarChart.vue
+ *
+ * @features
+ * - Constraint type and metadata display
+ * - Key metrics dashboard
+ * - Multiple visualization charts for violation analysis
+ * - Example violations table with detailed information
+ *
+ * @style
+ * - Clean layout with distinct sections
+ * - Color-coded information for visual differentiation
+ * - Responsive grid system for metrics and charts
+ * 
+ * @returns {HTMLElement} A detailed dashboard page for a constraint, containing a header with
+ * back navigation and constraint metadata, metrics cards showing statistics, three bar charts
+ * for analyzing violation patterns, and a violations table listing example violations.
+ */
 import { ref } from "vue";
 import Metrics from "./../ConstraintView/Metrics.vue";
 import BarChart from './../Charts/BarChart.vue';

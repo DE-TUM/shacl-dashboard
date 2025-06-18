@@ -5,6 +5,34 @@
 </template>
   
 <script setup>
+/**
+ * ViolationExamplesChart component
+ *
+ * Renders a chart visualizing SHACL validation violation examples using Chart.js.
+ * Displays data about validation violations in a graphical format, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ViolationExamplesChart
+ * //   :data="violationData"
+ * //   title="Validation Violations"
+ * //   xAxisLabel="Violation Types"
+ * //   yAxisLabel="Count"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the violation examples chart (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
   import { onMounted, ref } from 'vue';
   import { Chart } from 'chart.js';
   
@@ -69,4 +97,3 @@
     height: 200px;
   }
   </style>
-  

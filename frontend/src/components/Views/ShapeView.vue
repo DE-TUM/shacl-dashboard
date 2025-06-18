@@ -97,6 +97,41 @@
 </template>
 
 <script setup>
+/**
+ * ShapeView component
+ *
+ * Detailed view for a specific SHACL node shape.
+ * Displays shape information, metrics, visualizations, and associated validation results.
+ *
+ * @example
+ * // Basic usage in router view:
+ * // <router-view /> with route to ShapeView with shape ID parameter
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router - For navigation and route parameter access
+ * - ../Charts/ScatterPlotChart.vue
+ * - ../Charts/HeatmapChart.vue
+ * - ../Charts/ParetoChart.vue
+ * - ../Reusable/ShapesTable.vue
+ * - ../Charts/GaugeChart.vue
+ * - @fortawesome/vue-fontawesome
+ *
+ * @features
+ * - Shape definition display with toggle
+ * - Key metrics dashboard
+ * - Multiple visualization charts for constraint violations
+ * - Property shape details with associated violations
+ *
+ * @style
+ * - Clean, organized section layout with consistent spacing
+ * - Responsive grid system for metrics and visualizations
+ * - Interactive elements with hover effects
+ * 
+ * @returns {HTMLElement} A detailed dashboard page containing a header with back navigation
+ * and shape definition, metrics cards showing violation statistics, visualization charts 
+ * (heatmap and pareto), and a property shapes table with detailed violation information.
+ */
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ScatterPlotChart from "./../Charts/ScatterPlotChart.vue";

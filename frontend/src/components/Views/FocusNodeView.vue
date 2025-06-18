@@ -69,6 +69,38 @@
 </template>
 
 <script setup>
+/**
+ * FocusNodeView component
+ *
+ * Detailed view for a specific focus node with SHACL validation results.
+ * Displays node information, RDF snippet, metrics, visualizations, and associated violations.
+ *
+ * @example
+ * // Basic usage in router view:
+ * // <router-view /> with route to FocusNodeView with node ID parameter
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router - For navigation
+ * - ../Charts/ConstraintAnalysisChart.vue
+ * - ../Charts/NodeShapeOverlapChart.vue
+ * - ../FocusNodeView/Metrics.vue
+ *
+ * @features
+ * - Focus node URI and RDF snippet display
+ * - Key metrics dashboard with violation counts
+ * - Visualization charts for constraint analysis and node-shape overlap
+ * - Violations table with detailed error information
+ *
+ * @style
+ * - Clean, organized layout with distinct sections
+ * - Consistent spacing and typography
+ * - Responsive grid system for metrics and visualizations
+ * 
+ * @returns {HTMLElement} A detailed dashboard page for a focus node, featuring a header with
+ * back navigation and node metadata including an RDF snippet, metrics cards showing validation
+ * statistics, visualization charts for constraint analysis, and a violations table.
+ */
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ConstraintAnalysisChart from './../Charts/ConstraintAnalysisChart.vue';

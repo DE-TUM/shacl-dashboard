@@ -114,6 +114,44 @@
   </template>
   
   <script setup>
+/**
+ * ShapesTable component
+ *
+ * Displays a table of SHACL property shapes with statistics and expandable details.
+ * Allows users to view, filter, sort, and export property shape information.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ShapesTable />
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - rdflib - For RDF data handling
+ * - ./ShapeTableRow.vue - For detailed validation entries
+ * - ./ShapesTablePropertyShape.vue - For property shape entries
+ * - ./Filter.vue - For filtering functionality
+ * - @fortawesome/vue-fontawesome - For icons
+ *
+ * @data
+ * - Fetches property shapes data from '../reports/propertyShapes.json'
+ * - Processes and formats the data using prefixes for readability
+ *
+ * @features
+ * - Sortable columns (click on column headers)
+ * - Pagination with navigation controls
+ * - Filtering capabilities
+ * - CSV export functionality
+ * - Prefix management for URI display
+ *
+ * @style
+ * - Clean table design with alternating row colors
+ * - Sort indicators on column headers
+ * - Responsive layout with proper spacing
+ * 
+ * @returns {HTMLElement} A comprehensive table interface for property shapes, featuring a header
+ * with title and action buttons (toggle prefixes, filter, download CSV), a sortable data table
+ * with expandable rows, pagination controls, and an optional prefixes panel showing URI namespaces.
+ */
   import { ref, computed, onMounted } from 'vue';
   import * as rdf from 'rdflib'; // Import rdflib.js
   import ShapeTableRow from './ShapeTableRow.vue'; // Import the ShapeTableRow component
@@ -419,4 +457,3 @@ td.wrap {
 }
 
   </style>
-  

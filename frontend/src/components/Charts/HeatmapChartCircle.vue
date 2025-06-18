@@ -176,6 +176,35 @@
   
   
   <script setup>
+/**
+ * HeatmapChartCircle component
+ *
+ * Renders a circular heatmap chart using Chart.js.
+ * Displays data as colored segments in a circular layout, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <HeatmapChartCircle
+ * //   :data="circleHeatmapData"
+ * //   title="Circular Heatmap Example"
+ * //   xAxisLabel="X Axis"
+ * //   yAxisLabel="Y Axis"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the circular heatmap (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ * - chartjs-chart-matrix or a circular heatmap plugin (if required)
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
   import { computed, ref , onMounted, onUnmounted} from "vue";
   import { chartTheme } from "./../../assets/chartTheme";
   import ToggleQuestionMark from "../Reusable/ToggleQuestionMark.vue";
@@ -387,4 +416,3 @@
     }
   }
   </style>
-  

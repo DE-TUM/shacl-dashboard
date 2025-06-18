@@ -13,6 +13,34 @@
 </template>
 
 <script setup>
+/**
+ * ScatterPlotChart component
+ *
+ * Renders a scatter plot chart using Chart.js.
+ * Displays the relationship between two variables as points on a cartesian plane, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ScatterPlotChart
+ * //   :data="scatterData"
+ * //   title="Scatter Plot Example"
+ * //   xAxisLabel="X Value"
+ * //   yAxisLabel="Y Value"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the scatter plot (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
 import { ref, onMounted, watch } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';

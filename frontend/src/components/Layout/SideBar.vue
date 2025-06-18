@@ -39,6 +39,33 @@
 </template>
 
 <script setup>
+/**
+ * SideBar component
+ *
+ * Side navigation component that provides secondary navigation.
+ * Typically includes links to different sections or views of the application.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <SideBar />
+ *
+ * @prop {Array} [menuItems=[]] - Items to display in the sidebar menu
+ * @prop {Boolean} [collapsed=false] - Whether the sidebar is in collapsed state
+ * @prop {Boolean} [showToggle=true] - Whether to show collapse/expand toggle
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router (for navigation)
+ *
+ * @style
+ * - Vertical navigation panel with fixed or flexible width.
+ * - Contains styling for navigation links and nested menus.
+ * - Often includes collapsible functionality for responsive design.
+ * 
+ * @returns {HTMLElement} A collapsible sidebar navigation menu that expands on hover,
+ * featuring menu items with icons and text labels for different application views,
+ * highlighting the currently active item and providing smooth transitions between states.
+ */
 import { ref, defineProps, watch } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faHome, faShapes, faProjectDiagram, faRoute, faPuzzlePiece, faPowerOff, faInfo } from '@fortawesome/free-solid-svg-icons';

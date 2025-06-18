@@ -7,6 +7,35 @@
 </template>
 
 <script setup>
+/**
+ * Tag component
+ *
+ * Displays a labeled value or percentage in a card-like container.
+ * Can show either a single value or calculate a percentage from two values.
+ *
+ * @example
+ * // Single value usage:
+ * // <Tag :data="[42]" title="Total Violations" />
+ * 
+ * // Percentage calculation:
+ * // <Tag :data="[7, 10]" title="Validation Success Rate" />
+ *
+ * @prop {Array} data - Array with either [value] or [numerator, denominator]
+ * @prop {String} title - The title/label for the tag
+ *
+ * @dependencies
+ * - vue (Composition API)
+ *
+ * @style
+ * - Bordered container with shadow and padding
+ * - Title with descriptive text
+ * - Value or percentage displayed prominently
+ * - Color differentiation for values
+ * 
+ * @returns {HTMLElement} A card-style container with a title and either a single value
+ * or a calculated percentage based on the provided data array, formatted with distinct
+ * styling for the title and value/percentage.
+ */
 import { defineProps, computed } from 'vue';
 
 // Define the props

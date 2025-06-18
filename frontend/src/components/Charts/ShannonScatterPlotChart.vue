@@ -10,6 +10,34 @@
 </template>
 
 <script setup>
+/**
+ * ShannonScatterPlotChart component
+ *
+ * Renders a scatter plot chart using Chart.js specialized for Shannon entropy visualization.
+ * Displays entropy-related data points in a scatter plot format, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ShannonScatterPlotChart
+ * //   :data="shannonData"
+ * //   title="Shannon Entropy Scatter Plot"
+ * //   xAxisLabel="Dataset Size"
+ * //   yAxisLabel="Entropy Value"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the Shannon scatter plot (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
 import { ref, onMounted, watch } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';

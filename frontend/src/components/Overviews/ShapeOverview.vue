@@ -104,6 +104,34 @@
 
 
 <script setup>
+/**
+ * ShapeOverview component
+ *
+ * Provides a comprehensive overview of SHACL shapes in the dataset.
+ * Displays statistics, visualizations, and listings of shapes with their constraints and validation results.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ShapeOverview />
+ *
+ * @prop {Array} [shapes=[]] - List of shapes to display
+ * @prop {Boolean} [showViolations=true] - Whether to show violation data
+ * @prop {Boolean} [showCharts=true] - Whether to show visualization charts
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ../Charts/PieChart.vue
+ * - ../Charts/GroupedBarChart.vue
+ *
+ * @style
+ * - Responsive layout with cards and data tables.
+ * - Data visualization components for shape statistics.
+ * - Filterable and sortable shape listings with expandable details.
+ * 
+ * @returns {HTMLElement} A dashboard page showing shape statistics in summary cards at the top,
+ * three data visualizations (histogram and scatter plots) in the middle, and a sortable, paginated 
+ * data table listing all node shapes with their metrics and violation details at the bottom.
+ */
 // Importing components
 import HistogramChart from './../Charts/HistogramChart.vue';
 import ScatterPlotChart from './../Charts/ScatterPlotChart.vue';

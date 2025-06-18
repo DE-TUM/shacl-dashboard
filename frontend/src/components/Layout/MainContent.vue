@@ -113,6 +113,32 @@
 </template>
 
 <script setup>
+/**
+ * MainContent component
+ *
+ * Main content area of the application that displays the primary content.
+ * Typically renders the currently active route's component.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <MainContent />
+ *
+ * @prop {Boolean} [fullWidth=false] - Whether the content should take full width
+ * @prop {String} [padding='p-6'] - CSS padding class for the content
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router (for route content)
+ *
+ * @style
+ * - Responsive container for the main application content.
+ * - Adjusts to accommodate sidebar and navigation components.
+ * - Contains padding and layout styling for content areas.
+ * 
+ * @returns {HTMLElement} A dashboard layout featuring a statistics section with key metrics
+ * at the top, a visualization section with multiple histograms in the middle, and a 
+ * comprehensive data table showing validation details at the bottom.
+ */
 import { ref } from "vue";
 import HistogramChart from "./../Charts/HistogramChart.vue";
 import PieChart from "./../Charts/PieChart.vue";

@@ -79,6 +79,38 @@
 </template>
 
 <script setup>
+/**
+ * PropertyPathView component
+ *
+ * Detailed view for a specific SHACL property path.
+ * Displays path information, metrics, visualizations, and associated violations.
+ *
+ * @example
+ * // Basic usage in router view:
+ * // <router-view /> with route to PropertyPathView with path ID parameter
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router - For navigation and route parameter access
+ * - ../PropertyPathView/Metrics.vue
+ * - ../Charts/BarChart.vue
+ * - ../Charts/ViolationExamplesChart.vue
+ *
+ * @features
+ * - Property path type and metadata display
+ * - Key metrics dashboard
+ * - Visualization charts for violation distribution and examples
+ * - Comprehensive violations table
+ *
+ * @style
+ * - Clean layout with distinct sections
+ * - Color-coded information for visual differentiation
+ * - Responsive grid system for metrics and charts
+ * 
+ * @returns {HTMLElement} A detailed dashboard page for property paths, containing a header with
+ * back navigation and path metadata, key metrics in a card layout, three visualization charts
+ * showing distribution data, and a comprehensive violations table listing all violations.
+ */
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Metrics from "./../PropertyPathView/Metrics.vue";

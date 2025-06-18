@@ -122,6 +122,49 @@
 </template>
 
 <script setup>
+/**
+ * ViolationTableRow component
+ *
+ * Renders an expandable row for SHACL validation violations.
+ * Shows basic violation info with the ability to expand for detailed information.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ViolationTableRow
+ * //   :rowNumber="1"
+ * //   focusNode="ex:Person1"
+ * //   resultPath="ex:name"
+ * //   value="John Doe"
+ * //   message="Value does not match pattern" 
+ * // />
+ *
+ * @prop {Number} rowNumber - The sequential number for this row
+ * @prop {String} focusNode - The focus node URI of the violation
+ * @prop {String} resultPath - The property path involved in the violation
+ * @prop {String|Number} value - The value that caused the violation
+ * @prop {String} message - The validation error message
+ * @prop {String} propertyShape - The property shape URI
+ * @prop {String} severity - The severity level of the violation
+ * @prop {Object} shapes - Object containing shape details
+ * @prop {String|Array} targetClass - The target class of the shape
+ * @prop {String|Array} targetNode - The target node of the shape
+ * @prop {String|Array} targetSubjectsOf - The target subjects of the shape
+ * @prop {String|Array} targetObjectsOf - The target objects of the shape
+ * @prop {String} nodeShape - The node shape URI
+ * @prop {String} constraintComponent - The constraint component URI
+ *
+ * @dependencies
+ * - vue (Composition API)
+ *
+ * @style
+ * - Interactive row with hover effects and expandable details.
+ * - Compact data display with triangle indicators for expansion state.
+ * - Well-structured nested tables for details view.
+ * 
+ * @returns {HTMLElement} Two table rows: a main row showing summary violation 
+ * information and an expandable details row that appears when clicked, displaying
+ * comprehensive violation information and shape details in a structured format.
+ */
 import { defineProps, ref } from 'vue';
 
 // Define the props to receive data from the parent component

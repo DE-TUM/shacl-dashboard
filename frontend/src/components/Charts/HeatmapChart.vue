@@ -166,6 +166,35 @@
 
 
 <script setup>
+/**
+ * HeatmapChart component
+ *
+ * Renders a heatmap chart using Chart.js.
+ * Displays a matrix of values as colors, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <HeatmapChart
+ * //   :data="heatmapData"
+ * //   title="Heatmap Example"
+ * //   xAxisLabel="X Axis"
+ * //   yAxisLabel="Y Axis"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the heatmap (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ * - chartjs-chart-matrix (if using matrix/heatmap plugin)
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
 import { computed, ref , onMounted, onUnmounted} from "vue";
 import { chartTheme } from "./../../assets/chartTheme";
 import ToggleQuestionMark from "../Reusable/ToggleQuestionMark.vue";

@@ -5,3 +5,26 @@
     />
   </svg>
 </template>
+
+<script>
+/**
+ * IconEcosystem component
+ *
+ * Renders an SVG icon representing ecosystem or interconnected systems.
+ * Provides a consistent visual element for ecosystem-related features.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <IconEcosystem />
+ *
+ * @dependencies
+ * - vue
+ *
+ * @style
+ * - SVG-based icon with customizable dimensions and color.
+ * - Generally used within buttons, menus, or alongside text content.
+ */
+export default {
+  name: 'IconEcosystem',
+}
+</script>

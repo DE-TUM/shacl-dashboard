@@ -79,6 +79,35 @@
   </template>
   
   <script setup>
+/**
+ * Metrics component
+ *
+ * Displays key metrics for a SHACL shape in a dashboard format.
+ * Shows information such as total violations, affected focus nodes, property paths,
+ * and triggered constraints, each with a small sparkline chart.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <Metrics />
+ *
+ * @prop {Number} [totalViolations=42] - Total number of violations for this shape
+ * @prop {Number} [affectedFocusNodes=15] - Number of focus nodes affected by violations
+ * @prop {Number} [affectedPropertyPaths=8] - Number of property paths with violations
+ * @prop {Number} [constraintsTriggered=5] - Number of constraint types triggered
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ../Charts/SparklineChart.vue
+ *
+ * @style
+ * - Grid layout with responsive card design
+ * - Cards with icons, titles, metric values, and sparkline charts
+ * - Color-coded icons and values for visual categorization
+ * 
+ * @returns {HTMLElement} A grid of four metric cards displaying key statistics about shapes,
+ * each with an icon, title, numerical value, and mini sparkline chart. Cards show total violations,
+ * focus nodes, property paths, and constraints, each with distinct color coding.
+ */
   import SparklineChart from '../Charts/SparklineChart.vue'
   
   const totalViolations = 42
@@ -113,4 +142,3 @@
     height: 40px;
   }
   </style>
-  

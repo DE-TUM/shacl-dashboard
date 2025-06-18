@@ -75,6 +75,35 @@
 </template>
 
 <script setup>
+/**
+ * Metrics component
+ *
+ * Displays key metrics about focus nodes in a dashboard format.
+ * Shows information such as shapes involved, total violations, affected property paths,
+ * and constraints triggered, each with a small sparkline chart.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <Metrics />
+ *
+ * @prop {Number} [shapesInvolved=22] - Number of shapes involved with this focus node
+ * @prop {Number} [totalViolations=12] - Total number of violations for this focus node
+ * @prop {Number} [affectedPropertyPaths=9] - Number of property paths affected
+ * @prop {Number} [constraintsTriggered=6] - Number of constraints triggered
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ../Charts/SparklineChart.vue
+ *
+ * @style
+ * - Grid layout with responsive card design.
+ * - Cards with icons, titles, metric values, and sparkline charts.
+ * - Color-coded icons and values for visual categorization.
+ * 
+ * @returns {HTMLElement} A grid of four metric cards displaying key statistics about a focus node,
+ * each with an icon, title, numerical value, and mini sparkline chart. Cards show shapes involved,
+ * total violations, property paths, and constraints triggered, each with distinct color coding.
+ */
 import SparklineChart from '../Charts/SparklineChart.vue'
 
 const shapesInvolved = 22

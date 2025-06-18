@@ -15,6 +15,32 @@
 </template>
 
 <script setup>
+/**
+ * Search component
+ *
+ * Provides a search input field with a submit button.
+ * Used for searching within datasets or content.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <Search />
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vuetify - For UI components (v-text-field, v-btn)
+ *
+ * @emits
+ * - No events emitted directly (internal handling)
+ *
+ * @style
+ * - Horizontal layout with search field and button
+ * - Responsive sizing with maximum width constraint
+ * - Button styling with hover effects
+ * 
+ * @returns {HTMLElement} A search interface with a Vuetify text field for input
+ * and a "Go" button, styled with consistent heights and transitions for interactive elements.
+ */
+
 import { ref } from 'vue';
 
 // Reactive variable for the search field

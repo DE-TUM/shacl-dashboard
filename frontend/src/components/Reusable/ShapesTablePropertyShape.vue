@@ -70,6 +70,41 @@
   </template>
   
   <script setup>
+/**
+ * ShapesTablePropertyShape component
+ *
+ * Renders an expandable row for property shape information with associated validation results.
+ * Shows property shape statistics with the ability to expand for detailed validation information.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ShapesTablePropertyShape
+ * //   :rowNumber="1"
+ * //   propertyShapeName="ex:nameShape"
+ * //   :numberOfViolations="5"
+ * //   :numberOfConstraints="3"
+ * //   mostViolatedConstraint="sh:pattern"
+ * // />
+ *
+ * @prop {Number} rowNumber - The sequential number for this row
+ * @prop {String} propertyShapeName - The name of the property shape
+ * @prop {Number} numberOfViolations - Count of violations for this property shape
+ * @prop {Number} numberOfConstraints - Count of constraints in this property shape
+ * @prop {String} mostViolatedConstraint - The most frequently violated constraint
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ./ShapeTableRow.vue - For rendering detailed validation rows
+ *
+ * @style
+ * - Interactive row with hover effects and expandable details.
+ * - Nested table for displaying detailed violations.
+ * - Triangle indicators showing expansion state.
+ * 
+ * @returns {HTMLElement} Two table rows: a main row showing property shape statistics, and
+ * an expandable details row that appears when clicked, containing a nested table with
+ * comprehensive validation results for the property shape including all affected triples.
+ */
   import { defineProps, ref, onMounted } from 'vue';
   import ShapeTableRow from './ShapeTableRow.vue'; // Import the ShapeTableRow component
 
@@ -284,4 +319,3 @@
     color: #2d3748;
   }
   </style>
-  

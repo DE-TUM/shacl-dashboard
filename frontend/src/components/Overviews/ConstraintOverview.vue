@@ -92,6 +92,34 @@
 </template>
 
 <script setup>
+/**
+ * ConstraintOverview component
+ *
+ * Provides a comprehensive overview of SHACL constraints in the dataset.
+ * Displays statistics, visualizations, and listings of constraints with their usage and violations.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ConstraintOverview />
+ *
+ * @prop {Array} [constraints=[]] - List of constraints to display
+ * @prop {Boolean} [showViolations=true] - Whether to show violation data
+ * @prop {Boolean} [showCharts=true] - Whether to show visualization charts
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ../Charts/GroupedBarChart.vue
+ * - ../ConstraintView/Metrics.vue
+ *
+ * @style
+ * - Responsive layout with cards and data tables.
+ * - Data visualization components for constraint statistics.
+ * - Filterable and sortable constraint listings.
+ * 
+ * @returns {HTMLElement} A dashboard page showing constraint statistics in summary cards at the 
+ * top, data visualizations in the middle (bar chart, pie chart, and histogram), and a categorized 
+ * table listing all constraints with their properties and violation counts at the bottom.
+ */
 // Importing components
 import BarChart from './../Charts/BarChart.vue';
 import PieChart from './../Charts/PieChart.vue';

@@ -1,4 +1,38 @@
 <script setup>
+/**
+ * MainLayout component
+ *
+ * Root layout component that structures the overall application layout.
+ * Typically includes navigation, sidebar, and main content areas.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <MainLayout>
+ * //   <template #sidebar>
+ * //     <SideBar />
+ * //   </template>
+ * //   <template #content>
+ * //     <MainContent />
+ * //   </template>
+ * // </MainLayout>
+ *
+ * @slot sidebar - Content for the sidebar area
+ * @slot navigation - Content for the navigation area
+ * @slot content - Main content area
+ * @slot footer - Footer content area
+ *
+ * @dependencies
+ * - vue (Composition API)
+ *
+ * @style
+ * - CSS grid or flexbox layout for positioning main application sections.
+ * - Responsive design that adjusts for different screen sizes.
+ * - Contains basic structure styling for the application layout.
+ * 
+ * @returns {HTMLElement} The primary application layout structure with a top app bar displaying
+ * the application title, a collapsible sidebar on the left for navigation, and a main content
+ * area on the right that displays the current route's view.
+ */
 import { ref, onMounted } from 'vue';
 import SideBar from './SideBar.vue'; // Import the SideBar component
 
