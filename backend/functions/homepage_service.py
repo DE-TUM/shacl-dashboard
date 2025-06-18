@@ -5,6 +5,32 @@ import math
 import time
 import csv
 
+"""
+Homepage Service Module
+
+This module provides functions for retrieving dashboard-level statistics and visualizations from 
+SHACL validation reports and shapes graphs stored in a Virtuoso database.
+
+The functions in this module query the validation report and shapes graph to provide:
+1. Counts and basic statistics (violations, shapes, paths, etc.)
+2. Distribution analysis for violations across different entities
+3. Detailed validation reports with comprehensive information
+4. Most violated entities identification
+
+All functions accept customizable URIs for the validation report and shapes graph,
+with sensible defaults defined as module-level constants.
+
+Key functions:
+- get_number_of_violations_in_validation_report: Count total violations
+- get_number_of_node_shapes: Count node shapes in shapes graph
+- get_number_of_node_shapes_with_violations: Count shapes with violations
+- get_violations_per_node_shape: Get violations for each node shape
+- distribution_of_violations_per_shape: Analyze violation distribution by shape
+- generate_validation_details_report: Generate detailed validation reports
+- get_most_violated_node_shape: Find the most violated node shape
+"""
+
+
 # Global variables
 ENDPOINT_URL = "http://localhost:8890/sparql"
 SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"

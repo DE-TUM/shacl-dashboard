@@ -7,6 +7,24 @@ landing_bp = Blueprint('landing', __name__)
 # Route to load graphs
 @landing_bp.route('/load-graphs', methods=['POST'])
 def load_graphs_route():
+    """
+    Load SHACL shapes and validation reports into the Virtuoso database.
+    
+    This endpoint accepts JSON data specifying file paths and loads the 
+    RDF data into named graphs in Virtuoso.
+    
+    Request JSON body:
+    {
+        "directory": "directory/path",
+        "shapes_file": "shapes.ttl",
+        "report_file": "report.ttl"
+    }
+    
+    Returns:
+        200 OK: Graphs loaded successfully
+        400 Bad Request: Missing parameters or invalid inputs
+        500 Server Error: Database error or loading failure
+    """
     try:
         # Parse JSON request data
         data = request.get_json()

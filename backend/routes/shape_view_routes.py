@@ -10,6 +10,34 @@ from functions import (
     get_constraints_count_for_property_shapes,
 )
 
+"""
+Shape View Routes Module
+
+This module defines the API endpoints for detailed inspection and analysis of
+individual SHACL shapes. It provides routes for retrieving detailed information
+about specific node shapes, their property shapes, constraints, and associated
+validation results.
+
+Key Endpoints:
+- /shape_view/violations/node-shape/count: Get violation count for a node shape
+  - Query param: nodeshape_name (required)
+
+- /shape_view/violations/node-shape/focus-nodes/count: Get count of violated focus nodes
+  - Query param: node_shape (required)
+
+- /shape_view/node-shape/property-paths/count: Get property path count for a node shape
+  - Query param: node_shape (required)
+
+- /shape_view/node-shape/constraints/count: Get constraint count for a node shape
+  - Query param: node_shape (required)
+
+- /shape_view/node-shape/property-shapes: Get property shapes for a node shape
+  - Query params: node_shape (required), limit (optional), offset (optional)
+
+All endpoints return detailed information about the requested shape aspects,
+enabling focused analysis of specific shapes and their validation issues.
+"""
+
 shape_view_bp = Blueprint('shape_view', __name__)
 
 # Route to get the number of violated focus nodes for a Node Shape

@@ -2,6 +2,41 @@ import subprocess
 from SPARQLWrapper import SPARQLWrapper, JSON
 import os 
 
+"""
+Virtuoso Service Module
+
+This module provides core functionality for connecting to and interacting with
+the Virtuoso RDF database. It handles direct communication with the Virtuoso server
+through SPARQL queries and the ISQL command-line interface.
+
+The module serves as the foundation for database operations throughout the 
+SHACL Dashboard, providing functions for:
+1. Loading RDF data into named graphs
+2. Executing SPARQL queries
+3. Managing graph content (clearing, listing)
+4. Retrieving entity names and relationships from the database
+5. Supporting Docker-based Virtuoso deployments
+
+Key functions:
+- load_graphs: Load RDF files into named graphs
+- clear_graphs_only: Clear all graphs in the database
+- get_all_shapes_names: Retrieve all shape names
+- get_all_focus_node_names: Retrieve all focus node names
+- get_all_property_path_names: Retrieve all property path names
+- get_all_constraint_components_names: Retrieve all constraint component names
+- get_violations_for_shape_name: Get violations for a specific shape
+- get_shape_from_shapes_graph: Get shape definitions from shapes graph
+- map_property_shapes_to_node_shapes: Map property shapes to node shapes
+
+Configuration:
+- ENDPOINT_URL: SPARQL endpoint URL (default: http://localhost:8890/sparql)
+- SHAPES_GRAPH_URI: URI for the shapes graph (default: http://ex.org/ShapesGraph)
+- VALIDATION_REPORT_URI: URI for validation report (default: http://ex.org/ValidationReport)
+- DATA_DIR_IN_DOCKER: Directory path in Docker container (default: /data)
+- DOCKER_CONTAINER_NAME: Name of Docker container (default: virtuoso)
+"""
+
+
 # Global variables
 ENDPOINT_URL = "http://localhost:8890/sparql"
 SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"

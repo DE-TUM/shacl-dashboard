@@ -4,6 +4,39 @@ import requests
 import time 
 import csv 
 
+
+"""
+Shapes Overview Service Module
+
+This module provides functions for analyzing and reporting on the overall structure
+and content of the SHACL shapes graph. It extracts high-level information about
+shapes definitions, their relationships, and structures to provide a comprehensive
+overview of the validation schema.
+
+The functions in this module support:
+1. Retrieval of all shapes in the graph
+2. Analysis of shape types and hierarchies
+3. Mapping of property shapes to node shapes
+4. Generation of summary statistics about constraints and violations
+5. Analysis of constraint distribution across shapes
+6. Calculation of violation metrics for shapes
+
+Key functions:
+- get_property_to_node_map: Map property shapes to their parent node shapes
+- get_number_of_violations_for_node_shape: Count violations for a specific node shape
+- get_property_shapes: Get property shapes for a specific node shape
+- get_number_of_constraints_for_node_shape: Count constraints for a node shape
+- get_node_shape_details_table: Generate detailed table of node shape information
+- get_number_of_property_paths_for_node_shape: Count property paths for a node shape
+
+Configuration:
+- ENDPOINT_URL: SPARQL endpoint URL (default: http://localhost:8890/sparql)
+- SHAPES_GRAPH_URI: URI for the shapes graph (default: http://ex.org/ShapesGraph)
+- VALIDATION_REPORT_URI: URI for validation report (default: http://ex.org/ValidationReport)
+- SHACL_FEATURES: List of SHACL constraint property URIs for analysis
+"""
+
+
 # Global variables
 ENDPOINT_URL = "http://localhost:8890/sparql"
 SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"

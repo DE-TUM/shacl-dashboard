@@ -1,6 +1,26 @@
 import subprocess
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+"""
+Landing Service Module
+
+This module provides functionality for loading RDF data into a Virtuoso database
+for SHACL validation visualization. It manages the initial data loading operations
+for the SHACL Dashboard.
+
+The primary function `load_graphs` uses the Virtuoso ISQL command-line interface
+to load SHACL shapes and validation report files into named graphs in the database.
+It handles parameter validation, subprocess execution, and error handling.
+
+Key functions:
+- load_graphs: Load RDF files containing SHACL shapes and validation reports
+
+Configuration:
+- ENDPOINT_URL: SPARQL endpoint URL (default: http://localhost:8890/sparql)
+- SHAPES_GRAPH_URI: URI for the shapes graph (default: http://ex.org/ShapesGraph)
+- VALIDATION_REPORT_URI: URI for validation report (default: http://ex.org/ValidationReport)
+"""
+
 # Global variables for SPARQL
 ENDPOINT_URL = "http://localhost:8890/sparql"
 SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"

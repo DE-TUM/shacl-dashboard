@@ -2,6 +2,24 @@ from flask import Flask, send_file, abort
 import os
 import subprocess
 
+
+"""
+SHACL Dashboard Backend App
+
+This is the main entry point for the SHACL Dashboard backend Flask application.
+It serves both the API endpoints and the static Vue.js frontend files from the 
+compiled 'dist' directory.
+
+The app handles:
+1. API routes for SHACL validation queries
+2. Serving the compiled Vue.js frontend
+3. Frontend build process (if necessary)
+
+Usage:
+  python app.py  # Starts the Flask server on port 80
+"""
+
+
 # Resolve STATIC_FOLDER to an absolute path
 
 STATIC_FOLDER = os.path.abspath(os.path.join('..', 'frontend', 'dist'))
