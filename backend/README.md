@@ -32,38 +32,332 @@ backend/
       └── shape_view_routes.py        # Shape detail endpoints
 ```
 
-## API Endpoints
+## API Documentation
 
-### Landing
+### Landing Endpoints
 
-- `POST /load-graphs`: Load shapes and validation report into Virtuoso
+#### Load Graphs
+- **URL**: `/api/landing/load-graphs`
+- **Method**: `POST`
+- **Description**: Load SHACL shapes and validation reports into the Virtuoso database
+- **Request Body**:
+  ```json
+  {
+    "directory": "directory/path",
+    "shapes_file": "shapes.ttl",
+    "report_file": "report.ttl"
+  }
+  ```
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "message": "Graphs loaded successfully" }`
+- **Error Response**:
+  - **Code**: 400
+  - **Content**: `{ "error": "directory, shapes_file, and report_file are required" }`
 
-### Homepage (Dashboard Overview)
+### Homepage Endpoints
 
-- `GET /homepage/violations/report/count`: Get total violation count
-- `GET /homepage/shapes/graph/count`: Get shapes count in graph
-- `GET /homepage/shapes/graph/violations/count`: Get count of shapes with violations
-- `GET /homepage/shapes/graph/paths/count`: Get count of property paths in shapes graph
-- `GET /homepage/validation-report/paths/violations/count`: Get count of paths with violations
-- `GET /homepage/validation-report/focus-nodes/count`: Get count of focus nodes in validation report
-- `GET /homepage/shapes/violations`: Get violations per node shape
-- `GET /homepage/validation-report/paths/violations`: Get violations per property path
-- `GET /homepage/validation-report/focus-nodes/violations`: Get violations per focus node
-- `GET /homepage/violations/distribution/shape`: Get distribution of violations per shape
-- `GET /homepage/violations/distribution/path`: Get distribution of violations per path
-- `GET /homepage/violations/distribution/focus-node`: Get distribution of violations per focus node
-- `GET /homepage/validation-details`: Get detailed validation report
+#### Get Violation Count
+- **URL**: `/api/homepage/violations/report/count`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `graph_uri` (optional): The URI of the validation report graph (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "violationCount": 42 }`
 
-### Shapes Overview
+#### Get Shapes Count
+- **URL**: `/api/homepage/shapes/graph/count`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `graph_uri` (optional): The URI of the shapes graph (default: "http://ex.org/ShapesGraph")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "nodeShapes": 15 }`
 
-- `GET /shapes/names`: Get all shape names
-- `GET /focus-nodes/names`: Get all focus node names
-- `GET /property-paths/names`: Get all property path names
-- `GET /constraint-components/names`: Get all constraint component names
-- `GET /violations/shape`: Get violations for a specific shape
-- `GET /shapes/graph/count`: Get number of shapes in shapes graph
-- `GET /property-to-node/map`: Get mapping of property shapes to node shapes
-- `POST /shapes/graph/details`: Get details for specific node shapes
+#### Get Node Shapes with Violations Count
+- **URL**: `/api/homepage/shapes/violations/count`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `shapes_graph_uri` (optional): The URI of the shapes graph (default: "http://ex.org/ShapesGraph")
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "nodeShapesWithViolationsCount": 10 }`
+
+#### Get Paths Count in Graph
+- **URL**: `/api/homepage/shapes/graph/paths/count`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `graph_uri` (optional): The URI of the shapes graph (default: "http://ex.org/ShapesGraph")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "uniquePathsCount": 25 }`
+
+#### Get Paths with Violations Count
+- **URL**: `/api/homepage/validation-report/paths/violations/count`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "pathsWithViolationsCount": 18 }`
+
+#### Get Focus Nodes Count
+- **URL**: `/api/homepage/validation-report/focus-nodes/count`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "focusNodesCount": 30 }`
+
+#### Get Violations by Node Shape
+- **URL**: `/api/homepage/shapes/violations`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `shapes_graph_uri` (optional): The URI of the shapes graph (default: "http://ex.org/ShapesGraph")
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    { 
+      "violationsPerNodeShape": [
+        { "NodeShapeName": "http://ex.org/Shape1", "NumViolations": 15 },
+        { "NodeShapeName": "http://ex.org/Shape2", "NumViolations": 7 }
+      ]
+    }
+    ```
+
+#### Get Violations by Path
+- **URL**: `/api/homepage/validation-report/paths/violations`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    { 
+      "violationsPerPath": [
+        { "PathName": "http://ex.org/property1", "NumViolations": 12 },
+        { "PathName": "http://ex.org/property2", "NumViolations": 5 }
+      ]
+    }
+    ```
+
+#### Get Violations by Focus Node
+- **URL**: `/api/homepage/validation-report/focus-nodes/violations`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    { 
+      "violationsPerFocusNode": [
+        { "FocusNodeName": "http://ex.org/entity1", "NumViolations": 8 },
+        { "FocusNodeName": "http://ex.org/entity2", "NumViolations": 3 }
+      ]
+    }
+    ```
+
+#### Get Distribution of Violations per Shape
+- **URL**: `/api/homepage/violations/distribution/shape`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `shapes_graph_uri` (optional): The URI of the shapes graph (default: "http://ex.org/ShapesGraph")
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "labels": ["0-10", "11-20", "21-30"],
+      "datasets": [
+        {
+          "label": "Frequency",
+          "data": [5, 3, 2]
+        }
+      ]
+    }
+    ```
+
+#### Get Validation Details Report
+- **URL**: `/api/homepage/validation-details`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+  - `shapes_graph_uri` (optional): The URI of the shapes graph (default: "http://ex.org/ShapesGraph")
+  - `limit` (optional): Maximum number of violations to return (default: 10)
+  - `offset` (optional): Offset for pagination (default: 0)
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: Detailed validation report with prefixes and violations
+
+### Shapes Overview Endpoints
+
+#### Get All Shapes Names
+- **URL**: `/api/shapes/names`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `graph_uri` (optional): The URI of the validation report graph (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "shapes": [
+        "http://ex.org/PersonShape",
+        "http://ex.org/AddressShape"
+      ]
+    }
+    ```
+
+#### Get All Focus Node Names
+- **URL**: `/api/focus-nodes/names`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `graph_uri` (optional): The URI of the validation report graph (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "focusNodes": [
+        "http://ex.org/person1",
+        "http://ex.org/person2"
+      ]
+    }
+    ```
+
+#### Get All Property Path Names
+- **URL**: `/api/property-paths/names`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `graph_uri` (optional): The URI of the validation report graph (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "propertyPaths": [
+        "http://ex.org/name",
+        "http://ex.org/age"
+      ]
+    }
+    ```
+
+#### Get All Constraint Component Names
+- **URL**: `/api/constraint-components/names`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `graph_uri` (optional): The URI of the validation report graph (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "constraintComponents": [
+        "http://www.w3.org/ns/shacl#MinCountConstraintComponent",
+        "http://www.w3.org/ns/shacl#DatatypeConstraintComponent"
+      ]
+    }
+    ```
+
+#### Get Violations for a Shape
+- **URL**: `/api/violations/shape`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `shape_name` (required): The URI of the shape to query
+  - `graph_uri` (optional): The URI of the validation report graph (default: "http://ex.org/ValidationReport")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: Array of violation objects
+
+#### Get Property Shapes to Node Shapes Mapping
+- **URL**: `/api/property-to-node/map`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `validation_report_uri` (optional): The URI of the validation report (default: "http://ex.org/ValidationReport")
+  - `shapes_graph_uri` (optional): The URI of the shapes graph (default: "http://ex.org/ShapesGraph")
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: Mapping between property shapes and node shapes
+
+#### Get Shape Details
+- **URL**: `/api/shapes/graph/details`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "node_shape_names": ["http://ex.org/PersonShape", "http://ex.org/AddressShape"]
+  }
+  ```
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: Detailed information about the requested node shapes
+
+#### Get Maximum Number of Violations
+- **URL**: `/api/violations/max`
+- **Method**: `GET`
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "nodeShape": "http://ex.org/MostViolatedShape",
+      "violationCount": 42
+    }
+    ```
+
+#### Get Average Number of Violations
+- **URL**: `/api/violations/average`
+- **Method**: `GET`
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "averageViolations": 7.5 }`
+
+#### Get Violations for a Node Shape
+- **URL**: `/api/violations/node-shape/count`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `nodeshape_name` (required): The URI of the node shape to query
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "nodeShape": "http://ex.org/PersonShape",
+      "violationCount": 15
+    }
+    ```
+
+#### Get Property Shapes for a Node Shape
+- **URL**: `/api/node-shape/property-shapes`
+- **Method**: `GET`
+- **Query Parameters**:
+  - `node_shape` (required): The URI of the node shape to query
+  - `limit` (optional): Maximum number of property shapes to return
+  - `offset` (optional): Offset for pagination
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: 
+    ```json
+    {
+      "nodeShape": "http://ex.org/PersonShape",
+      "propertyShapes": [
+        {
+          "PropertyShapeName": "http://ex.org/PersonNamePropertyShape",
+          "NumViolations": 5,
+          "NumConstraints": 2,
+          "MostViolatedConstraint": "http://www.w3.org/ns/shacl#MinCountConstraintComponent"
+        }
+      ]
+    }
+    ```
 
 ## Getting Started
 
