@@ -32,6 +32,87 @@ backend/
       └── shape_view_routes.py        # Shape detail endpoints
 ```
 
+## Environment Configuration
+
+The backend uses a centralized configuration file (`config.py`) that defines all the environment settings:
+
+### SPARQL Endpoint Configuration
+```python
+# Default SPARQL endpoint
+ENDPOINT_URL = "http://localhost:8890/sparql"
+
+# Authentication settings
+AUTH_REQUIRED = False
+USERNAME = ""
+PASSWORD = ""
+
+# Triple store type
+TRIPLE_STORE_TYPE = "virtuoso"  # Options: "virtuoso", "fuseki", "stardog", etc.
+```
+
+### Graph URIs
+```python
+SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
+VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
+```
+
+### Triple Store Specific Configuration
+```python
+STORE_CONFIG = {
+    "virtuoso": {
+        "isql_path": "/usr/local/virtuoso-opensource/bin/isql",
+        "isql_port": 1111,
+        "bulk_load_enabled": True,
+    },
+    "fuseki": {
+        "admin_endpoint": "http://localhost:3030/$/",
+        "bulk_load_enabled": False,
+    },
+    "stardog": {
+        "admin_endpoint": "http://localhost:5820",
+        "database": "shacldb",
+        "bulk_load_enabled": True,
+    }
+}
+```
+
+### Using Alternative SPARQL Endpoints
+
+To use a different SPARQL endpoint:
+
+1. Edit the `config.py` file to update the `ENDPOINT_URL` value
+2. Set the appropriate `TRIPLE_STORE_TYPE` matching your endpoint type
+3. Configure any authentication if required by setting `AUTH_REQUIRED`, `USERNAME`, and `PASSWORD`
+4. If using store-specific operations (like data loading), ensure the corresponding settings in `STORE_CONFIG` are correctly configured
+
+For example, to use Apache Fuseki:
+
+```python
+# SPARQL endpoint configuration
+ENDPOINT_URL = "http://localhost:3030/dataset/sparql"
+TRIPLE_STORE_TYPE = "fuseki"
+```
+
+To use Stardog:
+
+```python
+# SPARQL endpoint configuration
+ENDPOINT_URL = "http://localhost:5820/shacldb/query"
+AUTH_REQUIRED = True
+USERNAME = "admin"
+PASSWORD = "admin"
+TRIPLE_STORE_TYPE = "stardog"
+```
+
+### Supported Triple Store Types
+
+The configuration supports the following triple store types out of the box:
+- **Virtuoso**: Full support including bulk data loading
+- **Fuseki**: Query support with limited bulk loading capabilities
+- **Stardog**: Query support with bulk loading capabilities
+
+Additional triple store types can be added by extending the `STORE_CONFIG` dictionary.
+
 ## API Documentation
 
 ### Landing Endpoints

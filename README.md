@@ -80,32 +80,52 @@ The frontend will be available at http://localhost:5173
 
 ### Data Setup
 
-Currently, the dashboard requires manual configuration of RDF data in Virtuoso. The graph URIs used by the application are:
+#### Configuration Options
 
+SHACL Dashboard's backend uses a centralized configuration file (`backend/config.py`) that allows you to:
+
+- Define your SPARQL endpoint URL
+- Set authentication credentials if required
+- Configure graph URIs for shapes and validation reports
+- Choose the triple store type (Virtuoso, Fuseki, Stardog, etc.)
+
+The default configuration uses:
+
+- SPARQL Endpoint: `http://localhost:8890/sparql`
 - Shapes Graph: `http://ex.org/ShapesGraph`
 - Validation Report: `http://ex.org/ValidationReport`
 
-To load data, you have two options:
+#### Using Alternative Triple Stores
 
-#### Option 1: Using the virtuoso_service.py module directly
-
-The backend includes direct functions for loading data in `virtuoso_service.py`:
+By default, SHACL Dashboard is configured to use Virtuoso. However, it supports other SPARQL endpoints:
 
 ```python
-# Example usage from Python code
-from functions.virtuoso_service import load_graphs
+# For Apache Fuseki
+ENDPOINT_URL = "http://localhost:3030/dataset/sparql"
+TRIPLE_STORE_TYPE = "fuseki"
 
-# Load graphs directly
-load_graphs("path/to/data/directory", "shapes_file.ttl", "validation_report.ttl")
+# For Stardog
+ENDPOINT_URL = "http://localhost:5820/shacldb/query"
+AUTH_REQUIRED = True
+USERNAME = "admin"
+PASSWORD = "admin"
+TRIPLE_STORE_TYPE = "stardog"
 ```
 
-#### Option 2: Using Virtuoso's web interface
+#### Loading Data
 
-1. Access the Virtuoso Conductor at http://localhost:8890/conductor
-2. Log in with the default credentials
-3. Navigate to "Linked Data" → "Quad Store Upload"
-4. Upload your SHACL shapes file to the graph `http://ex.org/ShapesGraph`
-5. Upload your validation report file to the graph `http://ex.org/ValidationReport`
+You have two main options for loading data:
+
+1. **API Endpoint**: Use the `/api/landing/load-graphs` endpoint to upload files
+   ```bash
+   curl -X POST http://localhost/api/landing/load-graphs -H "Content-Type: application/json" \
+     -d '{"directory": "path/to/data", "shapes_file": "shapes.ttl", "report_file": "report.ttl"}'
+   ```
+
+2. **Triple Store Interface**: Upload directly through your triple store's web interface:
+   - **Virtuoso**: Use the Conductor at http://localhost:8890/conductor
+   - **Fuseki**: Use the UI at http://localhost:3030
+   - **Stardog**: Use the Web Console at http://localhost:5820
 
 
 ### Navigation
