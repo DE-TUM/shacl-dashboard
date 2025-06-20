@@ -53,7 +53,7 @@ The dashboard will be available at http://localhost:80
 docker run --name virtuoso -p 8890:8890 -p 1111:1111 -d openlink/virtuoso-opensource-7
 ```
 
-Ensure Virtuoso is running and accessible at http://localhost:8890/conductor
+Ensure Virtuoso is running and accessible at http://localhost:8890/sparql
 
 2. Set up the Backend:
 
@@ -102,7 +102,7 @@ load_graphs("path/to/data/directory", "shapes_file.ttl", "validation_report.ttl"
 #### Option 2: Using Virtuoso's web interface
 
 1. Access the Virtuoso Conductor at http://localhost:8890/conductor
-2. Log in with the default credentials (dba/dba)
+2. Log in with the default credentials
 3. Navigate to "Linked Data" → "Quad Store Upload"
 4. Upload your SHACL shapes file to the graph `http://ex.org/ShapesGraph`
 5. Upload your validation report file to the graph `http://ex.org/ValidationReport`
