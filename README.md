@@ -127,6 +127,33 @@ The SHACL Dashboard offers two main views:
 
 Use the navigation menu to switch between these views.
 
+## Extending SHACL Dashboard
+
+SHACL Dashboard is designed to be extensible, allowing you to add custom features and functionality to meet your specific requirements. This section provides general guidance on how to extend and customize the application.
+
+### Extension Points
+
+1. **Custom Visualizations**:
+
+2. **Additional Data Analysis**:
+
+3. **UI Customizations**:
+
+4. **Backend Enhancements**:
+
+5. **Integration Capabilities**:
+
+### Extension Approach
+
+When extending SHACL Dashboard, we recommend following these principles:
+
+- Maintain the existing architectural patterns where possible
+- Use the established component structure and naming conventions
+- Document your extensions thoroughly
+- Consider contributing general-purpose extensions back to the project
+
+For more detailed guidance on specific extension scenarios, please refer to the developer documentation or contact the project maintainers.
+
 ## Project Structure
 
 ```plaintext
