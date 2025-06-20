@@ -1,4 +1,8 @@
 import subprocess
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 """
@@ -22,9 +26,9 @@ Configuration:
 """
 
 # Global variables for SPARQL
-ENDPOINT_URL = "http://localhost:8890/sparql"
-SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
-VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
+#ENDPOINT_URL = "http://localhost:8890/sparql"
+#SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
+#VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
 
 def load_graphs(directory: str, shapes_file: str, report_file: str, isql_port: str = "1111", username: str = "dba", password: str = "dba"):
     """

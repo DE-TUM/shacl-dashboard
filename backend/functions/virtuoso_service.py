@@ -1,4 +1,8 @@
 import subprocess
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, DATA_DIR_IN_DOCKER, DOCKER_CONTAINER_NAME
 from SPARQLWrapper import SPARQLWrapper, JSON
 import os 
 

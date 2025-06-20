@@ -1,4 +1,8 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
 import math
 import requests
 import time 
@@ -38,41 +42,41 @@ Configuration:
 
 
 # Global variables
-ENDPOINT_URL = "http://localhost:8890/sparql"
-SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
-VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
+#ENDPOINT_URL = "http://localhost:8890/sparql"
+#SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
+#VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
 
 # Define the set of SHACL features to check for constraints using full URIs
-SHACL_FEATURES = [
-    "http://www.w3.org/ns/shacl#class",
-    "http://www.w3.org/ns/shacl#datatype",
-    "http://www.w3.org/ns/shacl#NodeKind",
-    "http://www.w3.org/ns/shacl#minCount",
-    "http://www.w3.org/ns/shacl#maxCount",
-    "http://www.w3.org/ns/shacl#minExclusive",
-    "http://www.w3.org/ns/shacl#minInclusive",
-    "http://www.w3.org/ns/shacl#maxExclusive",
-    "http://www.w3.org/ns/shacl#maxInclusive",
-    "http://www.w3.org/ns/shacl#minLength",
-    "http://www.w3.org/ns/shacl#maxLength",
-    "http://www.w3.org/ns/shacl#pattern",
-    "http://www.w3.org/ns/shacl#languageIn",
-    "http://www.w3.org/ns/shacl#uniqueLang",
-    "http://www.w3.org/ns/shacl#equals",
-    "http://www.w3.org/ns/shacl#disjoint",
-    "http://www.w3.org/ns/shacl#lessThan",
-    "http://www.w3.org/ns/shacl#lessThanOrEquals",
-    "http://www.w3.org/ns/shacl#not",
-    "http://www.w3.org/ns/shacl#and",
-    "http://www.w3.org/ns/shacl#or",
-    "http://www.w3.org/ns/shacl#xone",
-    "http://www.w3.org/ns/shacl#node",
-    "http://www.w3.org/ns/shacl#qualifiedMinCount",
-    "http://www.w3.org/ns/shacl#qualifiedMaxCount",
-    "http://www.w3.org/ns/shacl#closed",
-    "http://www.w3.org/ns/shacl#hasValue",
-    "http://www.w3.org/ns/shacl#in"
-]
+#SHACL_FEATURES = [
+#    "http://www.w3.org/ns/shacl#class",
+#    "http://www.w3.org/ns/shacl#datatype",
+#    "http://www.w3.org/ns/shacl#NodeKind",
+#    "http://www.w3.org/ns/shacl#minCount",
+#    "http://www.w3.org/ns/shacl#maxCount",
+#    "http://www.w3.org/ns/shacl#minExclusive",
+#    "http://www.w3.org/ns/shacl#minInclusive",
+#    "http://www.w3.org/ns/shacl#maxExclusive",
+#    "http://www.w3.org/ns/shacl#maxInclusive",
+#    "http://www.w3.org/ns/shacl#minLength",
+#    "http://www.w3.org/ns/shacl#maxLength",
+#    "http://www.w3.org/ns/shacl#pattern",
+#    "http://www.w3.org/ns/shacl#languageIn",
+#    "http://www.w3.org/ns/shacl#uniqueLang",
+#    "http://www.w3.org/ns/shacl#equals",
+#    "http://www.w3.org/ns/shacl#disjoint",
+#    "http://www.w3.org/ns/shacl#lessThan",
+#    "http://www.w3.org/ns/shacl#lessThanOrEquals",
+#    "http://www.w3.org/ns/shacl#not",
+#    "http://www.w3.org/ns/shacl#and",
+#    "http://www.w3.org/ns/shacl#or",
+#    "http://www.w3.org/ns/shacl#xone",
+#   "http://www.w3.org/ns/shacl#node",
+#    "http://www.w3.org/ns/shacl#qualifiedMinCount",
+#    "http://www.w3.org/ns/shacl#qualifiedMaxCount",
+#    "http://www.w3.org/ns/shacl#closed",
+#    "http://www.w3.org/ns/shacl#hasValue",
+#    "http://www.w3.org/ns/shacl#in"
+#]
 
 
 def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
