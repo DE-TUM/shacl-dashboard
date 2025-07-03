@@ -151,6 +151,8 @@ Use the navigation menu to switch between these views.
 
 SHACL Dashboard is designed to be extensible, allowing you to add custom features and functionality to meet your specific requirements. This section provides general guidance on how to extend and customize the application.
 
+A guide on how to extend the SHACL dashboard can be found here: [Extension Guide](extension.md)
+
 ### Extension Points
 
 1. **Custom Visualizations**:
