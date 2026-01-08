@@ -5,6 +5,28 @@
 </template>
 
 <script setup>
+/**
+ * SparklineChart component
+ *
+ * Renders a compact sparkline chart using Chart.js.
+ * Displays a simple, word-sized graphic to show the trend of a data series, with minimal visual elements.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <SparklineChart
+ * //   :data="sparklineData"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the sparkline chart (required)
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Compact, inline chart area with minimal height.
+ * - No grid lines, axes, or labels to maintain simplicity.
+ */
 import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import {

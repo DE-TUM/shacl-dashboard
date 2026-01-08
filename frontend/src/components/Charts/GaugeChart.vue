@@ -5,6 +5,41 @@
   </template>
   
   <script setup>
+/**
+ * GaugeChart component
+ *
+ * Renders a gauge chart (speedometer-like) using Chart.js.
+ * Displays a single value within a range with color-coded thresholds.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <GaugeChart
+ * //   :title="'Performance Score'"
+ * //   :value="75"
+ * //   :minValue="0"
+ * //   :maxValue="100"
+ * //   :thresholds="{ green: 75, yellow: 50, red: 25 }"
+ * // />
+ *
+ * @prop {String} title - Title for the chart
+ * @prop {Number} value - The value to display on the gauge
+ * @prop {Number} minValue - Minimum value of the gauge range
+ * @prop {Number} maxValue - Maximum value of the gauge range
+ * @prop {Object} thresholds - Threshold values for color changes
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Semi-circular gauge display
+ * - Color-coded sections based on thresholds
+ * - Clear indicator of current value position
+ * 
+ * @returns {HTMLElement} A canvas element containing a semi-circular gauge chart 
+ * resembling a speedometer or dial, showing a needle pointing to the current value
+ * position, with color-coded sections representing different threshold ranges.
+ */
   import { ref, onMounted, watch, nextTick } from "vue";
   import { Chart, ArcElement, Tooltip } from "chart.js";
   
@@ -124,4 +159,3 @@
     height: 100% !important;
   }
   </style>
-  

@@ -1,6 +1,24 @@
-
-
-
+/**
+ * Router Configuration
+ * 
+ * Defines all routes for the SHACL Dashboard application.
+ * Handles navigation between different views and components.
+ * 
+ * Routes include:
+ * - Home (MainContent)
+ * - Shape overview and detailed views
+ * - Constraint overview and detailed views
+ * - Focus Node overview and detailed views
+ * - Property Path overview and detailed views
+ * - About Us page
+ * 
+ * @dependencies
+ * - vue-router
+ * - Component imports from across the application
+ * 
+ * @returns {VueRouter} A configured Vue Router instance with history mode enabled
+ * and all application routes defined, ready for integration with the Vue application.
+ */
 import { createRouter, createWebHistory } from "vue-router";
 
 // Import components
@@ -18,8 +36,8 @@ import PropertyPathView from "@/components/Views/PropertyPathView.vue";
 import AboutUs from "@/components/Overviews/AboutUs.vue";
 
 const routes = [
-  { path: "/", name: "LandingPage", component: LandingPage }, // Landing page route
-  { path: "/home", name: "Home", component: MainContent }, // Main content after landing page
+  //{ path: "/", name: "LandingPage", component: LandingPage }, // Landing page route
+  { path: "/", name: "Home", component: MainContent }, // Main content after landing page
   { path: "/shapes", name: "ShapeOverview", component: ShapeOverview },
   { path: "/shapes/:shapeId", name: "ShapeView", component: ShapeView },
   { path: "/constraints", name: "ConstraintOverview", component: ConstraintOverview },

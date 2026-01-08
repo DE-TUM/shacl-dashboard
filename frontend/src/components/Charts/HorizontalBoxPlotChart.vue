@@ -13,6 +13,35 @@
 </template>
 
 <script>
+/**
+ * HorizontalBoxPlotChart component
+ *
+ * Renders a horizontal boxplot chart using Chart.js and the @sgratzl/chartjs-chart-boxplot plugin.
+ * Displays one or more boxplots horizontally, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <HorizontalBoxPlotChart
+ * //   :data="boxplotData"
+ * //   title="Horizontal Boxplot Example"
+ * //   xAxisLabel="Values"
+ * //   yAxisLabel="Categories"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the boxplot (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ * - @sgratzl/chartjs-chart-boxplot
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
 import Plotly from "plotly.js-dist-min";
 import { ref, onMounted, watch } from "vue";
 import ToggleQuestionMark from "../Reusable/ToggleQuestionMark.vue";

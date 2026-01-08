@@ -91,6 +91,49 @@
 </template>
 
 <script setup>
+/**
+ * ShapeTableRow component
+ *
+ * Renders an expandable row for SHACL shape details.
+ * Shows basic shape info with the ability to expand for detailed validation information.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ShapeTableRow
+ * //   :rowNumber="1"
+ * //   focusNode="ex:Person1"
+ * //   resultPath="ex:name"
+ * //   value="John Doe"
+ * //   message="Value does not match pattern"
+ * // />
+ *
+ * @prop {Number} rowNumber - The sequential number for this row
+ * @prop {String} focusNode - The focus node URI
+ * @prop {String} resultPath - The property path
+ * @prop {String|Number} value - The value
+ * @prop {String} message - The validation message
+ * @prop {String} propertyShape - The property shape URI
+ * @prop {String} severity - The severity level
+ * @prop {Object} shapes - Object containing shape details
+ * @prop {String|Array} targetClass - The target class of the shape
+ * @prop {String|Array} targetNode - The target node of the shape
+ * @prop {String|Array} targetSubjectsOf - The target subjects of the shape
+ * @prop {String|Array} targetObjectsOf - The target objects of the shape
+ * @prop {String} nodeShape - The node shape URI
+ * @prop {String} constraintComponent - The constraint component URI
+ *
+ * @dependencies
+ * - vue (Composition API)
+ *
+ * @style
+ * - Interactive row with hover effects and expandable details.
+ * - Color-coded content with clear typography.
+ * - Triangle indicators showing expansion state.
+ * 
+ * @returns {HTMLElement} Two table rows: a main row showing summary shape information, and
+ * an expandable details row that appears when clicked, displaying comprehensive validation
+ * details in a structured table format with consistent styling and indentation.
+ */
 import { defineProps, ref } from 'vue';
 
 // Define the props to receive data from the parent component

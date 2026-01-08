@@ -56,20 +56,18 @@
         <table class="w-full border-collapse">
           <thead class="bg-gray-200">
             <tr>
-              <th class="text-left px-4 py-2 border-b border-gray-300 text-gray-600 font-medium w-1/4">
-                Property Shape Name
+              <th 
+                v-for="(column, index) in columns" 
+                :key="index" 
+                class="text-left px-4 py-2 border-b border-gray-300 text-gray-600 font-medium w-1/4 cursor-pointer"
+                @click="sortColumn(column)"
+              >
+                {{ column.label }}
+                <span class="sort-indicator">
+                  {{ sortKey === column.field ? (sortOrder === 'asc' ? ' ▲' : ' ▼') : '' }}
+                </span>
               </th>
               <th class="text-left px-4 py-2 border-b border-gray-300 text-gray-600 font-medium w-1/4">
-                Number of Violations
-              </th>
-              <th class="text-left px-4 py-2 border-b border-gray-300 text-gray-600 font-medium w-1/4">
-                Number of Constraints
-              </th>
-              <th class="text-left px-4 py-2 border-b border-gray-300 text-gray-600 font-medium w-1/4">
-                Most Violated Constraint
-              </th>
-              <th class="text-left px-4 py-2 border-b border-gray-300 text-gray-600 font-medium w-1/4">
-                
               </th>
             </tr>
           </thead><!-- Table Body with Items -->
@@ -116,7 +114,45 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue';
+/**
+ * ShapesTable component
+ *
+ * Displays a table of SHACL property shapes with statistics and expandable details.
+ * Allows users to view, filter, sort, and export property shape information.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ShapesTable />
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - rdflib - For RDF data handling
+ * - ./ShapeTableRow.vue - For detailed validation entries
+ * - ./ShapesTablePropertyShape.vue - For property shape entries
+ * - ./Filter.vue - For filtering functionality
+ * - @fortawesome/vue-fontawesome - For icons
+ *
+ * @data
+ * - Fetches property shapes data from '../reports/propertyShapes.json'
+ * - Processes and formats the data using prefixes for readability
+ *
+ * @features
+ * - Sortable columns (click on column headers)
+ * - Pagination with navigation controls
+ * - Filtering capabilities
+ * - CSV export functionality
+ * - Prefix management for URI display
+ *
+ * @style
+ * - Clean table design with alternating row colors
+ * - Sort indicators on column headers
+ * - Responsive layout with proper spacing
+ * 
+ * @returns {HTMLElement} A comprehensive table interface for property shapes, featuring a header
+ * with title and action buttons (toggle prefixes, filter, download CSV), a sortable data table
+ * with expandable rows, pagination controls, and an optional prefixes panel showing URI namespaces.
+ */
+  import { ref, computed, onMounted } from 'vue';
   import * as rdf from 'rdflib'; // Import rdflib.js
   import ShapeTableRow from './ShapeTableRow.vue'; // Import the ShapeTableRow component
   import ShapesTablePropertyShape from './ShapesTablePropertyShape.vue'; // Import the ShapeTableRow component
@@ -128,6 +164,26 @@
   const prefixes = ref({});
   
   const shapes = ref([]);
+
+  const sortKey = ref(null);
+  const sortOrder = ref('asc'); // Default sort order is ascending
+
+  const columns = ref([
+    { label: "Property Shape Name", field: "propertyShapeName" },
+    { label: "Number of Violations", field: "numberOfViolations" },
+    { label: "Number of Constraints", field: "numberOfConstraints" },
+    { label: "Most Violated Constraint", field: "mostViolatedConstraint" }
+  ]);
+
+  // Function to sort the table
+  const sortColumn = (column) => {
+    if (sortKey.value === column.field) {
+      sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortKey.value = column.field;
+      sortOrder.value = 'asc';
+    }
+  };
 
  // Data for Property Shapes
   const propertyShapes = ref([]);
@@ -143,10 +199,10 @@
 
         // Map the data to the required format
         tablesData.value = jsonData.map((shape) => ({
-          propertyShapeName: shape.property_shape_name,
-          numberOfViolations: shape.number_of_violations,
-          numberOfConstraints: shape.number_of_constraints,
-          mostViolatedConstraint: shape.most_violated_constraint,
+          propertyShapeName: formatURI(shape.PropertyShapeName),
+          numberOfViolations: formatURI(shape.NumViolations),
+          numberOfConstraints: formatURI(shape.NumConstraints),
+          mostViolatedConstraint: formatURI(shape.MostViolatedConstraint),
         }));
 
         console.log("Loaded Property Shapes Data:", tablesData.value); // Debug log
@@ -157,6 +213,29 @@
       console.error('Error fetching property-shapes.json:', error);
     }
   };
+
+  const sortedPaginatedData = computed(() => {
+  if (!tablesData.value || tablesData.value.length === 0) {
+    console.warn("No data available in tablesData!");
+    return [];
+  }
+
+  const data = tablesData.value.slice(
+    (currentPage.value - 1) * itemsPerPage,
+    currentPage.value * itemsPerPage
+  );
+
+  if (sortKey.value) {
+    return [...data].sort((a, b) => {
+      const valA = a[sortKey.value] ?? ""; // Handle undefined/null
+      const valB = b[sortKey.value] ?? "";
+      const result = valA.toString().localeCompare(valB.toString(), undefined, { numeric: true });
+      return sortOrder.value === "asc" ? result : -result;
+    });
+  }
+
+  return data;
+});
 
   // Fetch data when the component is mounted
   onMounted(async () => {
@@ -197,23 +276,23 @@
           console.log("Shape Details:", shapeDetails); // Debug log
 
           return {
-            focusNode: details.FocusNode,
-            resultPath: details.ResultPath,
-            value: details.Value,
-            message: details.Message,
-            propertyShape: details.PropertyShape,
-            severity: details.Severity,
-            targetClass: details.TargetClass || [], // Add fallback for missing values
-            targetNode: details.TargetNode || [],
-            targetSubjectsOf: details.TargetSubjectsOf || [],
-            targetObjectsOf: details.TargetObjectsOf || [],
-            nodeShape: details.NodeShape || "",
-            constraintComponent: details.ConstraintComponent || "",
+            focusNode: formatURI(details.FocusNode),
+            resultPath: formatURI(details.ResultPath),
+            value: formatURI(details.Value),
+            message: formatURI(details.Message),
+            propertyShape: formatURI(details.PropertyShape),
+            severity: formatURI(details.Severity),
+            targetClass: formatURI(details.TargetClass || []), // Add fallback for missing values
+            targetNode: formatURI(details.TargetNode || []),
+            targetSubjectsOf: formatURI(details.TargetSubjectsOf || []),
+            targetObjectsOf: formatURI(details.TargetObjectsOf || []),
+            nodeShape: formatURI(details.NodeShape || ""),
+            constraintComponent: formatURI(details.ConstraintComponent || ""),
             shapes: {
-              shape: shapeDetails.Shape || "",
-              type: shapeDetails.Type || "",
-              properties: shapeDetails.Properties || [],
-              targetClass: shapeDetails.TargetClass || [],
+              shape: formatURI(shapeDetails.Shape || ""),
+              type: formatURI(shapeDetails.Type || ""),
+              properties: formatURI(shapeDetails.Properties || []),
+              targetClass: formatURI(shapeDetails.TargetClass || []),
             },
           };
         });
@@ -283,26 +362,28 @@
   const showFullPrefixes = ref(false); // State to track prefix expansion
 
   const formatURI = (uri) => {
-  if (!uri) return uri; // Skip null or undefined values
+  if (!uri || typeof uri !== "string") return uri; // Ensure valid input
 
-  if (showFullPrefixes.value) {
-    // Convert prefixed URI to full URI
-    const [prefix, localName] = uri.split(":");
-    if (prefixes.value[prefix]) {
-      return `${prefixes.value[prefix]}${localName}`;
+  console.log("Processing URI:", uri);
+
+  let matchedPrefix = null;
+  let matchedNamespace = null;
+
+  for (const [prefix, namespace] of Object.entries(prefixes.value)) {
+    if (uri.startsWith(namespace) && (!matchedNamespace || namespace.length > matchedNamespace.length)) {
+      matchedPrefix = prefix;
+      matchedNamespace = namespace;
     }
-    return uri; // Return as is if no match
-  } else {
-    // Convert full URI to prefixed form
-    const matchedPrefix = Object.entries(prefixes.value).find(([_, namespace]) =>
-      uri.startsWith(namespace)
-    );
-    if (matchedPrefix) {
-      const [prefix, namespace] = matchedPrefix;
-      return `${prefix}:${uri.replace(namespace, "")}`;
-    }
-    return uri; // Return as is if no match
   }
+
+  if (matchedPrefix) {
+    const transformedURI = `${matchedPrefix}:${uri.slice(matchedNamespace.length)}`;
+    console.log(`Transformed "${uri}" → "${transformedURI}"`);
+    return transformedURI;
+  }
+
+  console.log(`No match for "${uri}". Returning original.`);
+  return uri; // Return as is if no prefix match
 };
 
 const showPrefixes = ref(false);
@@ -376,4 +457,3 @@ td.wrap {
 }
 
   </style>
-  

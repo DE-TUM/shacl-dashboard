@@ -10,6 +10,30 @@
 </template>
 
 <script setup>
+/**
+ * PieChart component
+ *
+ * Renders a pie chart using Chart.js.
+ * Displays data as proportional segments of a circle, with configurable title.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <PieChart
+ * //   :data="pieData"
+ * //   title="Pie Chart Example"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the pie chart (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { Chart } from 'chart.js/auto';
 import { chartTheme } from './../../assets/chartTheme'; // Import the chart theme

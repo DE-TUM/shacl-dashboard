@@ -53,6 +53,32 @@
   </template>
   
   <script setup>
+/**
+ * AboutUs component
+ *
+ * Displays information about the team, project, and purpose of the SHACL Dashboard application.
+ * Contains sections for team members, project goals, and contact information.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <AboutUs />
+ *
+ * @prop {Array} [teamMembers=[]] - List of team members to display
+ * @prop {String} [contactEmail=''] - Contact email address
+ * @prop {String} [projectDescription=''] - Description of the project
+ *
+ * @dependencies
+ * - vue (Composition API)
+ *
+ * @style
+ * - Clean, responsive layout for presenting about information.
+ * - Sections for different types of content (team, project, contact).
+ * - May include images, links, and formatted text blocks.
+ * 
+ * @returns {HTMLElement} A visually appealing about page showing the Data Engineering Group
+ * at Technical University of Munich, featuring a professor and doctoral students arranged
+ * hierarchically with SVG connection lines between them, representing supervision relationships.
+ */
   import ExternalLink from "../Reusable/ExternalLink.vue"; // Adjust the path as necessary
   import { onMounted, ref, onBeforeUnmount, nextTick } from "vue";
   import * as d3 from 'd3';
@@ -418,4 +444,3 @@
    /* Note: For dynamic responsiveness, consider enhancing the drawConnections function */
  }
  </style>
- 

@@ -7,6 +7,35 @@
   </template>
   
   <script setup>
+/**
+ * PersonCard component
+ *
+ * Displays information about a person in a card format with photo, name, and role.
+ * Used for team member profiles or contributor listings.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <PersonCard
+ * //   photo="/path/to/photo.jpg"
+ * //   name="Jane Smith"
+ * //   role="Developer"
+ * // />
+ *
+ * @prop {String} photo - Path to the person's photo
+ * @prop {String} name - The person's name
+ * @prop {String} role - The person's role or title
+ *
+ * @dependencies
+ * - vue (Composition API)
+ *
+ * @style
+ * - Card-style container with border, shadow, and rounded corners
+ * - Photo displayed with consistent sizing and cropping
+ * - Clear typography for name and role with differentiated styling
+ * 
+ * @returns {HTMLElement} A card displaying a person's information with their photo at the top,
+ * name displayed prominently below the photo, and role/title shown in smaller text at the bottom.
+ */
   defineProps({
     photo: {
       type: String,
@@ -58,4 +87,3 @@
     font-size: 14px;
   }
   </style>
-  

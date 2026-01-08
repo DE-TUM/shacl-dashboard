@@ -23,6 +23,21 @@ from functions import (
     
 )
 
+"""
+Homepage Routes Module
+
+This module defines the API endpoints related to the main dashboard functionality
+of the SHACL Dashboard application. It provides routes for retrieving statistics,
+distributions, and detailed reports about SHACL validation results.
+
+Route groups:
+- Counts and statistics (/homepage/*count)
+- Violation distributions (/homepage/violations/distribution/*)
+- Detailed validation reports (/homepage/validation-details)
+- Entity-specific violations (/homepage/*/violations)
+"""
+
+
 homepage_bp = Blueprint('homepage', __name__)
 
 # Route to get the number of violations in the validation report

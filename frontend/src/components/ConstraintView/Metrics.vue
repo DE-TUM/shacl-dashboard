@@ -48,6 +48,31 @@
   </template>
   
   <script setup>
+/**
+ * Metrics component
+ *
+ * Displays key metrics about constraints in a dashboard format.
+ * Shows information such as shapes using the constraint, violation breakdowns, and common issues.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <Metrics />
+ *
+ * @prop {Number} [shapesUsingConstraint=5] - Number of shapes using this constraint
+ * @prop {Number} [violationBreakdown=10] - Number of violations for this constraint
+ *
+ * @dependencies
+ * - vue (Composition API)
+ *
+ * @style
+ * - Grid layout with responsive card design.
+ * - Cards with icons, titles, and metric values.
+ * - Color-coded icons and values for visual categorization.
+ * 
+ * @returns {HTMLElement} A grid of three metric cards showing key constraint statistics:
+ * shapes using this constraint (with count), violation breakdown (with count), and 
+ * common issues (with text descriptions). Each card features an icon and descriptive text.
+ */
   import { ref } from 'vue';
   
   const shapesUsingConstraint = ref(5); // This can be dynamic based on actual data
@@ -63,4 +88,3 @@
     height: 48px;
   }
   </style>
-  

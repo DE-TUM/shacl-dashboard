@@ -5,3 +5,26 @@
     />
   </svg>
 </template>
+
+<script>
+/**
+ * IconSupport component
+ *
+ * Renders an SVG icon representing support or help concepts.
+ * Provides a consistent visual element for support-related features.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <IconSupport />
+ *
+ * @dependencies
+ * - vue
+ *
+ * @style
+ * - SVG-based icon with customizable dimensions and color.
+ * - Generally used within buttons, help sections, or alongside text content.
+ */
+export default {
+  name: 'IconSupport',
+}
+</script>

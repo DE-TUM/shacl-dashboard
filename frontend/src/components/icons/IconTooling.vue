@@ -17,3 +17,26 @@
     ></path>
   </svg>
 </template>
+
+<script>
+/**
+ * IconTooling component
+ *
+ * Renders an SVG icon representing tools, development, or configuration.
+ * Provides a consistent visual element for tooling-related features.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <IconTooling />
+ *
+ * @dependencies
+ * - vue
+ *
+ * @style
+ * - SVG-based icon with customizable dimensions and color.
+ * - Generally used within buttons, menus, or alongside text content.
+ */
+export default {
+  name: 'IconTooling',
+}
+</script>

@@ -26,6 +26,47 @@ from functions import (
 
 shapes_overview_bp = Blueprint('shapes_overview', __name__)
 
+"""
+Shapes Overview Routes Module
+
+This module defines the API endpoints for analyzing and reporting on the overall
+structure and content of the SHACL shapes graph and validation results. It provides
+routes for retrieving shape names, statistics, and relationships in the validation schema.
+
+Key Endpoint Groups:
+
+- Entity Name Endpoints:
+  - /shapes/names: Get all shape names
+  - /focus-nodes/names: Get all focus node names
+  - /property-paths/names: Get all property path names
+  - /constraint-components/names: Get all constraint component names
+
+- Statistics Endpoints:
+  - /shapes/graph/count: Get number of shapes in shapes graph
+  - /shapes/violations/count: Get count of shapes with violations
+  - /violations/max: Get maximum number of violations for any shape
+  - /violations/average: Get average number of violations across shapes
+
+- Shape-Specific Endpoints:
+  - /violations/shape: Get violations for a specific shape
+  - /violations/node-shape/count: Get violation count for a node shape
+  - /violations/node-shape/focus-nodes/count: Get count of violated focus nodes
+  - /node-shape/property-paths/count: Get property path count for a node shape
+  - /node-shape/constraints/count: Get constraint count for a node shape
+
+- Property Shape Endpoints:
+  - /property-to-node/map: Get mapping of property shapes to node shapes
+  - /node-shape/property-shapes: Get property shapes for a node shape
+  - /node-shape/property-shapes/violations: Get violations by constraint type
+
+- Detailed Analysis Endpoints:
+  - /shapes/graph/details: POST endpoint to get detailed shape information
+  - /node-shape/constraints/total: Get total constraints count by node shape
+
+All endpoints support customization through query parameters for graph URIs,
+allowing flexibility in targeting different validation reports and shapes graphs.
+"""
+
 
 # Route to get all shapes names
 @shapes_overview_bp.route('/overview/shapes/names', methods=['GET'])

@@ -10,6 +10,40 @@
 </template>
 
 <script setup>
+/**
+ * BarChart component.
+ *
+ * Renders a customizable bar chart using Chart.js, with configurable title, axis labels, and data.
+ * Applies a theme from the local chartTheme asset.
+ *
+ * @component
+ * @example
+ * // Basic usage in a parent component template:
+ * // <BarChart
+ * //   :data="{
+ * //     labels: ['A', 'B', 'C'],
+ * //     datasets: [{ label: 'My Data', data: [10, 20, 30] }]
+ * //   }"
+ * //   title="My Bar Chart"
+ * //   xAxisLabel="Categories"
+ * //   yAxisLabel="Values"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object with `labels` (array) and `datasets` (array) (required)
+ * @prop {string} [title='Bar Chart'] - Title displayed above the chart
+ * @prop {string} [xAxisLabel='X Axis'] - Label for the x-axis
+ * @prop {string} [yAxisLabel='Y Axis'] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ * - chartTheme (local asset)
+ *
+ * @style
+ * - Card-style container with subtle shadow and rounded corners.
+ * - Responsive chart area with fixed height.
+ */
+
 import { ref, onMounted, watch } from 'vue';
 import { Chart } from 'chart.js';
 import { chartTheme } from './../../assets/chartTheme'; // Ensure the path to your chartTheme file is correct

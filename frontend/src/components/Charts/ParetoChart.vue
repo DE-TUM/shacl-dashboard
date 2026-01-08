@@ -13,6 +13,34 @@
 </template>
 
 <script setup>
+/**
+ * ParetoChart component
+ *
+ * Renders a Pareto chart using Chart.js.
+ * Displays data in descending order of magnitude with a cumulative percentage line, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ParetoChart
+ * //   :data="paretoData"
+ * //   title="Pareto Chart Example"
+ * //   xAxisLabel="Categories"
+ * //   yAxisLabel="Frequency"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the Pareto chart (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
 import { ref, onMounted, watch } from "vue";
 import { Chart, registerables } from "chart.js";
 import { chartTheme } from "./../../assets/chartTheme"; // Ensure the path is correct

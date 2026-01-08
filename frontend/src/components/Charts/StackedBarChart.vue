@@ -10,6 +10,34 @@
   </template>
   
   <script>
+/**
+ * StackedBarChart component
+ *
+ * Renders a stacked bar chart using Chart.js.
+ * Displays multiple series of data stacked on top of each other, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <StackedBarChart
+ * //   :data="stackedData"
+ * //   title="Stacked Bar Chart Example"
+ * //   xAxisLabel="Categories"
+ * //   yAxisLabel="Values"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the stacked bar chart (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
   import { Chart, registerables } from "chart.js";
   
   Chart.register(...registerables);
@@ -142,4 +170,3 @@
     height: 100% !important;
   }
   </style>
-  

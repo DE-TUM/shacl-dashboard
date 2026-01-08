@@ -10,6 +10,40 @@
 </template>
 
 <script setup>
+/**
+ * BoxPlot component
+ *
+ * Renders a box plot (box-and-whisker plot) using Chart.js.
+ * Displays statistical distribution of data with quartiles, median, and outliers.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <BoxPlot
+ * //   :title="'Distribution of Scores'"
+ * //   :xAxisLabel="'Categories'"
+ * //   :yAxisLabel="'Scores'"
+ * //   :data="[10, 20, 25, 30, 40, 50, 60]"
+ * // />
+ *
+ * @prop {String} title - Title for the chart
+ * @prop {String} xAxisLabel - Label for the x-axis
+ * @prop {String} yAxisLabel - Label for the y-axis
+ * @prop {Array} data - Array of numerical values to be visualized
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ * - chartjs-chart-box-and-violin-plot
+ *
+ * @style
+ * - Responsive chart container
+ * - Statistical visualization with quartile boxes and whiskers
+ * - Outlier detection and display
+ * 
+ * @returns {HTMLElement} A canvas element containing the rendered box plot showing
+ * data distribution with a box representing quartiles, a line for the median,
+ * whiskers extending to minimum and maximum values, and dots for outliers.
+ */
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { Chart } from 'chart.js/auto';
 import { BoxPlotController, BoxAndWiskers } from '@sgratzl/chartjs-chart-boxplot';

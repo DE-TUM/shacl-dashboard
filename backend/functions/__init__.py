@@ -1,3 +1,18 @@
+"""
+SHACL Dashboard - Functions Package
+
+This package contains the core service modules for the SHACL Dashboard backend.
+It provides services for loading and querying SHACL validation reports,
+generating statistics and visualizations, and interacting with the Virtuoso database.
+
+Modules:
+    homepage_service: Services for the main dashboard page and statistics
+    landing_service: Services for loading RDF data into the Virtuoso database
+    shape_view_service: Services for detailed shape inspection views
+    shapes_overview_service: Services for shapes graph analysis and metrics
+    virtuoso_service: Core database connectivity and query services
+"""
+
 from .virtuoso_service import (
     #get_number_of_constraints_for_node_shape,
     get_most_violated_constraint_for_node_shape,

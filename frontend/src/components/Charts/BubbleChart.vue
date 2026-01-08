@@ -10,7 +10,41 @@
   </template>
   
   <script>
-  import { Chart, registerables } from "chart.js";
+  /**
+   * BubbleChart component
+   *
+   * Renders a bubble chart visualization using Chart.js.
+   * Displays data points as bubbles with x, y coordinates and size (r) dimensions.
+   *
+   * @example
+   * // Basic usage in a parent component template:
+   * // <BubbleChart
+   * //   :data="bubbleData"
+   * //   :title="'Resource Allocation'"
+   * //   :xAxisLabel="'Time (days)'"
+   * //   :yAxisLabel="'Cost ($)'"
+   * // />
+   *
+   * @prop {Object} data - Chart.js data object for bubble chart containing datasets with x, y, r values
+   * @prop {String} [title=''] - Title displayed above the chart
+   * @prop {String} [xAxisLabel=''] - Label for the x-axis
+   * @prop {String} [yAxisLabel=''] - Label for the y-axis
+   *
+   * @dependencies
+   * - vue (Composition API)
+   * - chart.js - For rendering the bubble chart
+   * - chartTheme - For consistent styling
+   *
+   * @style
+   * - Responsive chart area with managed aspect ratio
+   * - Consistent theme colors from chartTheme
+   * - Proper padding and positioning
+   * 
+   * @returns {HTMLElement} A canvas element containing the rendered bubble chart where
+   * each data point is represented as a bubble with position (x, y) and size (r),
+   * making it suitable for displaying three-dimensional data in a two-dimensional space.
+   */
+  import { Chart, registerables } from 'chart.js';
   
   Chart.register(...registerables);
   
@@ -123,4 +157,3 @@
     max-height: 100%;
   }
   </style>
-  

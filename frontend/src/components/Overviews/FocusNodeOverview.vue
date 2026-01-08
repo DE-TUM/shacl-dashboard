@@ -80,6 +80,34 @@
 </template>
 
 <script setup>
+/**
+ * FocusNodeOverview component
+ *
+ * Provides a comprehensive overview of focus nodes in the dataset.
+ * Displays statistics, visualizations, and listings of focus nodes with their validation results.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <FocusNodeOverview />
+ *
+ * @prop {Array} [focusNodes=[]] - List of focus nodes to display
+ * @prop {Boolean} [showViolations=true] - Whether to show violation data
+ * @prop {Boolean} [showCharts=true] - Whether to show visualization charts
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ../Charts/PieChart.vue
+ * - ../FocusNodeView/Metrics.vue
+ *
+ * @style
+ * - Responsive layout with cards and data tables.
+ * - Data visualization components for focus node statistics.
+ * - Filterable and sortable focus node listings.
+ * 
+ * @returns {HTMLElement} A dashboard page displaying focus node statistics in summary cards at
+ * the top, three visualizations (histograms and bar chart) in the middle, and a comprehensive
+ * data table showing all focus nodes with their properties, violation counts, and RDF snippets.
+ */
 // Importing components
 import HistogramChart from './../Charts/HistogramChart.vue';
 import BarChart from './../Charts/BarChart.vue';

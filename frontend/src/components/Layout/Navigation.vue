@@ -1,4 +1,31 @@
 <script setup>
+/**
+ * Navigation component
+ *
+ * Top navigation bar of the application.
+ * Typically includes logo, main navigation links, and user controls.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <Navigation />
+ *
+ * @prop {String} [title='SHACL Dashboard'] - Application title to display
+ * @prop {Array} [navItems=[]] - Navigation items to display
+ * @prop {Boolean} [showUserMenu=true] - Whether to show user menu controls
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router (for navigation)
+ *
+ * @style
+ * - Full-width navigation bar with responsive design.
+ * - Contains styling for navigation links, dropdowns, and user controls.
+ * - Typically has contrasting background color for visual separation.
+ * 
+ * @returns {HTMLElement} A vertical navigation menu consisting of a list of router-linked
+ * buttons for different application views (Home, Shapes View, and Log out), styled with
+ * blue backgrounds and consistent spacing.
+ */
 const emit = defineEmits(['updateView']);
 
 const buttonClicked = (viewName) => {
@@ -18,7 +45,7 @@ const buttonClicked = (viewName) => {
         <v-btn text class="button-text-wrap blue-btn">Shapes View</v-btn>
       </router-link>
     </v-list-item>
-    <v-list-item>
+    <!-- <v-list-item>
       <router-link :to="'/focus-nodes'" @click.native="buttonClicked('Focus Node View')">
         <v-btn text class="button-text-wrap blue-btn">Focus Nodes View</v-btn>
       </router-link>
@@ -32,7 +59,7 @@ const buttonClicked = (viewName) => {
       <router-link :to="'/constraints'" @click.native="buttonClicked('Constraint View')">
         <v-btn text class="button-text-wrap blue-btn">Constraints View</v-btn>
       </router-link>
-    </v-list-item>
+    </v-list-item> -->
 
     <v-list-item>
       <router-link :to="'/'" @click.native="buttonClicked('LandingPage')">

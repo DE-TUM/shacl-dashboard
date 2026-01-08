@@ -5,3 +5,26 @@
     />
   </svg>
 </template>
+
+<script>
+/**
+ * IconDocumentation component
+ *
+ * Renders an SVG icon representing documentation or information materials.
+ * Provides a consistent visual element for documentation-related features.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <IconDocumentation />
+ *
+ * @dependencies
+ * - vue
+ *
+ * @style
+ * - SVG-based icon with customizable dimensions and color.
+ * - Generally used within buttons, links, or alongside text content.
+ */
+export default {
+  name: 'IconDocumentation',
+}
+</script>

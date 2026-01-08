@@ -83,6 +83,35 @@
 </template>
 
 <script setup>
+/**
+ * Metrics component
+ *
+ * Displays key metrics about property paths in a dashboard format.
+ * Shows information such as shapes using this path, violations by focus node,
+ * constraint components, and example violations, each with a small sparkline chart.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <Metrics />
+ *
+ * @prop {Array} [shapesUsingThisPath=['Shape 1', 'Shape 2', 'Shape 3']] - Shapes using this property path
+ * @prop {Object} [violationsByFocusNode] - Object mapping focus nodes to violation counts
+ * @prop {Array} [constraintComponents] - Array of constraint components related to this path
+ * @prop {Array} [exampleViolations] - Examples of violations for this property path
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ../Charts/SparklineChart.vue
+ *
+ * @style
+ * - Grid layout with responsive card design.
+ * - Cards with icons, titles, metric values, and sparkline charts.
+ * - Color-coded icons and list items for visual categorization.
+ * 
+ * @returns {HTMLElement} A grid of four metric cards displaying property path information,
+ * each with an icon, title, list of related data, and mini sparkline chart. Cards show shapes using
+ * this path, violations by focus node, constraint components, and example violations with color coding.
+ */
 import SparklineChart from '../Charts/SparklineChart.vue'
 
 // Props

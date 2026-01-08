@@ -5,3 +5,26 @@
     />
   </svg>
 </template>
+
+<script>
+/**
+ * IconCommunity component
+ *
+ * Renders an SVG icon representing community or group concepts.
+ * Provides a consistent visual element for community-related features.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <IconCommunity />
+ *
+ * @dependencies
+ * - vue
+ *
+ * @style
+ * - SVG-based icon with customizable dimensions and color.
+ * - Generally used within buttons, menus, or alongside text content.
+ */
+export default {
+  name: 'IconCommunity',
+}
+</script>

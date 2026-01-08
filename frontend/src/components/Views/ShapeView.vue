@@ -73,9 +73,9 @@
       <!-- Heatmap -->
       <HeatmapChart
           :title="'Violation Heatmap'"
-          :xAxisLabel="'Constraint Types'"
+          :xAxisLabel="'Constraint Components'"
           :yAxisLabel="'Property Shapes'"
-          :data="heatmapData"
+          :data="heatmapData26"
           :explanationText="'This scatter plot shows how violations correlate with the number of constraints 1.'"
           class="col-span-2"
         />
@@ -97,7 +97,42 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+/**
+ * ShapeView component
+ *
+ * Detailed view for a specific SHACL node shape.
+ * Displays shape information, metrics, visualizations, and associated validation results.
+ *
+ * @example
+ * // Basic usage in router view:
+ * // <router-view /> with route to ShapeView with shape ID parameter
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vue-router - For navigation and route parameter access
+ * - ../Charts/ScatterPlotChart.vue
+ * - ../Charts/HeatmapChart.vue
+ * - ../Charts/ParetoChart.vue
+ * - ../Reusable/ShapesTable.vue
+ * - ../Charts/GaugeChart.vue
+ * - @fortawesome/vue-fontawesome
+ *
+ * @features
+ * - Shape definition display with toggle
+ * - Key metrics dashboard
+ * - Multiple visualization charts for constraint violations
+ * - Property shape details with associated violations
+ *
+ * @style
+ * - Clean, organized section layout with consistent spacing
+ * - Responsive grid system for metrics and visualizations
+ * - Interactive elements with hover effects
+ * 
+ * @returns {HTMLElement} A detailed dashboard page containing a header with back navigation
+ * and shape definition, metrics cards showing violation statistics, visualization charts 
+ * (heatmap and pareto), and a property shapes table with detailed violation information.
+ */
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ScatterPlotChart from "./../Charts/ScatterPlotChart.vue";
 import HeatmapChart from "./../Charts/HeatmapChart.vue";
@@ -132,7 +167,7 @@ const scatterPlotData = ref({
   ],
 });
 
-const heatmapData = ref({
+const heatmapDatas = ref({
   properties: ["Property Shape 1", "Property Shape 2", "Property Shape 3", "Property Shape 4", "Property Shape 1", "Property Shape 2", "Property Shape 3", "Property Shape 4"],
   constraints: ["sh:minCount", "sh:maxCount", "sh:datatype", "sh:minCount", "sh:maxCount", "sh:datatype"],
   violations: [
@@ -147,6 +182,121 @@ const heatmapData = ref({
   ],
 });
 
+const heatmapData26 = ref([
+   {
+      "PropertyShape":"shs:costStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:ClassConstraintComponent",
+            "Violations":18
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:homepageStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":93
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:instanceTypeStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:InConstraintComponent",
+            "Violations":2214
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:labelStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":27
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:sameAsStadiumShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":27
+         }
+      ]
+   }
+  ]);
+
+
+  const heatmapData3 = ref([
+   {
+      "PropertyShape":"shs:costShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:ClassConstraintComponent",
+            "Violations":3
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:instanceTypeShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:InConstraintComponent",
+            "Violations":1394
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:lengthShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:DatatypeConstraintComponent",
+            "Violations":14
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:sameAsShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":11
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:timeZoneShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:MinCountConstraintComponent",
+            "Violations":75
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:topSpeedShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:DatatypeConstraintComponent",
+            "Violations":9
+         }
+      ]
+   },
+   {
+      "PropertyShape":"shs:heightShipShapeProperty",
+      "Constraints":[
+         {
+            "Constraint":"sh:DatatypeConstraintComponent",
+            "Violations":1
+         }
+      ]
+   }
+])
+
 const paretoData = ref({
   labels: ["Property Shape 1", "Property Shape 2", "Property Shape 3"],
   values: [20, 30, 50],
@@ -154,7 +304,7 @@ const paretoData = ref({
 
 const metrics = ref([
   { id: "violations", label: "Total Violations", value: totalViolations, titleMaxViolated: "", maxViolated: ""},
-  { id: "focus-nodes", label: "Focus Nodes", value: affectedFocusNodes, titleMaxViolated: "Most Focus Node", maxViolated: "dbpedia:PGA_Tour"},
+  { id: "focus-nodes", label: "Focus Nodes", value: affectedFocusNodes, titleMaxViolated: "Most Focus Node", maxViolated: "db:PGA_Tour"},
   { id: "property-paths", label: "Property Paths", value: affectedPropertyPaths, titleMaxViolated: "Most Property Path", maxViolated: " rdf:type"},
   { id: "constraints", label: "Constraints Triggered", value: constraintsTriggered, titleMaxViolated: "Most triggered Constrain", maxViolated: "sh:in"},
 ]);
@@ -165,10 +315,12 @@ const toggleDefinition = () => {
 
 onMounted(() => {
   const shapeId = route.params.shapeId;
+
+  console.log("Retrieved shapeId:", shapeId); // Debugging Log
   const shapes = {
-    1: {
-      name: "PersonShape",
-      definition: `@prefix sh: <http://www.w3.org/ns/shacl#> . 
+    26: {
+      name: 'shs:StadiumShape',
+      definition: `@prefix sh: <sh:> . 
                     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
                     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
                     @prefix ex: <http://example.org/> .

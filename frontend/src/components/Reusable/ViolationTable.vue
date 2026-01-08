@@ -108,6 +108,38 @@
 </template>
 
 <script setup>
+/**
+ * ViolationTable component
+ *
+ * Displays a table of SHACL validation violations with filtering and pagination capabilities.
+ * Allows users to view, filter, sort, and export validation results.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <ViolationTable />
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ./ViolationTableRow.vue - For rendering individual violation rows
+ * - ./Filter.vue - For filtering functionality
+ * - font-awesome - For icons
+ *
+ * @data
+ * - Fetches validation results from '../reports/result.json'
+ * - Processes and formats the data using prefixes for readability
+ *
+ * @features
+ * - Pagination with customizable items per page
+ * - Filtering capabilities
+ * - URI shortening using prefixes
+ * - CSV export functionality
+ * - Expandable rows for detailed information
+ *
+ * @style
+ * - Clean table design with alternating row colors
+ * - Filter panel with responsive positioning
+ * - Pagination controls with disabled states
+ */
 import { ref, computed, onMounted } from 'vue';
 import ViolationTableRow from './ViolationTableRow.vue';
 import Filter from './Filter.vue';

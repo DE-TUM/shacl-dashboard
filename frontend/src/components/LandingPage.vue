@@ -83,6 +83,37 @@
   </template>
   
   <script setup>
+/**
+ * LandingPage component
+ *
+ * Displays the initial landing page with SHACL Dashboard information and configuration form.
+ * Provides inputs for configuring data sources and initiating the dashboard.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <LandingPage :handleEnterClick="navigateToHome" />
+ *
+ * @prop {Function} handleEnterClick - Function to call when the user clicks the Enter button
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - vuetify - For UI components (v-text-field, v-btn)
+ *
+ * @state
+ * - directoryPath - Input value for Virtuoso directory path
+ * - shapesGraphName - Input value for SHACL shapes graph name
+ * - validationReportName - Input value for validation report name
+ * - greeting - Dynamic greeting based on time of day
+ *
+ * @style
+ * - Responsive split-panel layout with gradient background on left side
+ * - Card-style form with clean spacing and typography
+ * - Informative explanation sections with clear hierarchy
+ * 
+ * @returns {HTMLElement} A responsive landing page with split layout featuring 
+ * explanatory content on the left side with blue gradient background, and
+ * a configuration form on the right with input fields and an enter button.
+ */
   import { defineProps, ref } from 'vue'
   
   // Props will be passed to indicate which page is active
@@ -319,4 +350,4 @@
   line-height: 1.6; /* Better line spacing for readability */
 }
   </style>
-  
+

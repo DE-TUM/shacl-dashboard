@@ -5,6 +5,34 @@
 </template>
   
   <script setup>
+/**
+ * NodeShapeOverlapChart component
+ *
+ * Renders a chart visualizing the overlap between node shapes using Chart.js.
+ * Displays the intersection or overlap of different node shapes, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <NodeShapeOverlapChart
+ * //   :data="overlapData"
+ * //   title="Node Shape Overlap Example"
+ * //   xAxisLabel="Node Shapes"
+ * //   yAxisLabel="Overlap Count"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the overlap chart (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
   import { onMounted, ref } from 'vue';
   import { Chart } from 'chart.js';
   
@@ -45,4 +73,3 @@
     height: 200px; /* Adjust height as needed */
   }
   </style>
-  

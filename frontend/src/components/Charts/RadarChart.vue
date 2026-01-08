@@ -10,6 +10,30 @@
   </template>
   
   <script>
+/**
+ * RadarChart component
+ *
+ * Renders a radar chart using Chart.js.
+ * Displays multivariate data as a two-dimensional chart of multiple quantitative variables, with configurable title.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <RadarChart
+ * //   :data="radarData"
+ * //   title="Radar Chart Example"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the radar chart (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
   import { defineComponent, onMounted, ref, watch } from "vue";
   import { Chart } from "chart.js";
   

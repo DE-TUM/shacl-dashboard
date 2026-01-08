@@ -1,16 +1,44 @@
 <template>
-  <div class="chart-card">
+  <div class="chart-card ">
     <div class="chart-header flex justify-between items-center">
       <h3 class="inline-flex items-center gap-2" v-html="title"></h3>
       <ToggleQuestionMark :explanation="explanationText" />
     </div>
-    <div class="chart-body">
+    <div class="chart-body w-full ">
       <canvas ref="histogramCanvas"></canvas>
     </div>
   </div>
 </template>
 
 <script setup>
+/**
+ * HistogramChart component
+ *
+ * Renders a histogram chart using Chart.js.
+ * Displays the distribution of a dataset as bars, with configurable title and axis labels.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <HistogramChart
+ * //   :data="histogramData"
+ * //   title="Histogram Example"
+ * //   xAxisLabel="Bins"
+ * //   yAxisLabel="Frequency"
+ * // />
+ *
+ * @prop {Object} data - Chart.js data object for the histogram (required)
+ * @prop {string} [title=''] - Title displayed above the chart
+ * @prop {string} [xAxisLabel=''] - Label for the x-axis
+ * @prop {string} [yAxisLabel=''] - Label for the y-axis
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - chart.js
+ *
+ * @style
+ * - Responsive chart area with fixed height.
+ * - Container for the chart with relative positioning.
+ */
 import { onMounted, ref } from 'vue';
 import { Chart } from 'chart.js';
 import { chartTheme } from './../../assets/chartTheme'; // Ensure the path to your chartTheme file is correct

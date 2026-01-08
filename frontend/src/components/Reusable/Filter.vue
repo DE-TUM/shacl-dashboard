@@ -20,6 +20,40 @@
 </template>
 
 <script setup>
+/**
+ * Filter component
+ *
+ * Provides a multi-dropdown filtering interface for data tables.
+ * Allows selection of filter values across multiple categories.
+ *
+ * @example
+ * // Basic usage in a parent component template:
+ * // <Filter 
+ * //   :filters="filtersObject" 
+ * //   @update:filters="handleFilterUpdate" 
+ * //   @set-options="handleSetOptions" 
+ * //   @reset="handleReset"
+ * // />
+ *
+ * @prop {Object} filters - Object containing dropdown selections and options
+ * 
+ * @emits {update:filters} - When filters are updated
+ * @emits {set-options} - When dropdown options are set
+ * @emits {reset} - When filters are reset
+ *
+ * @dependencies
+ * - vue (Composition API)
+ * - ./DropDownMenu.vue - For dropdown selection components
+ *
+ * @style
+ * - Vertical column layout with multiple dropdown menus
+ * - Save and reset buttons with distinct styling
+ * - Proper spacing for clear visual hierarchy
+ * 
+ * @returns {HTMLElement} A filtering interface with four dropdown menus for different filter categories
+ * (Shapes, Focus Nodes, Property Paths, Constraint Components), plus Save Selection and Reset All
+ * Filters buttons at the bottom.
+ */
 import { ref } from 'vue';
 import DropDownMenu from './DropDownMenu.vue';
 

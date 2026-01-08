@@ -1,44 +1,82 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
 import math
 import requests
+import time 
+import csv 
+
+
+"""
+Shapes Overview Service Module
+
+This module provides functions for analyzing and reporting on the overall structure
+and content of the SHACL shapes graph. It extracts high-level information about
+shapes definitions, their relationships, and structures to provide a comprehensive
+overview of the validation schema.
+
+The functions in this module support:
+1. Retrieval of all shapes in the graph
+2. Analysis of shape types and hierarchies
+3. Mapping of property shapes to node shapes
+4. Generation of summary statistics about constraints and violations
+5. Analysis of constraint distribution across shapes
+6. Calculation of violation metrics for shapes
+
+Key functions:
+- get_property_to_node_map: Map property shapes to their parent node shapes
+- get_number_of_violations_for_node_shape: Count violations for a specific node shape
+- get_property_shapes: Get property shapes for a specific node shape
+- get_number_of_constraints_for_node_shape: Count constraints for a node shape
+- get_node_shape_details_table: Generate detailed table of node shape information
+- get_number_of_property_paths_for_node_shape: Count property paths for a node shape
+
+Configuration:
+- ENDPOINT_URL: SPARQL endpoint URL (default: http://localhost:8890/sparql)
+- SHAPES_GRAPH_URI: URI for the shapes graph (default: http://ex.org/ShapesGraph)
+- VALIDATION_REPORT_URI: URI for validation report (default: http://ex.org/ValidationReport)
+- SHACL_FEATURES: List of SHACL constraint property URIs for analysis
+"""
+
 
 # Global variables
-ENDPOINT_URL = "http://localhost:8890/sparql"
-SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
-VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
+#ENDPOINT_URL = "http://localhost:8890/sparql"
+#SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
+#VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
 
 # Define the set of SHACL features to check for constraints using full URIs
-SHACL_FEATURES = [
-    "http://www.w3.org/ns/shacl#class",
-    "http://www.w3.org/ns/shacl#datatype",
-    "http://www.w3.org/ns/shacl#NodeKind",
-    "http://www.w3.org/ns/shacl#nodeKind",
-    "http://www.w3.org/ns/shacl#minCount",
-    "http://www.w3.org/ns/shacl#maxCount",
-    "http://www.w3.org/ns/shacl#minExclusive",
-    "http://www.w3.org/ns/shacl#minInclusive",
-    "http://www.w3.org/ns/shacl#maxExclusive",
-    "http://www.w3.org/ns/shacl#maxInclusive",
-    "http://www.w3.org/ns/shacl#minLength",
-    "http://www.w3.org/ns/shacl#maxLength",
-    "http://www.w3.org/ns/shacl#pattern",
-    "http://www.w3.org/ns/shacl#languageIn",
-    "http://www.w3.org/ns/shacl#uniqueLang",
-    "http://www.w3.org/ns/shacl#equals",
-    "http://www.w3.org/ns/shacl#disjoint",
-    "http://www.w3.org/ns/shacl#lessThan",
-    "http://www.w3.org/ns/shacl#lessThanOrEquals",
-    "http://www.w3.org/ns/shacl#not",
-    "http://www.w3.org/ns/shacl#and",
-    "http://www.w3.org/ns/shacl#or",
-    "http://www.w3.org/ns/shacl#xone",
-    "http://www.w3.org/ns/shacl#node",
-    "http://www.w3.org/ns/shacl#qualifiedMinCount",
-    "http://www.w3.org/ns/shacl#qualifiedMaxCount",
-    "http://www.w3.org/ns/shacl#closed",
-    "http://www.w3.org/ns/shacl#hasValue",
-    "http://www.w3.org/ns/shacl#in"
-]
+#SHACL_FEATURES = [
+#    "http://www.w3.org/ns/shacl#class",
+#    "http://www.w3.org/ns/shacl#datatype",
+#    "http://www.w3.org/ns/shacl#NodeKind",
+#    "http://www.w3.org/ns/shacl#minCount",
+#    "http://www.w3.org/ns/shacl#maxCount",
+#    "http://www.w3.org/ns/shacl#minExclusive",
+#    "http://www.w3.org/ns/shacl#minInclusive",
+#    "http://www.w3.org/ns/shacl#maxExclusive",
+#    "http://www.w3.org/ns/shacl#maxInclusive",
+#    "http://www.w3.org/ns/shacl#minLength",
+#    "http://www.w3.org/ns/shacl#maxLength",
+#    "http://www.w3.org/ns/shacl#pattern",
+#    "http://www.w3.org/ns/shacl#languageIn",
+#    "http://www.w3.org/ns/shacl#uniqueLang",
+#    "http://www.w3.org/ns/shacl#equals",
+#    "http://www.w3.org/ns/shacl#disjoint",
+#    "http://www.w3.org/ns/shacl#lessThan",
+#    "http://www.w3.org/ns/shacl#lessThanOrEquals",
+#    "http://www.w3.org/ns/shacl#not",
+#    "http://www.w3.org/ns/shacl#and",
+#    "http://www.w3.org/ns/shacl#or",
+#    "http://www.w3.org/ns/shacl#xone",
+#   "http://www.w3.org/ns/shacl#node",
+#    "http://www.w3.org/ns/shacl#qualifiedMinCount",
+#    "http://www.w3.org/ns/shacl#qualifiedMaxCount",
+#    "http://www.w3.org/ns/shacl#closed",
+#    "http://www.w3.org/ns/shacl#hasValue",
+#    "http://www.w3.org/ns/shacl#in"
+#]
 
 
 def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
@@ -1030,8 +1068,102 @@ def get_node_shape_with_most_unique_constraints(validation_report_uri: str = VAL
 
 
 
+def benchmark_function_execution_2(func, runs=10, csv_filename="execution_time_use_case_2_lkg3_schema2.csv"):
+#def benchmark_function_execution(func, runs=10, csv_filename="execution_time_test.csv"):
+    """
+    Measures the execution time of a function over multiple runs in milliseconds,
+    and saves results to a CSV.
 
-#result = get_number_of_violations_per_constraint_type_for_property_shape("http://shaclshapes.org/StadiumShape")
+    Parameters:
+        func (callable): The function to benchmark.
+        runs (int): Number of times to run the function.
+        csv_filename (str): Name of the CSV file to save results.
 
-result = get_number_of_violations_per_constraint_type_for_property_shape("http://shaclshapes.org/ShipShape")
-print(result)
+    Returns:
+        dict: A dictionary with 'times_ms', 'average_ms', and 'results'.
+    """
+    execution_times_ms = []
+    results = []
+
+    for i in range(runs):
+        start_time = time.time()
+        result = func()
+        end_time = time.time()
+
+        elapsed_ms = (end_time - start_time) * 1000  # Convert to milliseconds
+        execution_times_ms.append(elapsed_ms)
+        results.append(result)
+        print(f"Run {i+1}: {elapsed_ms:.2f} ms")
+
+    average_ms = sum(execution_times_ms) / runs
+    print(f"\nAverage execution time: {average_ms:.2f} ms")
+
+    # Save to CSV
+    with open(csv_filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Run", "Execution Time (ms)"])
+        for idx, t in enumerate(execution_times_ms, start=1):
+            writer.writerow([idx, t])
+        writer.writerow(["Average", average_ms])
+
+    print(f"\nAll execution times and average saved to '{csv_filename}'")
+
+    return {
+        "times_ms": execution_times_ms,
+        "average_ms": average_ms,
+        "results": results
+    }
+    
+def benchmark_function_execution_3(func, runs=10, csv_filename="execution_time_use_case_2_lkg3_schema2.csv"):
+#def benchmark_function_execution(func, runs=10, csv_filename="execution_time_test.csv"):
+    """
+    Measures the execution time of a function over multiple runs in milliseconds,
+    and saves results to a CSV.
+
+    Parameters:
+        func (callable): The function to benchmark.
+        runs (int): Number of times to run the function.
+        csv_filename (str): Name of the CSV file to save results.
+
+    Returns:
+        dict: A dictionary with 'times_ms', 'average_ms', and 'results'.
+    """
+    execution_times_ms = []
+    results = []
+
+    for i in range(runs):
+        start_time = time.time()
+        result = func()
+        end_time = time.time()
+
+        elapsed_ms = (end_time - start_time) * 1000  # Convert to milliseconds
+        execution_times_ms.append(elapsed_ms)
+        results.append(result)
+        print(f"Run {i+1}: {elapsed_ms:.2f} ms")
+
+    average_ms = sum(execution_times_ms) / runs
+    print(f"\nAverage execution time: {average_ms:.2f} ms")
+
+    # Save to CSV
+    with open(csv_filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Run", "Execution Time (ms)"])
+        for idx, t in enumerate(execution_times_ms, start=1):
+            writer.writerow([idx, t])
+        writer.writerow(["Average", average_ms])
+
+    print(f"\nAll execution times and average saved to '{csv_filename}'")
+
+    return {
+        "times_ms": execution_times_ms,
+        "average_ms": average_ms,
+        "results": results
+    }
+#print(get_correlation_of_constraints_and_violations())
+# Execution Queries Use Case 2     
+benchmark_function_execution_2(get_correlation_of_constraints_and_violations)
+
+# Execution Queries Use Case 3
+benchmark_function_execution_3(lambda: get_number_of_violations_per_constraint_type_for_property_shape("http://swat.cse.lehigh.edu/onto/univ-bench.owl#CourseShape"))
+
+#print(get_number_of_violations_per_constraint_type_for_property_shape("http://swat.cse.lehigh.edu/onto/univ-bench.owl#CourseShape"))

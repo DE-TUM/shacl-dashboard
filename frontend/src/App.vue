@@ -1,8 +1,7 @@
 <template>
   <v-app>
-    <!-- Conditionally Render the Landing Page or Main Layout -->
-    <LandingPage v-if="isLandingPage" :handleEnterClick="handleEnterClick" />
-    <MainLayout v-else @updateView="handleViewUpdate" />
+    <!-- Always Render the Main Layout -->
+    <MainLayout />
   </v-app>
 </template>
 
