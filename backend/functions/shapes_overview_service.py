@@ -12,6 +12,7 @@ SHACL_FEATURES = [
     "http://www.w3.org/ns/shacl#class",
     "http://www.w3.org/ns/shacl#datatype",
     "http://www.w3.org/ns/shacl#NodeKind",
+    "http://www.w3.org/ns/shacl#nodeKind",
     "http://www.w3.org/ns/shacl#minCount",
     "http://www.w3.org/ns/shacl#maxCount",
     "http://www.w3.org/ns/shacl#minExclusive",
