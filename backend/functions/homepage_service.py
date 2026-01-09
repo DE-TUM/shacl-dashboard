@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
 import requests
 import math
-#from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 import time
 import csv
 
