@@ -146,9 +146,29 @@ import Tag from "./../Reusable/Tag.vue";
 import ViolationTable from "./../Reusable/ViolationTable.vue";
 import * as api from "../../services/api.js";
 
-// Helper function to format URIs (extract local name after # or /)
+// Store prefixes for URI formatting
+const prefixes = ref({});
+
+// Helper function to format URIs using prefixes
 const formatUri = (uri) => {
-  if (!uri) return "N/A";
+  if (!uri || typeof uri !== "string") return "N/A";
+
+  // Try to match with prefixes
+  let matchedPrefix = null;
+  let matchedNamespace = null;
+
+  for (const [prefix, namespace] of Object.entries(prefixes.value)) {
+    if (uri.startsWith(namespace) && (!matchedNamespace || namespace.length > matchedNamespace.length)) {
+      matchedPrefix = prefix;
+      matchedNamespace = namespace;
+    }
+  }
+
+  if (matchedPrefix) {
+    return `${matchedPrefix}:${uri.slice(matchedNamespace.length)}`;
+  }
+
+  // Fallback: extract local name after # or /
   const match = uri.match(/[#\/]([^#\/]+)$/);
   return match ? match[1] : uri;
 };
@@ -222,8 +242,11 @@ const constraintComponentHistogramData = ref({
 
 // Load data from API on component mount
 onMounted(async () => {
-  console.log('MainContent onMounted - starting to fetch data...');
   try {
+    // First, fetch prefixes from validation details (just get 1 record to get prefixes quickly)
+    const prefixData = await api.getValidationDetailsReport(1, 0);
+    prefixes.value = prefixData["@prefixes"] || {};
+
     // Fetch all statistics in parallel
     const [
       violationsCount,
@@ -289,16 +312,13 @@ onMounted(async () => {
       },
       {
         title: "Violated Constraint Components",
-        value: `${distinctConstraintComponents.distinctConstraintComponentCount}/${totalConstraints.distinctConstraintsCount} (${formatPercentage(distinctConstraintComponents.distinctConstraintComponentCount, totalConstraints.distinctConstraintsCount)})`,
+        value: `${totalConstraints.distinctConstraintsCount}/${distinctConstraintComponents.distinctConstraintComponentCount} (${formatPercentage(totalConstraints.distinctConstraintsCount, distinctConstraintComponents.distinctConstraintComponentCount)})`,
         titleMaxViolated: "Most Violated Constraint Component",
         maxViolated: formatUri(mostFrequentConstraint.constraintComponent),
       },
     ];
 
     // Update histogram data with proper styling
-    console.log('Shape distribution from API:', shapeDistribution);
-    console.log('Path distribution from API:', pathDistribution);
-    
     shapeHistogramData.value = {
       ...shapeDistribution,
       datasets: shapeDistribution.datasets.map(dataset => ({
@@ -339,9 +359,6 @@ onMounted(async () => {
       }))
     };
     
-    console.log('Final shapeHistogramData:', shapeHistogramData.value);
-    console.log('Final pathHistogramData:', pathHistogramData.value);
-
   } catch (error) {
     console.error("Error loading homepage data:", error);
     // Set error state in tags

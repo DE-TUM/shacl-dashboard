@@ -178,22 +178,16 @@ const nextPage = () => {
 const loadJsonData = async () => {
   try {
     // Fetch data from backend API instead of static JSON file
-    const jsonData = await api.getValidationDetailsReport(10, 0);
+    const jsonData = await api.getValidationDetailsReport(100, 0);
     
-    prefixes.value = jsonData["@prefixes"] || {}; 
-    console.log("Loaded Prefixes:", prefixes.value);
+    prefixes.value = jsonData["@prefixes"] || {};
 
-    if (Object.keys(prefixes.value).length === 0) {
-      console.warn("No prefixes found! URIs will not be transformed.");
-    }
 
     const violations = jsonData.violations;
 
     allData.value = violations.map((violation) => {
       const details = Object.values(violation)[0].full_validation_details;
       const shapeDetails = Object.values(violation)[0].shape_details;
-
-      console.log("Before Formatting:", details);
 
       const formattedData = {
         focusNode: formatURI(details.FocusNode),
@@ -230,13 +224,10 @@ const loadJsonData = async () => {
         },
       };
 
-      console.log("After Formatting:", formattedData);
-
       return formattedData;
     });
 
     tableData.value = [...allData.value];
-    console.log("Final Processed Data:", tableData.value);
   } catch (error) {
     console.error('Error fetching validation data from API:', error);
   }
@@ -245,8 +236,6 @@ const loadJsonData = async () => {
 
 const formatURI = (uri) => {
   if (!uri || typeof uri !== "string") return uri; // Ensure valid input
-
-  console.log("Processing URI:", uri);
 
   let matchedPrefix = null;
   let matchedNamespace = null;
@@ -259,12 +248,9 @@ const formatURI = (uri) => {
   }
 
   if (matchedPrefix) {
-    const transformedURI = `${matchedPrefix}:${uri.slice(matchedNamespace.length)}`;
-    console.log(`Transformed "${uri}" → "${transformedURI}"`);
-    return transformedURI;
+    return `${matchedPrefix}:${uri.slice(matchedNamespace.length)}`;
   }
 
-  console.log(`No match for "${uri}". Returning original.`);
   return uri; // Return as is if no prefix match
 };
 

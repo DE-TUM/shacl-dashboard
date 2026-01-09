@@ -649,6 +649,22 @@ def get_prefixes_from_endpoint(endpoint_url: str) -> dict:
                     prefix, namespace = line.split("\t", 1)
                     prefixes[prefix.strip()] = namespace.strip()
 
+        # Add commonly used prefixes that might not be in Virtuoso's nsdecl
+        additional_prefixes = {
+            'sh': 'http://www.w3.org/ns/shacl#',
+            'ex': 'http://shaclshapes.org/',
+            'dbo': 'http://dbpedia.org/ontology/',
+            'schema': 'http://schema.org/',
+            'wikidata': 'http://www.wikidata.org/entity/',
+            'geo': 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+            'umbel-rc': 'http://umbel.org/umbel/rc/'
+        }
+        
+        # Only add if not already present
+        for prefix, namespace in additional_prefixes.items():
+            if prefix not in prefixes:
+                prefixes[prefix] = namespace
+
         return prefixes
 
     except Exception as e:
