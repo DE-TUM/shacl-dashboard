@@ -222,6 +222,7 @@ const constraintComponentHistogramData = ref({
 
 // Load data from API on component mount
 onMounted(async () => {
+  console.log('MainContent onMounted - starting to fetch data...');
   try {
     // Fetch all statistics in parallel
     const [
@@ -294,11 +295,52 @@ onMounted(async () => {
       },
     ];
 
-    // Update histogram data
-    shapeHistogramData.value = shapeDistribution;
-    pathHistogramData.value = pathDistribution;
-    focusNodeHistogramData.value = focusNodeDistribution;
-    constraintComponentHistogramData.value = constraintDistribution;
+    // Update histogram data with proper styling
+    console.log('Shape distribution from API:', shapeDistribution);
+    console.log('Path distribution from API:', pathDistribution);
+    
+    shapeHistogramData.value = {
+      ...shapeDistribution,
+      datasets: shapeDistribution.datasets.map(dataset => ({
+        ...dataset,
+        backgroundColor: "rgba(154, 188, 228)",
+        borderColor: "rgba(154, 188, 228)",
+        borderWidth: 1,
+      }))
+    };
+    
+    pathHistogramData.value = {
+      ...pathDistribution,
+      datasets: pathDistribution.datasets.map(dataset => ({
+        ...dataset,
+        backgroundColor: "rgba(94, 148, 212, 1)",
+        borderColor: "rgba(94, 148, 212, 1)",
+        borderWidth: 1,
+      }))
+    };
+    
+    focusNodeHistogramData.value = {
+      ...focusNodeDistribution,
+      datasets: focusNodeDistribution.datasets.map(dataset => ({
+        ...dataset,
+        backgroundColor: "rgba(22, 93, 177, 1)",
+        borderColor: "rgba(22, 93, 177, 1)",
+        borderWidth: 1,
+      }))
+    };
+    
+    constraintComponentHistogramData.value = {
+      ...constraintDistribution,
+      datasets: constraintDistribution.datasets.map(dataset => ({
+        ...dataset,
+        backgroundColor: "rgba(10, 45, 87)",
+        borderColor: "rgba(10, 45, 87)",
+        borderWidth: 1,
+      }))
+    };
+    
+    console.log('Final shapeHistogramData:', shapeHistogramData.value);
+    console.log('Final pathHistogramData:', pathHistogramData.value);
 
   } catch (error) {
     console.error("Error loading homepage data:", error);

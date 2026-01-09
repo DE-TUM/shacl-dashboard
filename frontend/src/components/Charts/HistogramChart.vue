@@ -5,7 +5,8 @@
       <ToggleQuestionMark :explanation="explanationText" />
     </div>
     <div class="chart-body w-full ">
-      <canvas ref="histogramCanvas"></canvas>
+      <canvas v-if="hasData" ref="histogramCanvas"></canvas>
+      <div v-else class="no-data-message">Loading data...</div>
     </div>
   </div>
 </template>
@@ -39,7 +40,7 @@
  * - Responsive chart area with fixed height.
  * - Container for the chart with relative positioning.
  */
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed, watch, nextTick } from 'vue';
 import { Chart } from 'chart.js';
 import { chartTheme } from './../../assets/chartTheme'; // Ensure the path to your chartTheme file is correct
 import ToggleQuestionMark from "../Reusable/ToggleQuestionMark.vue";
@@ -57,6 +58,10 @@ const props = defineProps({
     type: String,
     default: 'Y Axis',
   },
+  explanationText: {
+    type: String,
+    default: '',
+  },
   data: {
     type: Object,
     required: true,
@@ -67,22 +72,35 @@ const props = defineProps({
 });
 
 const histogramCanvas = ref(null);
+const chartInstance = ref(null);
 
-onMounted(() => {
+// Check if data is available and valid
+const hasData = computed(() => {
+  return props.data && 
+         props.data.labels && 
+         props.data.labels.length > 0 && 
+         props.data.datasets && 
+         props.data.datasets.length > 0;
+});
+
+// Function to create the chart
+const createChart = () => {
+  if (!histogramCanvas.value || chartInstance.value) return;
+  
   // Apply global defaults for Chart.js using chartTheme
   Chart.defaults.color = chartTheme.defaults.textColor;
   Chart.defaults.borderColor = chartTheme.defaults.gridlineColor;
   Chart.defaults.plugins.legend.labels.color = chartTheme.defaults.legendColor;
 
-  new Chart(histogramCanvas.value, {
+  chartInstance.value = new Chart(histogramCanvas.value, {
     type: 'bar',
     data: {
-      ...props.data,
+      labels: props.data.labels,
       datasets: props.data.datasets.map((dataset) => ({
         ...dataset,
         backgroundColor: dataset.backgroundColor || chartTheme.colors.primary, 
         borderColor: dataset.borderColor || chartTheme.colors.secondary,
-        borderWidth: 1, // Border width
+        borderWidth: 1,
       })),
     },
     options: {
@@ -159,7 +177,16 @@ onMounted(() => {
       },
     },
   });
-});
+};
+
+// Watch for hasData to become true, then create chart
+watch(hasData, (newValue) => {
+  if (newValue && !chartInstance.value) {
+    nextTick(() => {
+      createChart();
+    });
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
@@ -192,5 +219,14 @@ onMounted(() => {
 
 .chart-body canvas {
   max-height: 100%; /* Prevent canvas from exceeding container */
+}
+
+.no-data-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 14px;
 }
 </style>
