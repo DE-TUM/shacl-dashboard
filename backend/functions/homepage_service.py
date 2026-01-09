@@ -285,12 +285,12 @@ def get_number_of_focus_nodes_in_validation_report(validation_report_uri: str = 
 
     return focus_node_count
 
-print(get_number_of_violations_in_validation_report())
-print(get_number_of_node_shapes_with_violations())
-print(get_number_of_node_shapes())
-print(get_number_of_focus_nodes_in_validation_report())
-print(get_number_of_paths_with_violations())
-print(get_number_of_paths_in_shapes_graph())
+# print(get_number_of_violations_in_validation_report())
+# print(get_number_of_node_shapes_with_violations())
+# print(get_number_of_node_shapes())
+# print(get_number_of_focus_nodes_in_validation_report())
+# print(get_number_of_paths_with_violations())
+# print(get_number_of_paths_in_shapes_graph())
 
 def count_triples(validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
     """
@@ -323,7 +323,7 @@ def count_triples(validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
 
     return triple_count
 
-print(count_triples())
+# print(count_triples())
 
 def get_violations_per_node_shape(shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> list:
     """
@@ -1095,7 +1095,7 @@ def get_distinct_constraints_count_in_shapes(shapes_graph_uri: str = SHAPES_GRAP
     else:
         return 0
 
-print(get_distinct_constraints_count_in_shapes())
+# print(get_distinct_constraints_count_in_shapes())
 
 def get_distribution_of_violations_per_constraint_component(
     validation_report_uri: str = VALIDATION_REPORT_URI,
@@ -1177,7 +1177,7 @@ def get_distribution_of_violations_per_constraint_component(
 
     return bar_chart_data
 
-print(get_distribution_of_violations_per_constraint_component())
+# print(get_distribution_of_violations_per_constraint_component())
 
 def distribution_of_violations_per_path_with_adaptive_bins(validation_report_uri: str = VALIDATION_REPORT_URI) -> dict:
     """
@@ -1270,6 +1270,6 @@ def benchmark_function_execution(func, runs=10, csv_filename="execution_time_use
         "average_ms": average_ms,
         "results": results
     }
-print(get_most_violated_node_shape())
-# Execution Use Case 1    
-benchmark_function_execution(get_most_violated_node_shape)
+# print(get_most_violated_node_shape())
+# # Execution Use Case 1    
+# benchmark_function_execution(get_most_violated_node_shape)
