@@ -123,9 +123,10 @@
  * - ./ViolationTableRow.vue - For rendering individual violation rows
  * - ./Filter.vue - For filtering functionality
  * - font-awesome - For icons
+ * - ../../services/api.js - For fetching validation data from backend
  *
  * @data
- * - Fetches validation results from '../reports/result.json'
+ * - Fetches validation results from backend API
  * - Processes and formats the data using prefixes for readability
  *
  * @features
@@ -143,6 +144,7 @@
 import { ref, computed, onMounted } from 'vue';
 import ViolationTableRow from './ViolationTableRow.vue';
 import Filter from './Filter.vue';
+import * as api from '../../services/api.js';
 
 const tableData = ref([]);
 const prefixes = ref({});
@@ -175,12 +177,9 @@ const nextPage = () => {
 
 const loadJsonData = async () => {
   try {
-    const response = await fetch('./../reports/result.json');
-    if (!response.ok) {
-      throw new Error("Failed to fetch JSON");
-    }
+    // Fetch data from backend API instead of static JSON file
+    const jsonData = await api.getValidationDetailsReport(10, 0);
     
-    const jsonData = await response.json();
     prefixes.value = jsonData["@prefixes"] || {}; 
     console.log("Loaded Prefixes:", prefixes.value);
 
@@ -239,7 +238,7 @@ const loadJsonData = async () => {
     tableData.value = [...allData.value];
     console.log("Final Processed Data:", tableData.value);
   } catch (error) {
-    console.error('Error fetching JSON data:', error);
+    console.error('Error fetching validation data from API:', error);
   }
 };
 
