@@ -1,4 +1,5 @@
 from flask import Flask, send_file, abort
+from flask_cors import CORS
 import os
 import subprocess
 
@@ -26,6 +27,14 @@ STATIC_FOLDER = os.path.abspath(os.path.join('..', 'frontend', 'dist'))
 VUE_SOURCE_FOLDER = os.path.abspath('../frontend')
 
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')  # Use the build output folder as the static folder
+
+# Enable CORS for frontend-backend communication
+CORS(app)
+
+# Register blueprints for API routes
+from routes import blueprints
+for blueprint in blueprints:
+    app.register_blueprint(blueprint)
 
 # Function to build the frontend (Vue.js)
 def build_frontend():
