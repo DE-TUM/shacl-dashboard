@@ -15,34 +15,57 @@ TRIPLE_STORE_TYPE = "virtuoso"  # Options: "virtuoso", "fuseki", "stardog", etc.
 SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
 VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
 
-# SHACL Constraints and Features
+# SHACL Constraints and Features (SHACL Core Constraint Components)
+# Based on W3C SHACL Recommendation: https://www.w3.org/TR/shacl/#core-components
+# Note: Includes both correct (sh:nodeKind) and common typo (sh:NodeKind) for compatibility
 SHACL_FEATURES = [
+    # 4.1 Value Type Constraint Components
     "http://www.w3.org/ns/shacl#class",
     "http://www.w3.org/ns/shacl#datatype",
-    "http://www.w3.org/ns/shacl#NodeKind",
+    "http://www.w3.org/ns/shacl#nodeKind",  # Correct SHACL spelling
+    "http://www.w3.org/ns/shacl#NodeKind",  # Common typo - kept for compatibility
+    
+    # 4.2 Cardinality Constraint Components
     "http://www.w3.org/ns/shacl#minCount",
     "http://www.w3.org/ns/shacl#maxCount",
+    
+    # 4.3 Value Range Constraint Components
     "http://www.w3.org/ns/shacl#minExclusive",
     "http://www.w3.org/ns/shacl#minInclusive",
     "http://www.w3.org/ns/shacl#maxExclusive",
     "http://www.w3.org/ns/shacl#maxInclusive",
+    
+    # 4.4 String-based Constraint Components
     "http://www.w3.org/ns/shacl#minLength",
     "http://www.w3.org/ns/shacl#maxLength",
     "http://www.w3.org/ns/shacl#pattern",
+    "http://www.w3.org/ns/shacl#flags",  # Added: pattern flags parameter
     "http://www.w3.org/ns/shacl#languageIn",
     "http://www.w3.org/ns/shacl#uniqueLang",
+    
+    # 4.5 Property Pair Constraint Components
     "http://www.w3.org/ns/shacl#equals",
     "http://www.w3.org/ns/shacl#disjoint",
     "http://www.w3.org/ns/shacl#lessThan",
     "http://www.w3.org/ns/shacl#lessThanOrEquals",
+    
+    # 4.6 Logical Constraint Components
     "http://www.w3.org/ns/shacl#not",
     "http://www.w3.org/ns/shacl#and",
     "http://www.w3.org/ns/shacl#or",
     "http://www.w3.org/ns/shacl#xone",
+    
+    # 4.7 Shape-based Constraint Components
     "http://www.w3.org/ns/shacl#node",
+    "http://www.w3.org/ns/shacl#property",  # Added
+    "http://www.w3.org/ns/shacl#qualifiedValueShape",  # Added
     "http://www.w3.org/ns/shacl#qualifiedMinCount",
     "http://www.w3.org/ns/shacl#qualifiedMaxCount",
+    "http://www.w3.org/ns/shacl#qualifiedValueShapesDisjoint",  # Added
+    
+    # 4.8 Other Constraint Components
     "http://www.w3.org/ns/shacl#closed",
+    "http://www.w3.org/ns/shacl#ignoredProperties",  # Added
     "http://www.w3.org/ns/shacl#hasValue",
     "http://www.w3.org/ns/shacl#in"
 ]

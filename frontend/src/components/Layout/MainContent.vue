@@ -312,7 +312,7 @@ onMounted(async () => {
       },
       {
         title: "Violated Constraint Components",
-        value: `${totalConstraints.distinctConstraintsCount}/${distinctConstraintComponents.distinctConstraintComponentCount} (${formatPercentage(totalConstraints.distinctConstraintsCount, distinctConstraintComponents.distinctConstraintComponentCount)})`,
+        value: `${distinctConstraintComponents.distinctConstraintComponentCount}/${totalConstraints.distinctConstraintsCount} (${formatPercentage(distinctConstraintComponents.distinctConstraintComponentCount, totalConstraints.distinctConstraintsCount)})`,
         titleMaxViolated: "Most Violated Constraint Component",
         maxViolated: formatUri(mostFrequentConstraint.constraintComponent),
       },
