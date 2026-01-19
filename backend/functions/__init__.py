@@ -6,9 +6,12 @@ It provides services for loading and querying SHACL validation reports,
 generating statistics and visualizations, and interacting with the Virtuoso database.
 
 Modules:
-    homepage_service: Services for the main dashboard page and statistics
+    validation_statistics_service: Basic statistical counts and metrics
+    violation_analysis_service: Violation breakdowns by entity
+    distribution_analysis_service: Distribution calculations for visualizations
+    validation_report_service: Detailed report generation and most violated entity analysis
+    utility_functions: Utility helpers for prefix extraction, RDF parsing, benchmarking
     landing_service: Services for loading RDF data into the Virtuoso database
-    shape_view_service: Services for detailed shape inspection views
     shapes_overview_service: Services for shapes graph analysis and metrics
     virtuoso_service: Core database connectivity and query services
 """
@@ -30,19 +33,33 @@ from .landing_service import (
     load_graphs
 )
 
-from .homepage_service import (
+# NEW: Import from split modules
+from .validation_statistics_service import (
     get_number_of_node_shapes,
     get_number_of_node_shapes_with_violations,
     get_number_of_paths_in_shapes_graph,
     get_number_of_paths_with_violations,
     get_number_of_focus_nodes_in_validation_report,
+    get_number_of_violations_in_validation_report,
+    count_triples,
+)
+
+from .violation_analysis_service import (
     get_violations_per_node_shape,
     get_violations_per_path,
     get_violations_per_focus_node,
-    get_number_of_violations_in_validation_report,
+)
+
+from .distribution_analysis_service import (
     distribution_of_violations_per_shape,
     distribution_of_violations_per_path,
     distribution_of_violations_per_focus_node,
+    get_distribution_of_violations_per_constraint_component,
+    distribution_of_violations_per_path_with_adaptive_bins,
+)
+
+# NEW: Import from validation report service
+from .validation_report_service import (
     generate_validation_details_report,
     get_most_violated_node_shape,
     get_most_violated_path,
@@ -50,7 +67,14 @@ from .homepage_service import (
     get_most_frequent_constraint_component,
     get_distinct_constraint_components_count,
     get_distinct_constraints_count_in_shapes,
-    get_distribution_of_violations_per_constraint_component,
+)
+
+# NEW: Import from utility functions
+from .utility_functions import (
+    get_prefixes_from_endpoint,
+    parse_rdf_list,
+    benchmark_function_execution,
+    debug_check_data,
 )
 
 from .shapes_overview_service import (
@@ -87,19 +111,28 @@ __all__ = [
     "map_property_shapes_to_node_shapes",
     "get_shape_from_shapes_graph",
     
-    # Homepage service
+    # Validation statistics service
     "get_number_of_node_shapes",
     "get_number_of_node_shapes_with_violations",
     "get_number_of_paths_in_shapes_graph",
     "get_number_of_paths_with_violations",
     "get_number_of_focus_nodes_in_validation_report",
+    "get_number_of_violations_in_validation_report",
+    "count_triples",
+    
+    # Violation analysis service  
     "get_violations_per_node_shape",
     "get_violations_per_path",
     "get_violations_per_focus_node",
-    "get_number_of_violations_in_validation_report",
+    
+    # Distribution analysis service
     "distribution_of_violations_per_shape",
     "distribution_of_violations_per_path",
     "distribution_of_violations_per_focus_node",
+    "get_distribution_of_violations_per_constraint_component",
+    "distribution_of_violations_per_path_with_adaptive_bins",
+    
+    # Validation report service
     "generate_validation_details_report",
     "get_most_violated_node_shape",
     "get_most_violated_path",
@@ -107,7 +140,12 @@ __all__ = [
     "get_most_frequent_constraint_component",
     "get_distinct_constraint_components_count",
     "get_distinct_constraints_count_in_shapes",
-    "get_distribution_of_violations_per_constraint_component",
+    
+    # Utility functions
+    "get_prefixes_from_endpoint",
+    "parse_rdf_list",
+    "benchmark_function_execution",
+    "debug_check_data",
     
     # Shapes overview service
     "get_number_of_violations_for_node_shape",
