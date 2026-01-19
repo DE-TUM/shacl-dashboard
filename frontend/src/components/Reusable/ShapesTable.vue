@@ -347,8 +347,10 @@
       } else {
         console.error('Failed to load JSON data.');
       }
-    } console.error('Error fetching JSON data:', error);
+    } catch (error) {
+      console.error('Error fetching JSON data:', error);
     }
+  
   };
   // Fetch data on mount
   onMounted(async () => {

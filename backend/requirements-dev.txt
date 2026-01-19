@@ -1,0 +1,29 @@
+# Include production dependencies
+-r requirements.txt
+
+# Testing Framework
+pytest==8.3.4  # Testing framework for unit and integration tests
+pytest-cov==6.0.0  # Coverage plugin for pytest
+pytest-mock==3.14.0  # Mock/stub utilities for pytest
+coverage==7.6.9  # Code coverage measurement
+
+# Code Quality and Linting
+black==24.10.0  # Code formatter for consistent style
+isort==5.13.2  # Import statement organizer
+pylint==3.3.3  # Static code analyzer for code quality
+flake8==7.1.1  # Style guide enforcement (PEP 8)
+mypy==1.13.0  # Static type checker
+
+# Security Scanning
+bandit==1.8.0  # Security issue scanner for Python
+
+# Code Complexity Analysis
+radon==6.0.1  # Code complexity and maintainability metrics
+
+# Development Utilities
+ipython==8.31.0  # Enhanced interactive Python shell
+ipdb==0.13.13  # IPython-based debugger
+python-dotenv==1.0.1  # .env file support for configuration
+
+# API Documentation
+flask-restx==1.3.0  # REST API framework with Swagger/OpenAPI support

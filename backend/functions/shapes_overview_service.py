@@ -1,6 +1,7 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
+from typing import List, Dict, Optional, Any, Tuple
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
 import math
@@ -44,7 +45,7 @@ Configuration:
 """
 
 
-def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> dict:
+def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> Dict[str, str]:
     """
     Map property shapes to their parent node shapes.
     
@@ -52,17 +53,22 @@ def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> dict:
         shapes_graph_uri (str): The URI of the Shapes Graph.
     
     Returns:
-        dict: Mapping of property shapes to node shapes.
+        Dict[str, str]: Mapping of property shape URIs to node shape URIs.
     """
+    logger.info("Entering get_property_to_node_map", extra={'shapes_graph_uri': shapes_graph_uri})
+    
     sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?propertyShape ?nodeShape
         FROM <{shapes_graph_uri}>
         WHERE {{
             ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> ;
                        <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
+    """
+    
+    logger.debug("Querying property to node mapping", extra={'query': query})
+    sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
     
@@ -73,6 +79,7 @@ def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> dict:
         node_shape = result["nodeShape"]["value"]
         prop_to_node_map[prop_shape] = node_shape
     
+    logger.info(f"Successfully mapped {len(prop_to_node_map)} property shapes to node shapes")
     return prop_to_node_map
 
 
@@ -88,15 +95,24 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
     Returns:
         int: The number of violations related to the Node Shape.
     """
+    logger.info("Entering get_number_of_violations_for_node_shape", extra={
+        'nodeshape_name': nodeshape_name,
+        'shapes_graph_uri': shapes_graph_uri,
+        'validation_report_uri': validation_report_uri
+    })
+    
     # Step 1: Query the Shapes Graph to get the Property Shapes associated with the Node Shape
     sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    property_query = f"""
         SELECT DISTINCT ?propertyShape
         FROM <{shapes_graph_uri}>
         WHERE {{
             <{nodeshape_name}> <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
+    """
+    
+    logger.debug("Querying property shapes for node shape", extra={'query': property_query})
+    sparql.setQuery(property_query)
     sparql.setReturnFormat(JSON)
     shapes_results = sparql.query().convert()
 
@@ -105,25 +121,30 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
 
     # If no Property Shapes are found, return 0 violations
     if not property_shapes:
+        logger.info("No property shapes found for node shape, returning 0 violations")
         return 0
 
     # Prepare the list of Property Shapes as a SPARQL VALUES clause
     property_shapes_values = " ".join([f"<{uri}>" for uri in property_shapes])
 
     # Step 2: Query the Validation Report to count the number of violations for these Property Shapes
-    sparql.setQuery(f"""
+    violation_query = f"""
         SELECT (COUNT(?violation) AS ?violationCount)
         FROM <{validation_report_uri}>
         WHERE {{
             ?violation <http://www.w3.org/ns/shacl#sourceShape> ?propertyShape .
             VALUES ?propertyShape {{ {property_shapes_values} }}
         }}
-    """)
+    """
+    
+    logger.debug("Counting violations for property shapes", extra={'query': violation_query, 'property_count': len(property_shapes)})
+    sparql.setQuery(violation_query)
     validation_results = sparql.query().convert()
 
     # Extract the number of violations
     violation_count = int(validation_results["results"]["bindings"][0]["violationCount"]["value"])
-
+    
+    logger.info(f"Found {violation_count} violations for node shape", extra={'violation_count': violation_count})
     return violation_count
 
 
@@ -279,7 +300,7 @@ def get_number_of_constraints_for_node_shape(node_shape_name: str, shapes_graph_
 
 
 
-def get_property_shapes(node_shape: str, limit: int = None, offset: int = None, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> list:
+def get_property_shapes(node_shape: str, limit: Optional[int] = None, offset: Optional[int] = None, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> List[Dict[str, Any]]:
     """
     Retrieve Property Shapes associated with the given Node Shape, including statistics about violations,
     constraints, and the most violated constraint.
@@ -477,7 +498,7 @@ def get_property_shape_with_violations(
     shapes_graph_uri: str = SHAPES_GRAPH_URI,
     limit: int = None,
     offset: int = None
-) -> dict:
+) -> Dict[str, Any]:
     """
     Get detailed violation information for a single property shape.
     
@@ -684,7 +705,7 @@ def get_node_shape_with_violations(
     }
 
 
-def get_total_constraints_count_per_node_shape(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> list:
+def get_total_constraints_count_per_node_shape(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> List[Dict[str, Any]]:
     """
     Calculate the total number of constraints (triples with predicates matching the SHACL features)
     for each Node Shape in the Shapes Graph.
@@ -736,7 +757,7 @@ def get_total_constraints_count_per_node_shape(shapes_graph_uri: str = SHAPES_GR
 def get_constraints_count_for_property_shapes(
     nodeshape_name: str,
     shapes_graph_uri: str = SHAPES_GRAPH_URI
-) -> list:
+) -> List[Dict[str, Any]]:
     """
     Calculate the constraints count for each Property Shape associated with the given Node Shape
     using a single SPARQL query.
@@ -783,7 +804,7 @@ def get_constraints_count_for_property_shapes(
     return property_shapes_constraints
 
 
-def get_maximum_number_of_violations_in_validation_report_for_node_shape() -> dict:
+def get_maximum_number_of_violations_in_validation_report_for_node_shape() -> Dict[str, Any]:
     """
     Calculate the number of violations for each Node Shape, and find the Node Shape
     with the maximum number of violations.
@@ -907,7 +928,7 @@ def get_distribution_of_violations_per_constraint(
     shapes_graph_uri: str = SHAPES_GRAPH_URI,
     validation_report_uri: str = VALIDATION_REPORT_URI,
     num_bins: int = 10,
-) -> dict:
+) -> Dict[str, Any]:
     """
     Generate data for the "Distribution of Violations per Constraint" plot in a single SPARQL query.
 
@@ -1020,7 +1041,7 @@ def get_distribution_of_violations_per_constraint(
     }
 
 
-def calculate_shannon_entropy(violation_counts: dict) -> float:
+def calculate_shannon_entropy(violation_counts: Dict[str, int]) -> float:
     total = sum(violation_counts.values())
     if total == 0:
         return 0.0
@@ -1031,7 +1052,7 @@ def calculate_shannon_entropy(violation_counts: dict) -> float:
 def get_correlation_of_constraints_and_violations(
     shapes_graph_uri: str = SHAPES_GRAPH_URI,
     validation_report_uri: str = VALIDATION_REPORT_URI,
-) -> list:
+) -> List[Dict[str, Any]]:
     """
     Provide data for a 'Correlation Between Constraints and Violations' plot (OPTIMIZED - NO OPTIONALS).
     For each Node Shape, it returns:
@@ -1194,7 +1215,7 @@ def get_correlation_of_constraints_and_violations(
 
 
 
-def get_node_shape_details_table(limit: int = None, offset: int = None, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> list:
+def get_node_shape_details_table(limit: Optional[int] = None, offset: Optional[int] = None, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> List[Dict[str, Any]]:
     """
     Generate data for the Node Shape Details table (OPTIMIZED WITH SIMPLE QUERIES).
     
@@ -1380,7 +1401,7 @@ def get_node_shape_details_table(limit: int = None, offset: int = None, shapes_g
 
 
 def get_node_shape_with_most_unique_constraints(validation_report_uri: str = VALIDATION_REPORT_URI,
-                                                shapes_graph_uri: str = SHAPES_GRAPH_URI) -> dict:
+                                                shapes_graph_uri: str = SHAPES_GRAPH_URI) -> Dict[str, Any]:
     """
     Find the Node Shape that has the most unique constraint components (sh:sourceConstraintComponent) in the validation report.
 

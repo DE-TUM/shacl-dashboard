@@ -62,7 +62,10 @@ def handle_api_errors(f):
 
 def validate_uri(uri: str, param_name: str = "URI") -> str:
     """
-    Validate that a string is a valid URI format.
+    Validate that a string is a valid URI format and safe for use in SPARQL queries.
+    
+    This function performs comprehensive validation to prevent SPARQL injection attacks
+    by checking for malicious characters and patterns that could compromise query integrity.
     
     Args:
         uri (str): The URI string to validate
@@ -72,7 +75,7 @@ def validate_uri(uri: str, param_name: str = "URI") -> str:
         str: The validated URI
         
     Raises:
-        ValidationError: If the URI is invalid
+        ValidationError: If the URI is invalid or contains potentially malicious content
     """
     if not uri or not isinstance(uri, str):
         raise ValidationError(f"{param_name} must be a non-empty string")
@@ -85,6 +88,30 @@ def validate_uri(uri: str, param_name: str = "URI") -> str:
     # Basic URI validation - should start with http:// or https://
     if not (uri.startswith('http://') or uri.startswith('https://')):
         raise ValidationError(f"{param_name} must be a valid HTTP(S) URI")
+    
+    # Check for dangerous characters that could be used for SPARQL injection
+    dangerous_chars = ['<', '>', '"', '{', '}', '|', '\\', '^', '`', '\n', '\r', '\t']
+    for char in dangerous_chars:
+        if char in uri:
+            raise ValidationError(f"{param_name} contains invalid character: {repr(char)}")
+    
+    # Check for SPARQL keywords that could indicate injection attempts
+    sparql_keywords = [
+        'SELECT', 'INSERT', 'DELETE', 'DROP', 'CLEAR', 'LOAD', 'CREATE',
+        'ASK', 'CONSTRUCT', 'DESCRIBE', 'GRAPH', 'WHERE', 'FILTER'
+    ]
+    uri_upper = uri.upper()
+    for keyword in sparql_keywords:
+        if f' {keyword} ' in uri_upper or uri_upper.endswith(f' {keyword}'):
+            raise ValidationError(f"{param_name} contains suspicious SPARQL keyword: {keyword}")
+    
+    # Check for comment patterns that could be used to bypass validation
+    if '--' in uri or '#' in uri or '/*' in uri:
+        raise ValidationError(f"{param_name} contains suspicious comment pattern")
+    
+    # Limit URI length to prevent DoS attacks
+    if len(uri) > 2048:
+        raise ValidationError(f"{param_name} exceeds maximum length of 2048 characters")
     
     return uri
 
@@ -122,6 +149,9 @@ def validate_positive_integer(value: any, param_name: str = "value", allow_none:
 
 def safe_get_binding_value(bindings: list, index: int, key: str, value_key: str = "value", default=None):
     """
+    DEPRECATED: This function has been moved to sparql_utils module.
+    Kept here for backward compatibility. Please use sparql_utils.safe_get_binding_value instead.
+    
     Safely extract a value from SPARQL query bindings with proper error handling.
     
     Args:
@@ -134,21 +164,15 @@ def safe_get_binding_value(bindings: list, index: int, key: str, value_key: str 
     Returns:
         The extracted value or default
     """
-    try:
-        if not bindings or index >= len(bindings):
-            return default
-        
-        binding = bindings[index]
-        if key not in binding:
-            return default
-        
-        return binding[key].get(value_key, default)
-    except (KeyError, IndexError, TypeError, AttributeError):
-        return default
+    from sparql_utils import safe_get_binding_value as _safe_get_binding_value
+    return _safe_get_binding_value(bindings, index, key, value_key, default)
 
 
 def safe_get_binding_int(bindings: list, index: int, key: str, default: int = 0) -> int:
     """
+    DEPRECATED: This function has been moved to sparql_utils module.
+    Kept here for backward compatibility. Please use sparql_utils.safe_get_binding_int instead.
+    
     Safely extract an integer value from SPARQL query bindings.
     
     Args:
@@ -160,8 +184,5 @@ def safe_get_binding_int(bindings: list, index: int, key: str, default: int = 0)
     Returns:
         int: The extracted integer value or default
     """
-    value = safe_get_binding_value(bindings, index, key, default=str(default))
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        return default
+    from sparql_utils import safe_get_binding_int as _safe_get_binding_int
+    return _safe_get_binding_int(bindings, index, key, default)

@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import os
+from typing import List, Dict, Optional, Union, Any
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, DATA_DIR_IN_DOCKER, DOCKER_CONTAINER_NAME, ISQL_PORT, ISQL_USERNAME, ISQL_PASSWORD
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -44,7 +45,7 @@ Configuration:
 """
 
 
-def clear_graphs_only():
+def clear_graphs_only() -> None:
     """
     Clear specific graphs from Virtuoso using ISQL via Docker.
 
@@ -68,7 +69,7 @@ def clear_graphs_only():
     except subprocess.CalledProcessError as e:
         logger.error("ISQL test command failed: %s", e.stderr)
 
-def load_graphs(directory: str, shapes_file: str, report_file: str):
+def load_graphs(directory: str, shapes_file: str, report_file: str) -> None:
     """
     Load two RDF files (ShapesGraph and ValidationReport) into Virtuoso using ISQL.
 
@@ -151,7 +152,7 @@ def load_graphs(directory: str, shapes_file: str, report_file: str):
         logger.error("ISQL tool not found. Please check if Virtuoso is installed correctly.")
         raise RuntimeError("ISQL tool not found")
 
-def get_all_shapes_names(graph_uri: str = "http://ex.org/ValidationReport") -> list:
+def get_all_shapes_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
     """
     Query the Virtuoso SPARQL endpoint to get all sh:sourceShape values
     from the specified graph.
@@ -160,13 +161,10 @@ def get_all_shapes_names(graph_uri: str = "http://ex.org/ValidationReport") -> l
         graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
 
     Returns:
-        list: A JSON list of shape names.
+        List[str]: A list of shape name URIs.
     """
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # Configure SPARQL query
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT DISTINCT ?shape
         FROM <{graph_uri}>
@@ -186,7 +184,7 @@ def get_all_shapes_names(graph_uri: str = "http://ex.org/ValidationReport") -> l
 
 
 
-def get_all_focus_node_names(graph_uri: str = "http://ex.org/ValidationReport") -> list:
+def get_all_focus_node_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
     """
     Query the Virtuoso SPARQL endpoint to get all sh:focusNode values
     from the specified graph.
@@ -195,13 +193,10 @@ def get_all_focus_node_names(graph_uri: str = "http://ex.org/ValidationReport") 
         graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
 
     Returns:
-        list: A JSON list of focus node names.
+        List[str]: A list of focus node URIs.
     """
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # Configure SPARQL query
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT DISTINCT ?focusNode
         FROM <{graph_uri}>
@@ -221,7 +216,7 @@ def get_all_focus_node_names(graph_uri: str = "http://ex.org/ValidationReport") 
 
 
 
-def get_all_property_path_names(graph_uri: str = "http://ex.org/ValidationReport") -> list:
+def get_all_property_path_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
     """
     Query the Virtuoso SPARQL endpoint to get all sh:resultPath values
     from the specified graph.
@@ -230,13 +225,10 @@ def get_all_property_path_names(graph_uri: str = "http://ex.org/ValidationReport
         graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
 
     Returns:
-        list: A JSON list of property path names.
+        List[str]: A list of property path URIs.
     """
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # Configure SPARQL query
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT DISTINCT ?propertyPath
         FROM <{graph_uri}>
@@ -256,7 +248,7 @@ def get_all_property_path_names(graph_uri: str = "http://ex.org/ValidationReport
 
 
 
-def get_all_constraint_components_names(graph_uri: str = "http://ex.org/ValidationReport") -> list:
+def get_all_constraint_components_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
     """
     Query the Virtuoso SPARQL endpoint to get all sh:sourceConstraintComponent values
     from the specified graph.
@@ -265,13 +257,10 @@ def get_all_constraint_components_names(graph_uri: str = "http://ex.org/Validati
         graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
 
     Returns:
-        list: A JSON list of constraint component names.
+        List[str]: A list of constraint component URIs.
     """
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # Configure SPARQL query
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT DISTINCT ?constraintComponent
         FROM <{graph_uri}>
@@ -291,16 +280,16 @@ def get_all_constraint_components_names(graph_uri: str = "http://ex.org/Validati
 
 
 
-def get_violations_for_shape_name(shape_name, graph_uri: str = "http://ex.org/ValidationReport") -> list:
+def get_violations_for_shape_name(shape_name: Union[str, Dict[str, str]], graph_uri: str = "http://ex.org/ValidationReport") -> List[Dict[str, str]]:
     """
     Query the Virtuoso SPARQL endpoint to get all violations related to the specified property shape name.
 
     Args:
-        shape_name (str or dict): The shape name (URI) as a string or a JSON object.
-        graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
+        shape_name: The shape name (URI) as a string or a dict with a 'shape' key.
+        graph_uri: The target graph URI to query. Default is "http://ex.org/ValidationReport".
 
     Returns:
-        list: A JSON list of violations with detailed information.
+        List[Dict[str, str]]: A list of violation dictionaries with keys: focusNode, resultMessage, resultPath, resultSeverity, constraintComponent.
     """
     # Handle JSON input for shape_name
     if isinstance(shape_name, dict) and "shape" in shape_name:
@@ -310,11 +299,8 @@ def get_violations_for_shape_name(shape_name, graph_uri: str = "http://ex.org/Va
     if not isinstance(shape_name, str):
         raise ValueError("Invalid input: shape_name must be a string or a JSON object with a 'shape' key.")
 
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # Configure SPARQL query
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT ?focusNode ?resultMessage ?resultPath ?resultSeverity ?constraintComponent
         FROM <{graph_uri}>
@@ -351,7 +337,7 @@ def get_violations_for_shape_name(shape_name, graph_uri: str = "http://ex.org/Va
 
 
 
-def get_number_of_shapes_in_shapes_graph(graph_uri: str = "http://ex.org/ShapesGraph") -> dict:
+def get_number_of_shapes_in_shapes_graph(graph_uri: str = "http://ex.org/ShapesGraph") -> Dict[str, int]:
     """
     Query the Virtuoso SPARQL endpoint to get the number of Node Shapes and Property Shapes
     in the specified shapes graph, including blank nodes.
@@ -360,13 +346,10 @@ def get_number_of_shapes_in_shapes_graph(graph_uri: str = "http://ex.org/ShapesG
         graph_uri (str): The target shapes graph URI to query. Default is "http://ex.org/ShapesGraph".
 
     Returns:
-        dict: A JSON object containing the number of node shapes and property shapes.
+        Dict[str, int]: A dictionary with keys 'nodeShapes' and 'propertyShapes' containing their counts.
     """
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # Configure SPARQL query to get the number of Node Shapes and Property Shapes (including blank nodes)
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT 
             (COUNT(DISTINCT ?nodeShape) AS ?nodeShapesCount)
@@ -406,11 +389,8 @@ def get_number_of_violations_in_validation_report(graph_uri: str = "http://ex.or
     Returns:
         int: The number of violations (sh:ValidationResult instances).
     """
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # Configure SPARQL query to count the number of sh:ValidationResult instances
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT (COUNT(?violation) AS ?violationCount)
         FROM <{graph_uri}>
@@ -433,7 +413,7 @@ def get_number_of_violations_in_validation_report(graph_uri: str = "http://ex.or
 
 
 def map_property_shapes_to_node_shapes(validation_report_uri: str = "http://ex.org/ValidationReport",
-                                       shapes_graph_uri: str = "http://ex.org/ShapesGraph") -> list:
+                                       shapes_graph_uri: str = "http://ex.org/ShapesGraph") -> List[Dict[str, str]]:
     """
     Map property shapes from the validation report to their corresponding node shapes in the shapes graph.
 
@@ -442,13 +422,10 @@ def map_property_shapes_to_node_shapes(validation_report_uri: str = "http://ex.o
         shapes_graph_uri (str): The URI of the shapes graph. Default is "http://ex.org/ShapesGraph".
 
     Returns:
-        list: A JSON list of dictionaries mapping property shapes to node shapes.
+        List[Dict[str, str]]: A list of dictionaries mapping property shape URIs to node shape URIs.
     """
-    # Fixed SPARQL endpoint URL for Virtuoso
-    endpoint_url = "http://localhost:8890/sparql"
-
     # SPARQL query to get the mapping of property shapes to node shapes
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT DISTINCT ?propertyShape ?nodeShape
         FROM <{validation_report_uri}>
@@ -476,17 +453,17 @@ def map_property_shapes_to_node_shapes(validation_report_uri: str = "http://ex.o
 
 
 
-def get_shape_from_shapes_graph(node_shape_names: list) -> dict:
+def get_shape_from_shapes_graph(node_shape_names: List[str]) -> Dict[str, Dict[str, Any]]:
     """
     Query the Virtuoso SPARQL endpoint in two steps to avoid redundant triples:
     1. Query Node Shape triples.
     2. Query Property Shape triples for each Node Shape.
 
     Args:
-        node_shape_names (list): A list of Node Shape URIs to query.
+        node_shape_names: A list of Node Shape URIs to query.
 
     Returns:
-        dict: A JSON-like dictionary representing the Node Shape tree structure.
+        Dict[str, Dict[str, Any]]: A dictionary representing the Node Shape tree structure.
         
     Example Output:
     {
@@ -540,16 +517,12 @@ def get_shape_from_shapes_graph(node_shape_names: list) -> dict:
         }
     }
     """
-    # Fixed SPARQL endpoint URL and Shapes Graph URI
-    endpoint_url = "http://localhost:8890/sparql"
-    graph_uri = "http://ex.org/ShapesGraph"
-
     # Step 1: Query Node Shape triples
     node_shapes_values = " ".join([f"<{uri}>" for uri in node_shape_names])
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT DISTINCT ?subject ?predicate ?object
-        FROM <{graph_uri}>
+        FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             VALUES ?subject {{ {node_shapes_values} }}
             ?subject ?predicate ?object .
@@ -582,7 +555,7 @@ def get_shape_from_shapes_graph(node_shape_names: list) -> dict:
     for property_shape in property_shapes:
         sparql.setQuery(f"""
             SELECT DISTINCT ?predicate ?object
-            FROM <{graph_uri}>
+            FROM <{SHAPES_GRAPH_URI}>
             WHERE {{
                 <{property_shape}> ?predicate ?object .
             }}
@@ -711,15 +684,11 @@ def get_number_of_property_shapes_for_node_shape(shape_name: str) -> int:
     Returns:
         int: The number of Property Shapes associated with the Node Shape.
     """
-    # Fixed SPARQL endpoint URL and Shapes Graph URI
-    endpoint_url = "http://localhost:8890/sparql"
-    graph_uri = "http://ex.org/ShapesGraph"
-
     # SPARQL query to count the number of Property Shapes
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT (COUNT(DISTINCT ?propertyShape) AS ?propertyShapeCount)
-        FROM <{graph_uri}>
+        FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             <{shape_name}> <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
@@ -806,16 +775,11 @@ def get_most_violated_constraint_for_node_shape(shape_name: str) -> str:
 
         - If there are no violations related to the given Node Shape, the function will return an empty string "".
     """
-    # Fixed SPARQL endpoint URLs and Graph URIs
-    endpoint_url = "http://localhost:8890/sparql"
-    shapes_graph_uri = "http://ex.org/ShapesGraph"
-    validation_report_uri = "http://ex.org/ValidationReport"
-
     # Step 1: Query the Shapes Graph to get the Property Shapes associated with the Node Shape
-    sparql = SPARQLWrapper(endpoint_url)
+    sparql = SPARQLWrapper(ENDPOINT_URL)
     sparql.setQuery(f"""
         SELECT DISTINCT ?propertyShape
-        FROM <{shapes_graph_uri}>
+        FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             <{shape_name}> <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
@@ -836,7 +800,7 @@ def get_most_violated_constraint_for_node_shape(shape_name: str) -> str:
     # Step 2: Query the Validation Report to find the most violated constraint
     sparql.setQuery(f"""
         SELECT ?constraintComponent (COUNT(?violation) AS ?violationCount)
-        FROM <{validation_report_uri}>
+        FROM <{VALIDATION_REPORT_URI}>
         WHERE {{
             ?violation <http://www.w3.org/ns/shacl#sourceShape> ?propertyShape ;
                        <http://www.w3.org/ns/shacl#sourceConstraintComponent> ?constraintComponent .

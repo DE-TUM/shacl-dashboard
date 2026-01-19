@@ -18,8 +18,18 @@ from typing import Dict
 # Global cache for extracted prefixes
 _cached_prefixes: Dict[str, str] = {}
 
+# Constants for prefix extraction behavior
+# Maximum lines to read from file before stopping (prevents reading huge files)
+# Turtle prefix declarations are typically in the first 10-50 lines
+MAX_PREFIX_LINES_TO_READ = 500
 
-def extract_prefixes_from_turtle_file(file_path: str, max_lines: int = 500) -> Dict[str, str]:
+# Number of consecutive non-prefix lines that indicates we're past the prefix section
+# Prefixes are conventionally at the file header, so if we see 3+ non-prefix lines,
+# we can safely assume we've left the prefix declarations section
+CONSECUTIVE_NON_PREFIX_THRESHOLD = 3
+
+
+def extract_prefixes_from_turtle_file(file_path: str, max_lines: int = MAX_PREFIX_LINES_TO_READ) -> Dict[str, str]:
     """
     Extract @prefix declarations from a Turtle file by reading only the header.
     
@@ -28,7 +38,7 @@ def extract_prefixes_from_turtle_file(file_path: str, max_lines: int = 500) -> D
     
     Args:
         file_path: Path to the .ttl file
-        max_lines: Maximum lines to read (default 500, stops earlier if no more prefixes)
+        max_lines: Maximum lines to read (default MAX_PREFIX_LINES_TO_READ, stops earlier if no more prefixes)
         
     Returns:
         dict: Dictionary of {prefix: namespace_uri}
@@ -80,8 +90,8 @@ def extract_prefixes_from_turtle_file(file_path: str, max_lines: int = 500) -> D
                 # we might be past the prefix section (they're typically at the top)
                 if line and not line.startswith('@') and not line.upper().startswith('PREFIX'):
                     consecutive_non_prefix_lines += 1
-                    # If we've seen 3+ consecutive non-prefix lines, we're definitely past prefixes
-                    if consecutive_non_prefix_lines >= 3:
+                    # If we've seen multiple consecutive non-prefix lines, we're definitely past prefixes
+                    if consecutive_non_prefix_lines >= CONSECUTIVE_NON_PREFIX_THRESHOLD:
                         break
         
         return prefixes

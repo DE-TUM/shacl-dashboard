@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
+from typing import Tuple
 from functions import (
     get_all_shapes_names,
     get_all_focus_node_names,
@@ -72,7 +73,21 @@ allowing flexibility in targeting different validation reports and shapes graphs
 # Route to get all shapes names
 @shapes_overview_bp.route('/overview/shapes/names', methods=['GET'])
 @handle_api_errors
-def get_shapes_names():
+def get_shapes_names() -> Response:
+    """
+    Retrieve all distinct shape names from the validation report.
+    
+    Query Parameters:
+        graph_uri (str, optional): The URI of the validation report graph.
+            Defaults to "http://ex.org/ValidationReport".
+    
+    Returns:
+        Response: JSON response containing a list of shape names.
+            Format: {'shapes': [str, ...]}
+    
+    Raises:
+        ValidationError: If the graph_uri parameter is invalid.
+    """
     graph_uri = request.args.get("graph_uri", default="http://ex.org/ValidationReport")
     graph_uri = validate_uri(graph_uri, "graph_uri")
     result = get_all_shapes_names(graph_uri)
@@ -82,7 +97,21 @@ def get_shapes_names():
 # Route to get all focus node names
 @shapes_overview_bp.route('/overview/focus-nodes/names', methods=['GET'])
 @handle_api_errors
-def get_focus_node_names():
+def get_focus_node_names() -> Response:
+    """
+    Retrieve all distinct focus node names from the validation report.
+    
+    Query Parameters:
+        graph_uri (str, optional): The URI of the validation report graph.
+            Defaults to "http://ex.org/ValidationReport".
+    
+    Returns:
+        Response: JSON response containing a list of focus node names.
+            Format: {'focusNodes': [str, ...]}
+    
+    Raises:
+        ValidationError: If the graph_uri parameter is invalid.
+    """
     graph_uri = request.args.get("graph_uri", default="http://ex.org/ValidationReport")
     graph_uri = validate_uri(graph_uri, "graph_uri")
     result = get_all_focus_node_names(graph_uri)
@@ -92,7 +121,21 @@ def get_focus_node_names():
 # Route to get all property path names
 @shapes_overview_bp.route('/overview/property-paths/names', methods=['GET'])
 @handle_api_errors
-def get_property_path_names():
+def get_property_path_names() -> Response:
+    """
+    Retrieve all distinct property path names from the validation report.
+    
+    Query Parameters:
+        graph_uri (str, optional): The URI of the validation report graph.
+            Defaults to "http://ex.org/ValidationReport".
+    
+    Returns:
+        Response: JSON response containing a list of property path names.
+            Format: {'propertyPaths': [str, ...]}
+    
+    Raises:
+        ValidationError: If the graph_uri parameter is invalid.
+    """
     graph_uri = request.args.get("graph_uri", default="http://ex.org/ValidationReport")
     graph_uri = validate_uri(graph_uri, "graph_uri")
     result = get_all_property_path_names(graph_uri)
@@ -102,7 +145,21 @@ def get_property_path_names():
 # Route to get all constraint component names
 @shapes_overview_bp.route('/overview/constraint-components/names', methods=['GET'])
 @handle_api_errors
-def get_constraint_components_names():
+def get_constraint_components_names() -> Response:
+    """
+    Retrieve all distinct constraint component names from the validation report.
+    
+    Query Parameters:
+        graph_uri (str, optional): The URI of the validation report graph.
+            Defaults to "http://ex.org/ValidationReport".
+    
+    Returns:
+        Response: JSON response containing a list of constraint component URIs.
+            Format: {'constraintComponents': [str, ...]}
+    
+    Raises:
+        ValidationError: If the graph_uri parameter is invalid.
+    """
     graph_uri = request.args.get("graph_uri", default="http://ex.org/ValidationReport")
     graph_uri = validate_uri(graph_uri, "graph_uri")
     result = get_all_constraint_components_names(graph_uri)
@@ -112,7 +169,22 @@ def get_constraint_components_names():
 # Route to get violations for a shape name
 @shapes_overview_bp.route('/overview/violations/shape', methods=['GET'])
 @handle_api_errors
-def get_violations_by_shape():
+def get_violations_by_shape() -> Response:
+    """
+    Retrieve all violations associated with a specific shape.
+    
+    Query Parameters:
+        shape_name (str, required): The URI of the shape to query.
+        graph_uri (str, optional): The URI of the validation report graph.
+            Defaults to "http://ex.org/ValidationReport".
+    
+    Returns:
+        Response: JSON response containing violations for the specified shape.
+            Format: {'violations': [{'focusNode': str, 'resultMessage': str, ...}, ...]}
+    
+    Raises:
+        ValidationError: If shape_name is missing or if any URI parameter is invalid.
+    """
     shape_name = request.args.get("shape_name")
     graph_uri = request.args.get("graph_uri", default="http://ex.org/ValidationReport")
     if not shape_name:
@@ -125,7 +197,21 @@ def get_violations_by_shape():
 # Route to get the number of shapes in the shapes graph
 @shapes_overview_bp.route('/overview/shapes/graph/count', methods=['GET'])
 @handle_api_errors
-def get_shapes_count_in_graph():
+def get_shapes_count_in_graph() -> Response:
+    """
+    Count the total number of node shapes in the shapes graph.
+    
+    Query Parameters:
+        graph_uri (str, optional): The URI of the shapes graph.
+            Defaults to "http://ex.org/ShapesGraph".
+    
+    Returns:
+        Response: JSON response containing the node shape count.
+            Format: {'nodeShapeCount': int}
+    
+    Raises:
+        ValidationError: If the graph_uri parameter is invalid.
+    """
     graph_uri = request.args.get("graph_uri", default="http://ex.org/ShapesGraph")
     graph_uri = validate_uri(graph_uri, "graph_uri")
     result = get_number_of_node_shapes(graph_uri)
@@ -135,7 +221,23 @@ def get_shapes_count_in_graph():
 # Route to get the number of node shapes with violations in the validation report
 @shapes_overview_bp.route('/overview/shapes/violations/count', methods=['GET'])
 @handle_api_errors
-def get_node_shapes_with_violations_count():
+def get_node_shapes_with_violations_count() -> Response:
+    """
+    Count the number of node shapes that have at least one violation.
+    
+    Query Parameters:
+        shapes_graph_uri (str, optional): The URI of the shapes graph.
+            Defaults to "http://ex.org/ShapesGraph".
+        validation_report_uri (str, optional): The URI of the validation report graph.
+            Defaults to "http://ex.org/ValidationReport".
+    
+    Returns:
+        Response: JSON response containing the count of node shapes with violations.
+            Format: {'nodeShapesWithViolationsCount': int}
+    
+    Raises:
+        ValidationError: If any URI parameter is invalid.
+    """
     shapes_graph_uri = request.args.get("shapes_graph_uri", default="http://ex.org/ShapesGraph")
     validation_report_uri = request.args.get("validation_report_uri", default="http://ex.org/ValidationReport")
     shapes_graph_uri = validate_uri(shapes_graph_uri, "shapes_graph_uri")
