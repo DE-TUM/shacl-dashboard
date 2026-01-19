@@ -1,4 +1,5 @@
 # config.py
+import os
 
 # SPARQL endpoint configuration
 ENDPOINT_URL = "http://localhost:8890/sparql"
@@ -7,6 +8,26 @@ ENDPOINT_URL = "http://localhost:8890/sparql"
 AUTH_REQUIRED = False
 USERNAME = ""
 PASSWORD = ""
+
+# Virtuoso ISQL Configuration
+ISQL_PORT = os.getenv("VIRTUOSO_ISQL_PORT", "1111")
+ISQL_USERNAME = os.getenv("VIRTUOSO_USERNAME", "dba")
+ISQL_PASSWORD = os.getenv("VIRTUOSO_PASSWORD", "dba")
+
+# CORS Configuration
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
+
+# HTTP Status Codes
+HTTP_OK = 200
+HTTP_BAD_REQUEST = 400
+HTTP_FORBIDDEN = 403
+HTTP_NOT_FOUND = 404
+HTTP_INTERNAL_SERVER_ERROR = 500
+
+# Server Configuration
+DEFAULT_HOST = os.getenv("FLASK_HOST", "0.0.0.0")
+DEFAULT_PORT = int(os.getenv("FLASK_PORT", "80"))
+DEBUG_MODE = os.getenv("FLASK_DEBUG", "True").lower() == "true"
 
 # Triple store type - used to handle store-specific operations
 TRIPLE_STORE_TYPE = "virtuoso"  # Options: "virtuoso", "fuseki", "stardog", etc.

@@ -145,10 +145,6 @@
 
   // Computed property to track if there are violations to display
   const hasViolations = computed(() => props.violations.length > 0);
-
-  onMounted(() => {
-    console.log(`Property Shape: ${props.propertyShapeName}, Violations:`, props.violations.length);
-  });
   </script>
   
   <style scoped>

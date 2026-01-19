@@ -27,51 +27,6 @@
 </div>
 </div>
 
-    <!-- Plots Section -->
-    <!-- <div class="grid grid-cols-3 gap-6 mb-6">
-      <BoxPlot
-        title="Violation distribution over shapes"
-        x-axis-label=""
-        y-axis-label="Violations"
-        :data="[1, 2, 2, 3, 4, 4, 4, 5, 5, 6, 7, 8, 9, 20]"
-        class="card bg-white shadow-lg rounded-lg p-6"
-      />
-      <BoxPlot
-        title="Violation distribution over paths"
-        x-axis-label=""
-        y-axis-label="Violations"
-        :data="[1, 2, 2, 3, 4, 4, 4, 5, 5, 6, 7, 8, 9, 10]"
-        class="card bg-white shadow-lg rounded-lg p-6"
-      />
-      <BoxPlot
-        title="Violation distribution over focus nodes"
-        x-axis-label=""
-        y-axis-label="Violations"
-        :data="[1, 2, 2, 3, 4, 4, 4, 5, 5, 6, 7, 8, 9, 50]"
-        class="card bg-white shadow-lg rounded-lg p-6"
-      />
-    </div> -->
-<!-- 
-    <div class="grid grid-cols-3 gap-6 mb-6">
-      <PieChart
-        :title="'Violations per Shape'"
-        :data="[72895, 83152, 80072, 39881, 14234, 7881, 86552, 98522, 79683, 13240]"
-        :categories="['Shape A', 'Shape B', 'Shape C', 'Shape D', 'Shape E', 'Shape F', 'Shape G', 'Shape H', 'Shape I', 'Shape J']"
-        class="card bg-white shadow-lg rounded-lg p-6"
-      />
-      <PieChart
-        :title="'Violations per Path'"
-        :data="[71491, 64036, 89818, 98656, 99242, 81159, 97923, 11101, 76166, 96080]"
-        :categories="['Path A', 'Path B', 'Path C', 'Path D', 'Path E', 'Path F', 'Path G', 'Path H', 'Path I', 'Path J']"
-        class="card bg-white shadow-lg rounded-lg p-6"
-      />
-      <PieChart
-        :title="'Violations per Focus Node'"
-        :data="[10496, 53213, 34641, 92937, 97444, 92112, 66890, 49144, 1061, 11078]"
-        :categories="['Focus Node A', 'Focus Node B', 'Focus Node C', 'Focus Node D', 'Focus Node E', 'Focus Node F', 'Focus Node G', 'Focus Node H', 'Focus Node I', 'Focus Node J']"
-        class="card bg-white shadow-lg rounded-lg p-6"
-      />
-    </div> -->
 <!-- Histograms Section -->
 <div class="grid grid-cols-4 gap-4 mb-4 w-full max-w-full overflow-hidden transition">
       <!-- Histogram for Violations per Shape -->

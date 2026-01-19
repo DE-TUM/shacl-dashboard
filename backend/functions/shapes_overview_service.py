@@ -7,6 +7,9 @@ import math
 import requests
 import time 
 import csv 
+import logging
+
+logger = logging.getLogger(__name__) 
 
 
 """
@@ -41,42 +44,36 @@ Configuration:
 """
 
 
-# Global variables
-#ENDPOINT_URL = "http://localhost:8890/sparql"
-#SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
-#VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
-
-# Define the set of SHACL features to check for constraints using full URIs
-#SHACL_FEATURES = [
-#    "http://www.w3.org/ns/shacl#class",
-#    "http://www.w3.org/ns/shacl#datatype",
-#    "http://www.w3.org/ns/shacl#NodeKind",
-#    "http://www.w3.org/ns/shacl#minCount",
-#    "http://www.w3.org/ns/shacl#maxCount",
-#    "http://www.w3.org/ns/shacl#minExclusive",
-#    "http://www.w3.org/ns/shacl#minInclusive",
-#    "http://www.w3.org/ns/shacl#maxExclusive",
-#    "http://www.w3.org/ns/shacl#maxInclusive",
-#    "http://www.w3.org/ns/shacl#minLength",
-#    "http://www.w3.org/ns/shacl#maxLength",
-#    "http://www.w3.org/ns/shacl#pattern",
-#    "http://www.w3.org/ns/shacl#languageIn",
-#    "http://www.w3.org/ns/shacl#uniqueLang",
-#    "http://www.w3.org/ns/shacl#equals",
-#    "http://www.w3.org/ns/shacl#disjoint",
-#    "http://www.w3.org/ns/shacl#lessThan",
-#    "http://www.w3.org/ns/shacl#lessThanOrEquals",
-#    "http://www.w3.org/ns/shacl#not",
-#    "http://www.w3.org/ns/shacl#and",
-#    "http://www.w3.org/ns/shacl#or",
-#    "http://www.w3.org/ns/shacl#xone",
-#   "http://www.w3.org/ns/shacl#node",
-#    "http://www.w3.org/ns/shacl#qualifiedMinCount",
-#    "http://www.w3.org/ns/shacl#qualifiedMaxCount",
-#    "http://www.w3.org/ns/shacl#closed",
-#    "http://www.w3.org/ns/shacl#hasValue",
-#    "http://www.w3.org/ns/shacl#in"
-#]
+def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> dict:
+    """
+    Map property shapes to their parent node shapes.
+    
+    Args:
+        shapes_graph_uri (str): The URI of the Shapes Graph.
+    
+    Returns:
+        dict: Mapping of property shapes to node shapes.
+    """
+    sparql = SPARQLWrapper(ENDPOINT_URL)
+    sparql.setQuery(f"""
+        SELECT DISTINCT ?propertyShape ?nodeShape
+        FROM <{shapes_graph_uri}>
+        WHERE {{
+            ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> ;
+                       <http://www.w3.org/ns/shacl#property> ?propertyShape .
+        }}
+    """)
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    
+    # Create a dictionary mapping property shapes to their node shapes
+    prop_to_node_map = {}
+    for result in results["results"]["bindings"]:
+        prop_shape = result["propertyShape"]["value"]
+        node_shape = result["nodeShape"]["value"]
+        prop_to_node_map[prop_shape] = node_shape
+    
+    return prop_to_node_map
 
 
 def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
@@ -1119,7 +1116,7 @@ def get_correlation_of_constraints_and_violations(
                     if predicate in SHACL_FEATURES:
                         constraints_by_prop[ps].add(predicate)
             except Exception as e:
-                print(f"Error fetching constraints batch {i}: {str(e)}")
+                logger.error("Error fetching constraints batch %d: %s", i, str(e))
                 continue
 
         # Query 3: Get violations grouped by constraint component in batches
@@ -1157,7 +1154,7 @@ def get_correlation_of_constraints_and_violations(
                     
                     violations_by_prop[ps][constraint] = violations_by_prop[ps].get(constraint, 0) + count
             except Exception as e:
-                print(f"Error fetching violations batch {i}: {str(e)}")
+                logger.error("Error fetching violations batch %d: %s", i, str(e))
                 continue
 
         # Aggregate data for each node shape
@@ -1191,7 +1188,7 @@ def get_correlation_of_constraints_and_violations(
         return result_data
         
     except requests.exceptions.RequestException as e:
-        print(f"Error executing SPARQL query: {str(e)}")
+        logger.error("Error executing SPARQL query: %s", str(e))
         raise RuntimeError(f"Failed to fetch correlation data: {str(e)}")
 
 
@@ -1378,7 +1375,7 @@ def get_node_shape_details_table(limit: int = None, offset: int = None, shapes_g
         return node_shapes_details
 
     except requests.exceptions.RequestException as e:
-        print(f"Error executing SPARQL query: {str(e)}")
+        logger.error("Error executing SPARQL query: %s", str(e))
         raise RuntimeError(f"Failed to fetch node shape details: {str(e)}")
 
 

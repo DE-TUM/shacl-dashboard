@@ -248,7 +248,6 @@
         violations: shape.Violations || [], // Pass violations array to child
       }));
 
-      console.log("Loaded Property Shapes Data with Violations:", tablesData.value); // Debug log
     } catch (err) {
       console.error('Error fetching property shapes:', err);
       error.value = 'Failed to load property shapes data. Please try again.';
@@ -297,7 +296,6 @@
 
   // Toggle the visibility of details for a specific row
   const toggleDetails = (index) => {
-  console.log('Toggling details for index:', index); // Debugging
   expandedIndex.value = expandedIndex.value === index ? null : index;
 };
 
@@ -317,16 +315,12 @@
           
         // Extract prefixes **first**
         prefixes.value = jsonData["@prefixes"] || {}; 
-        console.log("Loaded Prefixes:", prefixes.value);
 
         const violations = jsonData.violations;
 
         tableData.value = violations.map((violation, index) => {
           const details = Object.values(violation)[0].full_validation_details;
           const shapeDetails = Object.values(violation)[0].shape_details;
-
-          console.log("Details:", details); // Debug log
-          console.log("Shape Details:", shapeDetails); // Debug log
 
           return {
             focusNode: formatURI(details.FocusNode),
@@ -350,12 +344,10 @@
           };
         });
 
-        console.log("Mapped Table Data:", tableData.value); // Debug log
       } else {
         console.error('Failed to load JSON data.');
       }
-    } catch (error) {
-      console.error('Error fetching JSON data:', error);
+    } console.error('Error fetching JSON data:', error);
     }
   };
   // Fetch data on mount

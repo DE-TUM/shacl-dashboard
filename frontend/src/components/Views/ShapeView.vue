@@ -353,12 +353,6 @@ const loadShapeData = async (shapeId) => {
       };
     }
 
-    console.log('Shape data loaded successfully:', {
-      shapeName: shapeName.value,
-      violations: totalViolations.value,
-      focusNodes: affectedFocusNodes.value
-    });
-
   } catch (err) {
     console.error('Error loading shape data:', err);
     error.value = 'Failed to load shape data. Please try again.';
@@ -371,7 +365,6 @@ onMounted(() => {
   // Decode the shapeId from URL encoding
   const encodedShapeId = route.params.shapeId;
   const decodedShapeId = decodeURIComponent(encodedShapeId);
-  console.log("Retrieved shapeId:", decodedShapeId);
   
   if (decodedShapeId) {
     shapeId.value = decodedShapeId; // Store in ref for template access

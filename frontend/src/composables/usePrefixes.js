@@ -111,7 +111,6 @@ export function usePrefixes() {
       // Fetch validation details (only need 1 record to get prefixes)
       const prefixData = await getValidationDetailsReport(1, 0);
       prefixesCache.value = prefixData["@prefixes"] || {};
-      console.log('Prefixes loaded and cached:', Object.keys(prefixesCache.value).length, 'prefixes');
       return prefixesCache.value;
     } catch (error) {
       loadError.value = error;

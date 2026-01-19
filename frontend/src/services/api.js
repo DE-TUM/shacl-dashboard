@@ -13,8 +13,8 @@
 
 // Configure API base URL based on environment
 const API_BASE_URL = import.meta.env.PROD 
-  ? window.location.origin 
-  : 'http://localhost:80';
+  ? `${window.location.origin}/api/v1`
+  : 'http://localhost:80/api/v1';
 
 /**
  * Generic API request handler with error handling

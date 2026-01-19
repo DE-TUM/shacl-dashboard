@@ -2,6 +2,14 @@ from flask import Flask, send_file, abort
 from flask_cors import CORS
 import os
 import subprocess
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 """
@@ -28,38 +36,39 @@ VUE_SOURCE_FOLDER = os.path.abspath('../frontend')
 
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')  # Use the build output folder as the static folder
 
-# Enable CORS for frontend-backend communication
-CORS(app)
+# Enable CORS for frontend-backend communication with specific origins
+from config import ALLOWED_ORIGINS
+CORS(app, origins=ALLOWED_ORIGINS)
 
-# Register blueprints for API routes
+# Register blueprints for API routes with version prefix
 from routes import blueprints
 for blueprint in blueprints:
-    app.register_blueprint(blueprint)
+    app.register_blueprint(blueprint, url_prefix='/api/v1')
 
 # Function to build the frontend (Vue.js)
 def build_frontend():
-    print("Checking if frontend needs to be built...")
+    logger.info("Checking if frontend needs to be built...")
     index_path = os.path.join(STATIC_FOLDER, 'index.html')  # Use absolute STATIC_FOLDER
     if not os.path.exists(index_path):
-        print("Building the Vue.js frontend...")
+        logger.info("Building the Vue.js frontend...")
         try:
             subprocess.check_call(["npm", "install"], cwd=VUE_SOURCE_FOLDER)
             subprocess.check_call(["npm", "run", "build"], cwd=VUE_SOURCE_FOLDER)
-            print("Frontend built successfully.")
+            logger.info("Frontend built successfully.")
         except subprocess.CalledProcessError as e:
-            print(f"Error building frontend: {e}")
+            logger.error("Error building frontend: %s", e)
             raise
 
 # Serve the frontend (index.html) for root and any unmatched routes
 @app.route('/')
 def serve_index():
     index_path = os.path.join(STATIC_FOLDER, 'index.html')
-    print("Resolved STATIC_FOLDER:", STATIC_FOLDER)
-    print("Resolved index_path:", index_path)
+    logger.debug("Resolved STATIC_FOLDER: %s", STATIC_FOLDER)
+    logger.debug("Resolved index_path: %s", index_path)
     if os.path.exists(index_path):
         return send_file(index_path)
     else:
-        print(f"File not found: {index_path}")
+        logger.error("File not found: %s", index_path)
         abort(404)
 
 # Catch-all route to serve index.html for Vue Router (must be last)
@@ -67,6 +76,17 @@ def serve_index():
 def catch_all(path):
     # Check if it's a request for a static file
     file_path = os.path.join(STATIC_FOLDER, path)
+    # Resolve absolute paths and check if it's within STATIC_FOLDER
+    try:
+        file_path = os.path.abspath(file_path)
+        static_folder_abs = os.path.abspath(STATIC_FOLDER)
+        if not file_path.startswith(static_folder_abs):
+            logger.warning("Attempted directory traversal: %s", path)
+            abort(403)
+    except (ValueError, OSError) as e:
+        logger.error("Invalid path: %s", e)
+        abort(400)
+    
     if os.path.exists(file_path) and os.path.isfile(file_path):
         return send_file(file_path)
     # Otherwise, serve index.html for Vue Router
@@ -77,4 +97,5 @@ def catch_all(path):
         abort(404)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=80)
+    from config import DEFAULT_HOST, DEFAULT_PORT, DEBUG_MODE
+    app.run(debug=DEBUG_MODE, host=DEFAULT_HOST, port=DEFAULT_PORT)

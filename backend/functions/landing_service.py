@@ -2,9 +2,12 @@ import subprocess
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
+from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES, ISQL_PORT, ISQL_USERNAME, ISQL_PASSWORD
 from SPARQLWrapper import SPARQLWrapper, JSON
 from .prefix_utils import cache_prefixes, extract_prefixes_from_sparql_graphs
+import logging
+
+logger = logging.getLogger(__name__)
 
 """
 Landing Service Module
@@ -31,7 +34,7 @@ Configuration:
 #SHAPES_GRAPH_URI = "http://ex.org/ShapesGraph"
 #VALIDATION_REPORT_URI = "http://ex.org/ValidationReport"
 
-def load_graphs(directory: str, shapes_file: str, report_file: str, isql_port: str = "1111", username: str = "dba", password: str = "dba"):
+def load_graphs(directory: str, shapes_file: str, report_file: str):
     """
     Load two RDF files (ShapesGraph and ValidationReport) into Virtuoso using ISQL.
 
@@ -39,16 +42,13 @@ def load_graphs(directory: str, shapes_file: str, report_file: str, isql_port: s
         directory (str): Directory containing the RDF files.
         shapes_file (str): Name of the ShapesGraph file.
         report_file (str): Name of the ValidationReport file.
-        isql_port (str, optional): ISQL port. Default is "1111".
-        username (str, optional): ISQL username. Default is "dba".
-        password (str, optional): ISQL password. Default is "dba".
 
     Raises:
         TypeError: If any of the arguments are not strings.
         ValueError: If any of the arguments are empty strings.
     """
     # Validate input types
-    if not all(isinstance(arg, str) for arg in [directory, shapes_file, report_file, isql_port, username, password]):
+    if not all(isinstance(arg, str) for arg in [directory, shapes_file, report_file]):
         raise TypeError("All arguments must be strings.")
 
     # Validate input values
@@ -62,12 +62,12 @@ def load_graphs(directory: str, shapes_file: str, report_file: str, isql_port: s
     rdf_loader_run();
     """
 
-    print("Executing ISQL command to load graphs...")
+    logger.info("Executing ISQL command to load graphs...")
 
     try:
         # Execute ISQL command
         process = subprocess.run(
-            ["isql", isql_port, username, password],
+            ["isql", ISQL_PORT, ISQL_USERNAME, ISQL_PASSWORD],
             input=isql_command,
             text=True,
             capture_output=True,
@@ -75,28 +75,29 @@ def load_graphs(directory: str, shapes_file: str, report_file: str, isql_port: s
         )
 
         # Output success message
-        print("ISQL command executed successfully!")
-        print(process.stdout)
+        logger.info("ISQL command executed successfully")
+        logger.debug("ISQL output: %s", process.stdout)
         
         # Extract prefixes from the actual SPARQL graphs
-        print("Extracting prefixes from SPARQL graphs...")
+        logger.info("Extracting prefixes from SPARQL graphs...")
         try:
             prefixes = extract_prefixes_from_sparql_graphs(
                 ENDPOINT_URL,
                 [SHAPES_GRAPH_URI, VALIDATION_REPORT_URI]
             )
             cache_prefixes(prefixes)
-            print(f"Total prefixes cached: {len(prefixes)}")
+            logger.info("Total prefixes cached: %d", len(prefixes))
         except Exception as e:
-            print(f"Error extracting prefixes from SPARQL graphs: {e}")
-            print("Using minimal fallback prefixes")
+            logger.error("Error extracting prefixes from SPARQL graphs: %s", e)
+            logger.warning("Using minimal fallback prefixes")
             cache_prefixes({'sh': 'http://www.w3.org/ns/shacl#'})
 
     except subprocess.CalledProcessError as e:
         # Handle command execution failure
-        print("ISQL command execution failed!")
-        print(e.stderr)
+        logger.error("ISQL command execution failed: %s", e.stderr)
+        raise RuntimeError(f"ISQL command execution failed: {e.stderr}")
 
     except FileNotFoundError:
         # Handle missing ISQL tool
-        print("ISQL tool not found. Please check if Virtuoso is installed correctly.")
+        logger.error("ISQL tool not found. Please check if Virtuoso is installed correctly.")
+        raise RuntimeError("ISQL tool not found")
