@@ -4,6 +4,7 @@ from typing import Dict, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
 from sparql_executor import SparqlQueryExecutor, get_default_executor
+from validators import validate_graph_uri, validate_node_shape_uri, ValidationError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,13 @@ def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI, executor:
     
     Returns:
         Dict[str, str]: Mapping of property shape URIs to node shape URIs.
+        
+    Raises:
+        ValidationError: If shapes_graph_uri is invalid.
     """
+    # Validate input at service layer
+    shapes_graph_uri = validate_graph_uri(shapes_graph_uri, "shapes_graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -75,7 +82,15 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
 
     Returns:
         int: The number of violations related to the Node Shape.
+        
+    Raises:
+        ValidationError: If any URI parameter is invalid.
     """
+    # Validate inputs at service layer
+    nodeshape_name = validate_node_shape_uri(nodeshape_name, "nodeshape_name")
+    shapes_graph_uri = validate_graph_uri(shapes_graph_uri, "shapes_graph_uri")
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    
     if executor is None:
         executor = get_default_executor()
     

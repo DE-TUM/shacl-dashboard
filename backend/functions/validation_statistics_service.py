@@ -23,6 +23,7 @@ import logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
 from sparql_executor import SparqlQueryExecutor, get_default_executor
+from validators import validate_graph_uri, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,13 @@ def get_number_of_violations_in_validation_report(
 
     Returns:
         The number of violations (sh:ValidationResult instances).
+        
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Validate input at service layer
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -82,7 +89,13 @@ def get_number_of_node_shapes(
 
     Returns:
         The number of Node Shapes in the shapes graph.
+        
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Validate input at service layer
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -123,7 +136,14 @@ def get_number_of_node_shapes_with_violations(
 
     Returns:
         Number of distinct NodeShapes with >= 1 violation.
+        
+    Raises:
+        ValidationError: If any URI parameter is invalid.
     """
+    # Validate inputs at service layer
+    shapes_graph_uri = validate_graph_uri(shapes_graph_uri, "shapes_graph_uri")
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -172,7 +192,13 @@ def get_number_of_paths_in_shapes_graph(
 
     Returns:
         The number of unique sh:path values in the Shapes Graph.
+        
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Validate input at service layer
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     

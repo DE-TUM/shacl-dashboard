@@ -4,6 +4,7 @@ from typing import List, Dict, Optional, Any
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
 from sparql_executor import SparqlQueryExecutor, get_default_executor
+from validators import validate_graph_uri, validate_node_shape_uri, validate_limit_offset, ValidationError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,16 @@ def get_property_shapes(node_shape: str, limit: Optional[int] = None, offset: Op
 
     Returns:
         list: A JSON list of Property Shapes with their statistics.
+        
+    Raises:
+        ValidationError: If any parameter is invalid.
     """
+    # Validate inputs at service layer
+    node_shape = validate_node_shape_uri(node_shape, "node_shape")
+    shapes_graph_uri = validate_graph_uri(shapes_graph_uri, "shapes_graph_uri")
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    limit, offset = validate_limit_offset(limit, offset)
+    
     if executor is None:
         executor = get_default_executor()
     
