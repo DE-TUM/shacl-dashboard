@@ -1,4 +1,3 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
 from typing import List, Dict, Optional, Any
@@ -6,7 +5,8 @@ import logging
 import time
 import csv
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from sparql_executor import SparqlQueryExecutor, get_default_executor
 
 logger = logging.getLogger(__name__)
 
@@ -56,19 +56,22 @@ def get_prefixes_from_endpoint(endpoint_url: str) -> Dict[str, str]:
     }
 
 
-def parse_rdf_list(node_id: str, shapes_graph_uri: str) -> List[str]:
+def parse_rdf_list(node_id: str, shapes_graph_uri: str, executor: Optional[SparqlQueryExecutor] = None) -> List[str]:
     """
     Parse an RDF list given a node ID to extract the items in the list.
 
     Args:
         node_id (str): The node ID representing the RDF list.
         shapes_graph_uri (str): The URI of the Shapes Graph.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         List[str]: A list of item URIs in the RDF list.
     """
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    if executor is None:
+        executor = get_default_executor()
+    
+    query = f"""
         SELECT ?item
         FROM <{shapes_graph_uri}>
         WHERE {{
@@ -76,9 +79,9 @@ def parse_rdf_list(node_id: str, shapes_graph_uri: str) -> List[str]:
                         <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest>* ?restNode .
             FILTER(?restNode != <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>)
         }}
-    """)
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
+    """
+    
+    results = executor.execute_query(query, shapes_graph_uri, "parse_rdf_list")
 
     # Extract the items from the RDF list
     return [result["item"]["value"] for result in results["results"]["bindings"]]
@@ -130,35 +133,38 @@ def benchmark_function_execution(func: callable, runs: int = 10, csv_filename: s
     }
 
 
-def debug_check_data() -> None:
+def debug_check_data(executor: Optional[SparqlQueryExecutor] = None) -> None:
     """
     Debug function to check what data exists in Virtuoso.
+    
+    Args:
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
     """
-    sparql = SPARQLWrapper(ENDPOINT_URL)
+    if executor is None:
+        executor = get_default_executor()
     
     print("=== CHECKING VALIDATION REPORT GRAPH ===")
     
     # Check 1: Count all triples
-    sparql.setQuery(f"""
+    query = f"""
         SELECT (COUNT(*) AS ?count)
         FROM <http://ex.org/ValidationReport>
         WHERE {{ ?s ?p ?o }}
-    """)
-    sparql.setReturnFormat(JSON)
-    result = sparql.query().convert()
+    """
+    result = executor.execute_query(query, "http://ex.org/ValidationReport", "debug_count_all_triples")
     print(f"Total triples in ValidationReport: {result['results']['bindings'][0]['count']['value']}")
     
     # Check 2: Count ValidationResult instances
-    sparql.setQuery(f"""
+    query = f"""
         SELECT (COUNT(?v) AS ?count)
         FROM <http://ex.org/ValidationReport>
         WHERE {{ ?v a <http://www.w3.org/ns/shacl#ValidationResult> }}
-    """)
-    result = sparql.query().convert()
+    """
+    result = executor.execute_query(query, "http://ex.org/ValidationReport", "debug_count_validation_results")
     print(f"ValidationResult instances: {result['results']['bindings'][0]['count']['value']}")
     
     # Check 3: Sample violation data
-    sparql.setQuery(f"""
+    query = f"""
         SELECT ?violation ?p ?o
         FROM <http://ex.org/ValidationReport>
         WHERE {{ 
@@ -166,8 +172,8 @@ def debug_check_data() -> None:
             ?violation ?p ?o
         }}
         LIMIT 10
-    """)
-    result = sparql.query().convert()
+    """
+    result = executor.execute_query(query, "http://ex.org/ValidationReport", "debug_sample_violations")
     print(f"\nSample violation predicates:")
     for r in result['results']['bindings']:
         print(f"  {r['p']['value']}")
@@ -175,16 +181,16 @@ def debug_check_data() -> None:
     print("\n=== CHECKING SHAPES GRAPH ===")
     
     # Check 4: Count NodeShapes
-    sparql.setQuery(f"""
+    query = f"""
         SELECT (COUNT(?ns) AS ?count)
         FROM <http://ex.org/ShapesGraph>
         WHERE {{ ?ns a <http://www.w3.org/ns/shacl#NodeShape> }}
-    """)
-    result = sparql.query().convert()
+    """
+    result = executor.execute_query(query, "http://ex.org/ShapesGraph", "debug_count_node_shapes")
     print(f"NodeShape instances: {result['results']['bindings'][0]['count']['value']}")
     
     # Check 5: Sample NodeShape with properties
-    sparql.setQuery(f"""
+    query = f"""
         SELECT ?nodeShape ?propertyShape
         FROM <http://ex.org/ShapesGraph>
         WHERE {{ 
@@ -192,8 +198,8 @@ def debug_check_data() -> None:
                       <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
         LIMIT 5
-    """)
-    result = sparql.query().convert()
+    """
+    result = executor.execute_query(query, "http://ex.org/ShapesGraph", "debug_sample_node_shapes")
     print(f"\nSample NodeShapes with properties:")
     for r in result['results']['bindings']:
         print(f"  NodeShape: {r['nodeShape']['value']}")

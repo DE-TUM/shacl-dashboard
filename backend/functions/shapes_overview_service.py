@@ -11,6 +11,15 @@ All functions have been split into smaller, more maintainable modules:
 - shape_analytics: Advanced analytics and correlation analysis
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.warning(
+    "shapes_overview_service module is deprecated. "
+    "Please import from specialized modules: node_shape_metrics, "
+    "property_shape_operations, shape_statistics, shape_analytics."
+)
+
 # Import from node_shape_metrics
 from .node_shape_metrics import (
     get_property_to_node_map,

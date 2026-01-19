@@ -1,15 +1,17 @@
-from flask import Flask, send_file, abort
+from flask import Flask, send_file, abort, request, g
 from flask_cors import CORS
 import os
 import subprocess
-import logging
+import uuid
+import time
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import logging configuration
+from logging_config import setup_logging, get_logger, set_correlation_id, log_api_request, log_api_response
+from config import LOG_LEVEL, USE_JSON_LOGGING
+
+# Setup structured logging
+setup_logging(log_level=LOG_LEVEL, use_json=USE_JSON_LOGGING)
+logger = get_logger(__name__)
 
 
 """
@@ -39,6 +41,42 @@ app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')  # Use th
 # Enable CORS for frontend-backend communication with specific origins
 from config import ALLOWED_ORIGINS
 CORS(app, origins=ALLOWED_ORIGINS)
+
+
+# Middleware for request correlation IDs and logging
+@app.before_request
+def before_request():
+    """Set up correlation ID and log incoming requests."""
+    # Generate or extract correlation ID
+    correlation_id = request.headers.get('X-Correlation-ID', str(uuid.uuid4()))
+    set_correlation_id(correlation_id)
+    g.correlation_id = correlation_id
+    g.start_time = time.time()
+    
+    # Log API requests (exclude static file requests)
+    if request.path.startswith('/api/'):
+        log_api_request(
+            logger,
+            method=request.method,
+            path=request.path,
+            params=request.args.to_dict() if request.args else None
+        )
+
+
+@app.after_request
+def after_request(response):
+    """Log outgoing responses with execution time."""
+    # Log API responses (exclude static file requests)
+    if request.path.startswith('/api/') and hasattr(g, 'start_time'):
+        execution_time = time.time() - g.start_time
+        log_api_response(logger, response.status_code, execution_time)
+        
+        # Add correlation ID to response headers
+        if hasattr(g, 'correlation_id'):
+            response.headers['X-Correlation-ID'] = g.correlation_id
+    
+    return response
+
 
 # Register blueprints for API routes with version prefix
 from routes import blueprints

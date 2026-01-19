@@ -39,6 +39,15 @@ class Config:
     DEFAULT_PORT: int = int(os.getenv("FLASK_PORT", "80"))
     DEBUG_MODE: bool = os.getenv("FLASK_DEBUG", "True").lower() == "true"
     
+    # Logging Configuration
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    USE_JSON_LOGGING: bool = os.getenv("USE_JSON_LOGGING", "false").lower() == "true"  # Enable structured JSON logging for production
+    
+    # SPARQL Query Configuration
+    SPARQL_TIMEOUT: int = int(os.getenv("SPARQL_TIMEOUT", "30"))  # Query timeout in seconds
+    SPARQL_MAX_RETRIES: int = int(os.getenv("SPARQL_MAX_RETRIES", "3"))  # Maximum retry attempts
+    SPARQL_RETRY_DELAY: float = float(os.getenv("SPARQL_RETRY_DELAY", "1.0"))  # Initial retry delay in seconds
+    
     # Triple store type - used to handle store-specific operations
     TRIPLE_STORE_TYPE: str = "virtuoso"  # Options: "virtuoso", "fuseki", "stardog", etc.
     
@@ -147,6 +156,16 @@ class Config:
         if not isinstance(cls.DEFAULT_PORT, int) or cls.DEFAULT_PORT < 1 or cls.DEFAULT_PORT > 65535:
             raise ValueError("DEFAULT_PORT must be a valid port number (1-65535)")
         
+        # Validate SPARQL query configuration
+        if not isinstance(cls.SPARQL_TIMEOUT, int) or cls.SPARQL_TIMEOUT < 1:
+            raise ValueError("SPARQL_TIMEOUT must be a positive integer")
+        
+        if not isinstance(cls.SPARQL_MAX_RETRIES, int) or cls.SPARQL_MAX_RETRIES < 0:
+            raise ValueError("SPARQL_MAX_RETRIES must be a non-negative integer")
+        
+        if not isinstance(cls.SPARQL_RETRY_DELAY, (int, float)) or cls.SPARQL_RETRY_DELAY < 0:
+            raise ValueError("SPARQL_RETRY_DELAY must be a non-negative number")
+        
         # Validate triple store type
         if cls.TRIPLE_STORE_TYPE not in cls.STORE_CONFIG:
             raise ValueError(f"TRIPLE_STORE_TYPE '{cls.TRIPLE_STORE_TYPE}' is not configured")
@@ -178,6 +197,11 @@ HTTP_INTERNAL_SERVER_ERROR = Config.HTTP_INTERNAL_SERVER_ERROR
 DEFAULT_HOST = Config.DEFAULT_HOST
 DEFAULT_PORT = Config.DEFAULT_PORT
 DEBUG_MODE = Config.DEBUG_MODE
+LOG_LEVEL = Config.LOG_LEVEL
+USE_JSON_LOGGING = Config.USE_JSON_LOGGING
+SPARQL_TIMEOUT = Config.SPARQL_TIMEOUT
+SPARQL_MAX_RETRIES = Config.SPARQL_MAX_RETRIES
+SPARQL_RETRY_DELAY = Config.SPARQL_RETRY_DELAY
 TRIPLE_STORE_TYPE = Config.TRIPLE_STORE_TYPE
 SHAPES_GRAPH_URI = Config.SHAPES_GRAPH_URI
 VALIDATION_REPORT_URI = Config.VALIDATION_REPORT_URI

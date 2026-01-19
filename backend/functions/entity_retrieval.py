@@ -1,10 +1,10 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
-from typing import List, Dict, Union
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL
+from typing import List, Dict, Union, Optional
 import logging
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from sparql_executor import SparqlQueryExecutor, get_default_executor
 
 logger = logging.getLogger(__name__)
 
@@ -26,181 +26,184 @@ Key functions:
 """
 
 
-def get_all_shapes_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
+def get_all_shapes_names(
+    graph_uri: str = "http://ex.org/ValidationReport",
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[str]:
     """
-    Query the Virtuoso SPARQL endpoint to get all sh:sourceShape values
-    from the specified graph.
+    Query the SPARQL endpoint to get all sh:sourceShape values from the specified graph.
 
     Args:
-        graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
+        graph_uri: The target graph URI to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[str]: A list of shape name URIs.
+        A list of shape name URIs.
     """
-    logger.info("Entering get_all_shapes_names", extra={'graph_uri': graph_uri})
+    if executor is None:
+        executor = get_default_executor()
     
-    # Configure SPARQL query
-    sparql = SPARQLWrapper(ENDPOINT_URL)
+    logger.info("Retrieving all shape names", extra={'function': 'get_all_shapes_names'})
+    
     query = f"""
-        SELECT DISTINCT ?shape
-        FROM <{graph_uri}>
-        WHERE {{
-            ?violation <http://www.w3.org/ns/shacl#sourceShape> ?shape .
-        }}
+    SELECT DISTINCT ?shape
+    FROM <{graph_uri}>
+    WHERE {{
+        ?violation <http://www.w3.org/ns/shacl#sourceShape> ?shape .
+    }}
     """
     
-    logger.debug("Executing SPARQL query to get shape names", extra={'query': query})
-    sparql.setQuery(query)
-
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-
-    try:
-        # Execute the query and process the results
-        results = sparql.query().convert()
-        shapes = [result["shape"]["value"] for result in results["results"]["bindings"]]
-        
-        logger.info("Successfully retrieved shape names", extra={'shape_count': len(shapes)})
-        return shapes
-    except Exception as e:
-        logger.error("Error querying shape names", extra={'graph_uri': graph_uri, 'error': str(e)}, exc_info=True)
-        raise RuntimeError(f"Error querying shape names: {str(e)}")
+    results = executor.execute_query(
+        query,
+        graph_uri=graph_uri,
+        operation_name="get_shape_names"
+    )
+    
+    shapes = [result["shape"]["value"] for result in results["results"]["bindings"]]
+    
+    logger.info(
+        "Successfully retrieved shape names",
+        extra={'shape_count': len(shapes)}
+    )
+    return shapes
 
 
-def get_all_focus_node_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
+def get_all_focus_node_names(
+    graph_uri: str = "http://ex.org/ValidationReport",
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[str]:
     """
-    Query the Virtuoso SPARQL endpoint to get all sh:focusNode values
-    from the specified graph.
+    Query the SPARQL endpoint to get all sh:focusNode values from the specified graph.
 
     Args:
-        graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
+        graph_uri: The target graph URI to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[str]: A list of focus node URIs.
+        A list of focus node URIs.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_all_focus_node_names", extra={'graph_uri': graph_uri})
     
-    # Configure SPARQL query
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query = f"""
-        SELECT DISTINCT ?focusNode
-        FROM <{graph_uri}>
-        WHERE {{
-            ?violation <http://www.w3.org/ns/shacl#focusNode> ?focusNode .
-        }}
+    SELECT DISTINCT ?focusNode
+    FROM <{graph_uri}>
+    WHERE {{
+        ?violation <http://www.w3.org/ns/shacl#focusNode> ?focusNode .
+    }}
     """
     
-    logger.debug("Executing SPARQL query to get focus node names", extra={'query': query})
-    sparql.setQuery(query)
-
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-
-    try:
-        # Execute the query and process the results
-        results = sparql.query().convert()
-        focus_nodes = [result["focusNode"]["value"] for result in results["results"]["bindings"]]
-        
-        logger.info("Successfully retrieved focus node names", extra={'focus_node_count': len(focus_nodes)})
-        return focus_nodes
-    except Exception as e:
-        logger.error("Error querying focus node names", extra={'graph_uri': graph_uri, 'error': str(e)}, exc_info=True)
-        raise RuntimeError(f"Error querying focus node names: {str(e)}")
+    results = executor.execute_query(
+        query,
+        graph_uri=graph_uri,
+        operation_name="get_focus_node_names"
+    )
+    
+    focus_nodes = [result["focusNode"]["value"] for result in results["results"]["bindings"]]
+    
+    logger.info("Successfully retrieved focus node names", extra={'focus_node_count': len(focus_nodes)})
+    return focus_nodes
 
 
-def get_all_property_path_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
+def get_all_property_path_names(
+    graph_uri: str = "http://ex.org/ValidationReport",
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[str]:
     """
-    Query the Virtuoso SPARQL endpoint to get all sh:resultPath values
-    from the specified graph.
+    Query the SPARQL endpoint to get all sh:resultPath values from the specified graph.
 
     Args:
-        graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
+        graph_uri: The target graph URI to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[str]: A list of property path URIs.
+        A list of property path URIs.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_all_property_path_names", extra={'graph_uri': graph_uri})
     
-    # Configure SPARQL query
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query = f"""
-        SELECT DISTINCT ?propertyPath
-        FROM <{graph_uri}>
-        WHERE {{
-            ?violation <http://www.w3.org/ns/shacl#resultPath> ?propertyPath .
-        }}
+    SELECT DISTINCT ?propertyPath
+    FROM <{graph_uri}>
+    WHERE {{
+        ?violation <http://www.w3.org/ns/shacl#resultPath> ?propertyPath .
+    }}
     """
     
-    logger.debug("Executing SPARQL query to get property path names", extra={'query': query})
-    sparql.setQuery(query)
-
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-
-    try:
-        # Execute the query and process the results
-        results = sparql.query().convert()
-        property_paths = [result["propertyPath"]["value"] for result in results["results"]["bindings"]]
-        
-        logger.info("Successfully retrieved property path names", extra={'property_path_count': len(property_paths)})
-        return property_paths
-    except Exception as e:
-        logger.error("Error querying property path names", extra={'graph_uri': graph_uri, 'error': str(e)}, exc_info=True)
-        raise RuntimeError(f"Error querying property path names: {str(e)}")
+    results = executor.execute_query(
+        query,
+        graph_uri=graph_uri,
+        operation_name="get_property_path_names"
+    )
+    
+    property_paths = [result["propertyPath"]["value"] for result in results["results"]["bindings"]]
+    
+    logger.info("Successfully retrieved property path names", extra={'property_path_count': len(property_paths)})
+    return property_paths
 
 
-def get_all_constraint_components_names(graph_uri: str = "http://ex.org/ValidationReport") -> List[str]:
+def get_all_constraint_components_names(
+    graph_uri: str = "http://ex.org/ValidationReport",
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[str]:
     """
-    Query the Virtuoso SPARQL endpoint to get all sh:sourceConstraintComponent values
-    from the specified graph.
+    Query the SPARQL endpoint to get all sh:sourceConstraintComponent values from the specified graph.
 
     Args:
-        graph_uri (str): The target graph URI to query. Default is "http://ex.org/ValidationReport".
+        graph_uri: The target graph URI to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[str]: A list of constraint component URIs.
+        A list of constraint component URIs.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_all_constraint_components_names", extra={'graph_uri': graph_uri})
     
-    # Configure SPARQL query
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query = f"""
-        SELECT DISTINCT ?constraintComponent
-        FROM <{graph_uri}>
-        WHERE {{
-            ?violation <http://www.w3.org/ns/shacl#sourceConstraintComponent> ?constraintComponent .
-        }}
+    SELECT DISTINCT ?constraintComponent
+    FROM <{graph_uri}>
+    WHERE {{
+        ?violation <http://www.w3.org/ns/shacl#sourceConstraintComponent> ?constraintComponent .
+    }}
     """
     
-    logger.debug("Executing SPARQL query to get constraint component names", extra={'query': query})
-    sparql.setQuery(query)
-
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-
-    try:
-        # Execute the query and process the results
-        results = sparql.query().convert()
-        constraint_components = [result["constraintComponent"]["value"] for result in results["results"]["bindings"]]
-        
-        logger.info("Successfully retrieved constraint component names", extra={'constraint_component_count': len(constraint_components)})
-        return constraint_components
-    except Exception as e:
-        logger.error("Error querying constraint component names", extra={'graph_uri': graph_uri, 'error': str(e)}, exc_info=True)
-        raise RuntimeError(f"Error querying constraint component names: {str(e)}")
+    results = executor.execute_query(
+        query,
+        graph_uri=graph_uri,
+        operation_name="get_constraint_component_names"
+    )
+    
+    constraint_components = [result["constraintComponent"]["value"] for result in results["results"]["bindings"]]
+    
+    logger.info("Successfully retrieved constraint component names", extra={'constraint_component_count': len(constraint_components)})
+    return constraint_components
 
 
-def get_violations_for_shape_name(shape_name: Union[str, Dict[str, str]], graph_uri: str = "http://ex.org/ValidationReport") -> List[Dict[str, str]]:
+def get_violations_for_shape_name(
+    shape_name: Union[str, Dict[str, str]],
+    graph_uri: str = "http://ex.org/ValidationReport",
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[Dict[str, str]]:
     """
-    Query the Virtuoso SPARQL endpoint to get all violations related to the specified property shape name.
+    Query the SPARQL endpoint to get all violations related to the specified property shape name.
 
     Args:
         shape_name: The shape name (URI) as a string or a dict with a 'shape' key.
-        graph_uri: The target graph URI to query. Default is "http://ex.org/ValidationReport".
+        graph_uri: The target graph URI to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[Dict[str, str]]: A list of violation dictionaries with keys: focusNode, resultMessage, resultPath, resultSeverity, constraintComponent.
+        A list of violation dictionaries with keys: focusNode, resultMessage, resultPath, resultSeverity, constraintComponent.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # Handle JSON input for shape_name
     if isinstance(shape_name, dict) and "shape" in shape_name:
         shape_name = shape_name["shape"]
@@ -209,29 +212,26 @@ def get_violations_for_shape_name(shape_name: Union[str, Dict[str, str]], graph_
     if not isinstance(shape_name, str):
         raise ValueError("Invalid input: shape_name must be a string or a JSON object with a 'shape' key.")
 
-    # Configure SPARQL query
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
-        SELECT ?focusNode ?resultMessage ?resultPath ?resultSeverity ?constraintComponent
-        FROM <{graph_uri}>
-        WHERE {{
-            ?violation a <http://www.w3.org/ns/shacl#ValidationResult> ;
-                       <http://www.w3.org/ns/shacl#sourceShape> <{shape_name}> ;
-                       <http://www.w3.org/ns/shacl#focusNode> ?focusNode ;
-                       <http://www.w3.org/ns/shacl#resultMessage> ?resultMessage ;
-                       <http://www.w3.org/ns/shacl#resultPath> ?resultPath ;
-                       <http://www.w3.org/ns/shacl#resultSeverity> ?resultSeverity ;
-                       <http://www.w3.org/ns/shacl#sourceConstraintComponent> ?constraintComponent .
-        }}
-    """)
+    query = f"""
+    SELECT ?focusNode ?resultMessage ?resultPath ?resultSeverity ?constraintComponent
+    FROM <{graph_uri}>
+    WHERE {{
+        ?violation a <http://www.w3.org/ns/shacl#ValidationResult> ;
+                   <http://www.w3.org/ns/shacl#sourceShape> <{shape_name}> ;
+                   <http://www.w3.org/ns/shacl#focusNode> ?focusNode ;
+                   <http://www.w3.org/ns/shacl#resultMessage> ?resultMessage ;
+                   <http://www.w3.org/ns/shacl#resultPath> ?resultPath ;
+                   <http://www.w3.org/ns/shacl#resultSeverity> ?resultSeverity ;
+                   <http://www.w3.org/ns/shacl#sourceConstraintComponent> ?constraintComponent .
+    }}
+    """
 
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
+    results = executor.execute_query(
+        query,
+        graph_uri=graph_uri,
+        operation_name="get_violations_for_shape"
+    )
 
-    # Execute the query and process the results
-    results = sparql.query().convert()
-
-    # Extract violations from the results
     violations = [
         {
             "focusNode": result["focusNode"]["value"],
@@ -246,37 +246,41 @@ def get_violations_for_shape_name(shape_name: Union[str, Dict[str, str]], graph_
     return violations
 
 
-def get_number_of_shapes_in_shapes_graph(graph_uri: str = "http://ex.org/ShapesGraph") -> Dict[str, int]:
+def get_number_of_shapes_in_shapes_graph(
+    graph_uri: str = "http://ex.org/ShapesGraph",
+    executor: Optional[SparqlQueryExecutor] = None
+) -> Dict[str, int]:
     """
-    Query the Virtuoso SPARQL endpoint to get the number of Node Shapes and Property Shapes
+    Query the SPARQL endpoint to get the number of Node Shapes and Property Shapes
     in the specified shapes graph, including blank nodes.
 
     Args:
-        graph_uri (str): The target shapes graph URI to query. Default is "http://ex.org/ShapesGraph".
+        graph_uri: The target shapes graph URI to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        Dict[str, int]: A dictionary with keys 'nodeShapes' and 'propertyShapes' containing their counts.
+        A dictionary with keys 'nodeShapes' and 'propertyShapes' containing their counts.
     """
-    # Configure SPARQL query to get the number of Node Shapes and Property Shapes (including blank nodes)
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
-        SELECT 
-            (COUNT(DISTINCT ?nodeShape) AS ?nodeShapesCount)
-            (COUNT(DISTINCT ?propertyShape) AS ?propertyShapesCount)
-        FROM <{graph_uri}>
-        WHERE {{
-            OPTIONAL {{ ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> . }}
-            OPTIONAL {{ ?shape <http://www.w3.org/ns/shacl#property> ?propertyShape . }}
-        }}
-    """)
+    if executor is None:
+        executor = get_default_executor()
+    
+    query = f"""
+    SELECT 
+        (COUNT(DISTINCT ?nodeShape) AS ?nodeShapesCount)
+        (COUNT(DISTINCT ?propertyShape) AS ?propertyShapesCount)
+    FROM <{graph_uri}>
+    WHERE {{
+        OPTIONAL {{ ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> . }}
+        OPTIONAL {{ ?shape <http://www.w3.org/ns/shacl#property> ?propertyShape . }}
+    }}
+    """
 
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
+    results = executor.execute_query(
+        query,
+        graph_uri=graph_uri,
+        operation_name="get_shapes_count"
+    )
 
-    # Execute the query and process the results
-    results = sparql.query().convert()
-
-    # Extract the counts from the results
     node_shapes_count = int(results["results"]["bindings"][0]["nodeShapesCount"]["value"])
     property_shapes_count = int(results["results"]["bindings"][0]["propertyShapesCount"]["value"])
 
@@ -286,34 +290,35 @@ def get_number_of_shapes_in_shapes_graph(graph_uri: str = "http://ex.org/ShapesG
     }
 
 
-def get_number_of_violations_in_validation_report(graph_uri: str = "http://ex.org/ValidationReport") -> int:
+def get_number_of_violations_in_validation_report(
+    graph_uri: str = "http://ex.org/ValidationReport",
+    executor: Optional[SparqlQueryExecutor] = None
+) -> int:
     """
-    Query the Virtuoso SPARQL endpoint to get the total number of violations
+    Query the SPARQL endpoint to get the total number of violations
     in the specified validation report graph.
 
     Args:
-        graph_uri (str): The target validation report graph URI to query. Default is "http://ex.org/ValidationReport".
+        graph_uri: The target validation report graph URI to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        int: The number of violations (sh:ValidationResult instances).
+        The number of violations (sh:ValidationResult instances).
     """
-    # Configure SPARQL query to count the number of sh:ValidationResult instances
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
-        SELECT (COUNT(?violation) AS ?violationCount)
-        FROM <{graph_uri}>
-        WHERE {{
-            ?violation a <http://www.w3.org/ns/shacl#ValidationResult> .
-        }}
-    """)
+    if executor is None:
+        executor = get_default_executor()
+    
+    query = f"""
+    SELECT (COUNT(?violation) AS ?violationCount)
+    FROM <{graph_uri}>
+    WHERE {{
+        ?violation a <http://www.w3.org/ns/shacl#ValidationResult> .
+    }}
+    """
 
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-
-    # Execute the query and process the results
-    results = sparql.query().convert()
-
-    # Extract the count from the results
-    violation_count = int(results["results"]["bindings"][0]["violationCount"]["value"])
-
-    return violation_count
+    return executor.execute_count_query(
+        query,
+        graph_uri=graph_uri,
+        operation_name="get_violation_count",
+        count_var="violationCount"
+    )

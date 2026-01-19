@@ -16,6 +16,15 @@ Please update your imports to use the new specialized modules.
 This file will be removed in a future version.
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.warning(
+    "homepage_service module is deprecated. "
+    "Please import from specialized modules: validation_statistics_service, "
+    "violation_analysis_service, distribution_analysis_service, etc."
+)
+
 # Backward compatibility: Re-export all functions from new modules
 from .validation_statistics_service import (
     get_number_of_violations_in_validation_report,

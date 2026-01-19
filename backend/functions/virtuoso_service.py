@@ -10,6 +10,15 @@ All functions have been split into smaller, more maintainable modules:
 - shape_retrieval: Shape-specific retrieval and mapping functions
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.warning(
+    "virtuoso_service module is deprecated. "
+    "Please import from specialized modules: virtuoso_database, "
+    "entity_retrieval, shape_retrieval."
+)
+
 # Import from virtuoso_database
 from .virtuoso_database import (
     clear_graphs_only,

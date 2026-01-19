@@ -13,7 +13,6 @@ Functions:
 - distribution_of_violations_per_path_with_adaptive_bins: Path distribution with adaptive binning
 """
 
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
 from typing import List, Dict, Any

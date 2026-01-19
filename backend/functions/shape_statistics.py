@@ -1,9 +1,9 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from sparql_executor import SparqlQueryExecutor, get_default_executor
 import requests
 import logging
 
@@ -23,10 +23,13 @@ Key functions:
 """
 
 
-def get_maximum_number_of_violations_in_validation_report_for_node_shape() -> Dict[str, Any]:
+def get_maximum_number_of_violations_in_validation_report_for_node_shape(executor: Optional[SparqlQueryExecutor] = None) -> Dict[str, Any]:
     """
     Calculate the number of violations for each Node Shape, and find the Node Shape
     with the maximum number of violations.
+    
+    Args:
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         dict: A dictionary containing the Node Shape URI and the corresponding
@@ -36,18 +39,19 @@ def get_maximum_number_of_violations_in_validation_report_for_node_shape() -> Di
             "violationCount": <number of violations>
         }
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # Step 1: Query the Shapes Graph to get all Node Shapes and their Property Shapes
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?nodeShape ?propertyShape
         FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> ;
                        <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
-    sparql.setReturnFormat(JSON)
-    node_shapes_results = sparql.query().convert()
+    """
+    node_shapes_results = executor.execute_query(query, SHAPES_GRAPH_URI, "get_node_shapes_and_properties")
 
     # Process Node Shapes and their Property Shapes
     node_shapes_map = {}
@@ -62,15 +66,15 @@ def get_maximum_number_of_violations_in_validation_report_for_node_shape() -> Di
     violation_counts = {}
     for node_shape, property_shapes in node_shapes_map.items():
         property_shapes_values = " ".join([f"<{uri}>" for uri in property_shapes])
-        sparql.setQuery(f"""
+        query = f"""
             SELECT (COUNT(?violation) AS ?violationCount)
             FROM <{VALIDATION_REPORT_URI}>
             WHERE {{
                 ?violation <http://www.w3.org/ns/shacl#sourceShape> ?propertyShape .
                 VALUES ?propertyShape {{ {property_shapes_values} }}
             }}
-        """)
-        validation_results = sparql.query().convert()
+        """
+        validation_results = executor.execute_query(query, VALIDATION_REPORT_URI, "count_violations_for_node_shape")
 
         # Extract the number of violations
         violation_count = int(validation_results["results"]["bindings"][0]["violationCount"]["value"])
@@ -85,27 +89,31 @@ def get_maximum_number_of_violations_in_validation_report_for_node_shape() -> Di
     return {"nodeShape": "", "violationCount": 0}
 
 
-def get_average_number_of_violations_in_validation_report_for_node_shape() -> float:
+def get_average_number_of_violations_in_validation_report_for_node_shape(executor: Optional[SparqlQueryExecutor] = None) -> float:
     """
     Query the Virtuoso SPARQL endpoint to calculate the average number of violations
     caused by the Property Shapes of all Node Shapes from the Validation Report.
+    
+    Args:
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         float: The average number of violations per Node Shape.
         - The result is rounded to 2 decimal places
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # Step 1: Query the Shapes Graph to get all Node Shapes and their Property Shapes
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?nodeShape ?propertyShape
         FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> ;
                        <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
-    sparql.setReturnFormat(JSON)
-    node_shapes_results = sparql.query().convert()
+    """
+    node_shapes_results = executor.execute_query(query, SHAPES_GRAPH_URI, "get_node_shapes_and_properties")
 
     # Process Node Shapes and their Property Shapes
     node_shapes_map = {}
@@ -122,15 +130,15 @@ def get_average_number_of_violations_in_validation_report_for_node_shape() -> fl
 
     for node_shape, property_shapes in node_shapes_map.items():
         property_shapes_values = " ".join([f"<{uri}>" for uri in property_shapes])
-        sparql.setQuery(f"""
+        query = f"""
             SELECT (COUNT(?violation) AS ?violationCount)
             FROM <{VALIDATION_REPORT_URI}>
             WHERE {{
                 ?violation <http://www.w3.org/ns/shacl#sourceShape> ?propertyShape .
                 VALUES ?propertyShape {{ {property_shapes_values} }}
             }}
-        """)
-        validation_results = sparql.query().convert()
+        """
+        validation_results = executor.execute_query(query, VALIDATION_REPORT_URI, "count_violations_for_average")
 
         # Extract the number of violations for this Node Shape
         violation_count = int(validation_results["results"]["bindings"][0]["violationCount"]["value"])

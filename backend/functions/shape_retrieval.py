@@ -1,9 +1,9 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from sparql_executor import SparqlQueryExecutor, get_default_executor
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,20 +24,24 @@ Key functions:
 
 
 def map_property_shapes_to_node_shapes(validation_report_uri: str = "http://ex.org/ValidationReport",
-                                       shapes_graph_uri: str = "http://ex.org/ShapesGraph") -> List[Dict[str, str]]:
+                                       shapes_graph_uri: str = "http://ex.org/ShapesGraph",
+                                       executor: Optional[SparqlQueryExecutor] = None) -> List[Dict[str, str]]:
     """
     Map property shapes from the validation report to their corresponding node shapes in the shapes graph.
 
     Args:
         validation_report_uri (str): The URI of the validation report graph. Default is "http://ex.org/ValidationReport".
         shapes_graph_uri (str): The URI of the shapes graph. Default is "http://ex.org/ShapesGraph".
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         List[Dict[str, str]]: A list of dictionaries mapping property shape URIs to node shape URIs.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # SPARQL query to get the mapping of property shapes to node shapes
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?propertyShape ?nodeShape
         FROM <{validation_report_uri}>
         FROM <{shapes_graph_uri}>
@@ -45,13 +49,10 @@ def map_property_shapes_to_node_shapes(validation_report_uri: str = "http://ex.o
             ?violation <http://www.w3.org/ns/shacl#sourceShape> ?propertyShape .
             ?nodeShape <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
-
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
+    """
 
     # Execute the query and process the results
-    results = sparql.query().convert()
+    results = executor.execute_query(query, shapes_graph_uri, "map_property_shapes_to_node_shapes")
 
     # Extract the mapping from the results
     shape_mapping = [
@@ -62,7 +63,7 @@ def map_property_shapes_to_node_shapes(validation_report_uri: str = "http://ex.o
     return shape_mapping
 
 
-def get_shape_from_shapes_graph(node_shape_names: List[str]) -> Dict[str, Dict[str, Any]]:
+def get_shape_from_shapes_graph(node_shape_names: List[str], executor: Optional[SparqlQueryExecutor] = None) -> Dict[str, Dict[str, Any]]:
     """
     Query the Virtuoso SPARQL endpoint in two steps to avoid redundant triples:
     1. Query Node Shape triples.
@@ -70,6 +71,7 @@ def get_shape_from_shapes_graph(node_shape_names: List[str]) -> Dict[str, Dict[s
 
     Args:
         node_shape_names: A list of Node Shape URIs to query.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         Dict[str, Dict[str, Any]]: A dictionary representing the Node Shape tree structure.
@@ -126,19 +128,20 @@ def get_shape_from_shapes_graph(node_shape_names: List[str]) -> Dict[str, Dict[s
         }
     }
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # Step 1: Query Node Shape triples
     node_shapes_values = " ".join([f"<{uri}>" for uri in node_shape_names])
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?subject ?predicate ?object
         FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             VALUES ?subject {{ {node_shapes_values} }}
             ?subject ?predicate ?object .
         }}
-    """)
-    sparql.setReturnFormat(JSON)
-    node_shape_results = sparql.query().convert()
+    """
+    node_shape_results = executor.execute_query(query, SHAPES_GRAPH_URI, "get_node_shape_triples")
 
     # Process Node Shape triples into a structured dictionary
     shape_details = {}
@@ -162,15 +165,14 @@ def get_shape_from_shapes_graph(node_shape_names: List[str]) -> Dict[str, Dict[s
     property_shapes = {triple["object"] for shape in shape_details.values() for triple in shape["triples"] if triple["predicate"] == "http://www.w3.org/ns/shacl#property"}
 
     for property_shape in property_shapes:
-        sparql.setQuery(f"""
+        query = f"""
             SELECT DISTINCT ?predicate ?object
             FROM <{SHAPES_GRAPH_URI}>
             WHERE {{
                 <{property_shape}> ?predicate ?object .
             }}
-        """)
-        sparql.setReturnFormat(JSON)
-        property_shape_results = sparql.query().convert()
+        """
+        property_shape_results = executor.execute_query(query, SHAPES_GRAPH_URI, "get_property_shape_triples")
 
         # Add Property Shape details to the corresponding Node Shape
         for result in property_shape_results["results"]["bindings"]:
@@ -189,61 +191,64 @@ def get_shape_from_shapes_graph(node_shape_names: List[str]) -> Dict[str, Dict[s
     return shape_details
 
 
-def get_number_of_property_shapes_for_node_shape(shape_name: str) -> int:
+def get_number_of_property_shapes_for_node_shape(shape_name: str, executor: Optional[SparqlQueryExecutor] = None) -> int:
     """
     Query the Virtuoso SPARQL endpoint to get the number of Property Shapes
     associated with the given Node Shape from the Shapes Graph.
 
     Args:
         shape_name (str): The URI of the Node Shape to query.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         int: The number of Property Shapes associated with the Node Shape.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # SPARQL query to count the number of Property Shapes
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    count = executor.execute_count_query(
+        f"""
         SELECT (COUNT(DISTINCT ?propertyShape) AS ?propertyShapeCount)
         FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             <{shape_name}> <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
-    sparql.setReturnFormat(JSON)
+        """,
+        SHAPES_GRAPH_URI,
+        "count_property_shapes",
+        "propertyShapeCount"
+    )
 
-    # Execute the query and process the results
-    results = sparql.query().convert()
-
-    # Extract the number of Property Shapes
-    property_shape_count = int(results["results"]["bindings"][0]["propertyShapeCount"]["value"])
-
-    return property_shape_count
+    return count
 
 
-def get_most_violated_constraint_for_node_shape(shape_name: str) -> str:
+def get_most_violated_constraint_for_node_shape(shape_name: str, executor: Optional[SparqlQueryExecutor] = None) -> str:
     """
     Query the Virtuoso SPARQL endpoint to find the most frequently violated constraint
     (sh:sourceConstraintComponent) associated with the given Node Shape from the Validation Report.
 
     Args:
         shape_name (str): The URI of the Node Shape to query.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         str: The most frequently violated constraint component URI.
 
         - If there are no violations related to the given Node Shape, the function will return an empty string "".
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # Step 1: Query the Shapes Graph to get the Property Shapes associated with the Node Shape
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?propertyShape
         FROM <{SHAPES_GRAPH_URI}>
         WHERE {{
             <{shape_name}> <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
-    sparql.setReturnFormat(JSON)
-    shapes_results = sparql.query().convert()
+    """
+    shapes_results = executor.execute_query(query, SHAPES_GRAPH_URI, "get_property_shapes_for_violations")
 
     # Extract the list of Property Shapes
     property_shapes = [result["propertyShape"]["value"] for result in shapes_results["results"]["bindings"]]
@@ -256,7 +261,7 @@ def get_most_violated_constraint_for_node_shape(shape_name: str) -> str:
     property_shapes_values = " ".join([f"<{uri}>" for uri in property_shapes])
 
     # Step 2: Query the Validation Report to find the most violated constraint
-    sparql.setQuery(f"""
+    query = f"""
         SELECT ?constraintComponent (COUNT(?violation) AS ?violationCount)
         FROM <{VALIDATION_REPORT_URI}>
         WHERE {{
@@ -267,8 +272,8 @@ def get_most_violated_constraint_for_node_shape(shape_name: str) -> str:
         GROUP BY ?constraintComponent
         ORDER BY DESC(?violationCount)
         LIMIT 1
-    """)
-    validation_results = sparql.query().convert()
+    """
+    validation_results = executor.execute_query(query, VALIDATION_REPORT_URI, "find_most_violated_constraint")
 
     # Extract the most violated constraint component
     if validation_results["results"]["bindings"]:

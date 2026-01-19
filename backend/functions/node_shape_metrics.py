@@ -1,9 +1,9 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
-from typing import Dict
+from typing import Dict, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from sparql_executor import SparqlQueryExecutor, get_default_executor
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,19 +24,22 @@ Key functions:
 """
 
 
-def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> Dict[str, str]:
+def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI, executor: Optional[SparqlQueryExecutor] = None) -> Dict[str, str]:
     """
     Map property shapes to their parent node shapes.
     
     Args:
         shapes_graph_uri (str): The URI of the Shapes Graph.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
     
     Returns:
         Dict[str, str]: Mapping of property shape URIs to node shape URIs.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_property_to_node_map", extra={'shapes_graph_uri': shapes_graph_uri})
     
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query = f"""
         SELECT DISTINCT ?propertyShape ?nodeShape
         FROM <{shapes_graph_uri}>
@@ -47,9 +50,7 @@ def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> Dict[s
     """
     
     logger.debug("Querying property to node mapping", extra={'query': query})
-    sparql.setQuery(query)
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
+    results = executor.execute_query(query, shapes_graph_uri, "get_property_to_node_map")
     
     # Create a dictionary mapping property shapes to their node shapes
     prop_to_node_map = {}
@@ -62,7 +63,7 @@ def get_property_to_node_map(shapes_graph_uri: str = SHAPES_GRAPH_URI) -> Dict[s
     return prop_to_node_map
 
 
-def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
+def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI, executor: Optional[SparqlQueryExecutor] = None) -> int:
     """
     Query the Virtuoso SPARQL endpoint to calculate the number of violations related to the given Node Shape.
 
@@ -70,10 +71,14 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
         nodeshape_name (str): The URI of the Node Shape to query.
         shapes_graph_uri (str): The URI of the Shapes Graph. Default is "http://ex.org/ShapesGraph".
         validation_report_uri (str): The URI of the Validation Report. Default is "http://ex.org/ValidationReport".
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         int: The number of violations related to the Node Shape.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_number_of_violations_for_node_shape", extra={
         'nodeshape_name': nodeshape_name,
         'shapes_graph_uri': shapes_graph_uri,
@@ -81,7 +86,6 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
     })
     
     # Step 1: Query the Shapes Graph to get the Property Shapes associated with the Node Shape
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     property_query = f"""
         SELECT DISTINCT ?propertyShape
         FROM <{shapes_graph_uri}>
@@ -91,9 +95,7 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
     """
     
     logger.debug("Querying property shapes for node shape", extra={'query': property_query})
-    sparql.setQuery(property_query)
-    sparql.setReturnFormat(JSON)
-    shapes_results = sparql.query().convert()
+    shapes_results = executor.execute_query(property_query, shapes_graph_uri, "get_property_shapes")
 
     # Extract the list of Property Shapes
     property_shapes = [result["propertyShape"]["value"] for result in shapes_results["results"]["bindings"]]
@@ -117,8 +119,7 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
     """
     
     logger.debug("Counting violations for property shapes", extra={'query': violation_query, 'property_count': len(property_shapes)})
-    sparql.setQuery(violation_query)
-    validation_results = sparql.query().convert()
+    validation_results = executor.execute_query(violation_query, validation_report_uri, "count_violations")
 
     # Extract the number of violations
     violation_count = int(validation_results["results"]["bindings"][0]["violationCount"]["value"])
@@ -127,7 +128,7 @@ def get_number_of_violations_for_node_shape(nodeshape_name: str, shapes_graph_ur
     return violation_count
 
 
-def get_number_of_violated_focus_for_node_shape(node_shape: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
+def get_number_of_violated_focus_for_node_shape(node_shape: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI, executor: Optional[SparqlQueryExecutor] = None) -> int:
     """
     Query the Virtuoso SPARQL endpoint to calculate the number of unique sh:focusNode values
     in the Validation Report that are violated due to the given Node Shape.
@@ -136,10 +137,14 @@ def get_number_of_violated_focus_for_node_shape(node_shape: str, shapes_graph_ur
         node_shape (str): The URI of the Node Shape to query.
         shapes_graph_uri (str): The URI of the Shapes Graph. Default is "http://ex.org/ShapesGraph".
         validation_report_uri (str): The URI of the Validation Report. Default is "http://ex.org/ValidationReport".
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         int: The number of unique sh:focusNode values related to violations caused by the Node Shape.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_number_of_violated_focus_for_node_shape", extra={
         'node_shape': node_shape,
         'shapes_graph_uri': shapes_graph_uri,
@@ -147,7 +152,6 @@ def get_number_of_violated_focus_for_node_shape(node_shape: str, shapes_graph_ur
     })
     
     # Step 1: Query the Shapes Graph to get the Property Shapes associated with the Node Shape
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query1 = f"""
         SELECT DISTINCT ?propertyShape
         FROM <{shapes_graph_uri}>
@@ -157,11 +161,9 @@ def get_number_of_violated_focus_for_node_shape(node_shape: str, shapes_graph_ur
     """
     
     logger.debug("Querying property shapes for node shape", extra={'query': query1})
-    sparql.setQuery(query1)
-    sparql.setReturnFormat(JSON)
     
     try:
-        shapes_results = sparql.query().convert()
+        shapes_results = executor.execute_query(query1, shapes_graph_uri, "get_property_shapes_for_focus")
 
         # Extract the list of Property Shapes
         property_shapes = [result["propertyShape"]["value"] for result in shapes_results["results"]["bindings"]]
@@ -188,8 +190,7 @@ def get_number_of_violated_focus_for_node_shape(node_shape: str, shapes_graph_ur
         """
         
         logger.debug("Querying violated focus nodes", extra={'query': query2})
-        sparql.setQuery(query2)
-        validation_results = sparql.query().convert()
+        validation_results = executor.execute_query(query2, validation_report_uri, "count_violated_focus_nodes")
 
         # Extract the count of unique focus nodes
         focus_node_count = int(validation_results["results"]["bindings"][0]["focusNodeCount"]["value"])
@@ -204,7 +205,7 @@ def get_number_of_violated_focus_for_node_shape(node_shape: str, shapes_graph_ur
         raise RuntimeError(f"Error querying violated focus nodes: {str(e)}")
 
 
-def get_number_of_property_paths_for_node_shape(shape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI) -> int:
+def get_number_of_property_paths_for_node_shape(shape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, executor: Optional[SparqlQueryExecutor] = None) -> int:
     """
     Query the Virtuoso SPARQL endpoint to calculate the number of unique sh:path values
     for the given Node Shape in the Shapes Graph.
@@ -212,14 +213,17 @@ def get_number_of_property_paths_for_node_shape(shape_name: str, shapes_graph_ur
     Args:
         shape_name (str): The URI of the Node Shape to query.
         shapes_graph_uri (str): The URI of the Shapes Graph. Default is "http://ex.org/ShapesGraph".
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         int: The number of unique sh:path values for the Node Shape.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_number_of_property_paths_for_node_shape", extra={'shape_name': shape_name, 'shapes_graph_uri': shapes_graph_uri})
     
     # Configure SPARQL query to count unique paths
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query = f"""
         SELECT (COUNT(DISTINCT ?path) AS ?pathCount)
         FROM <{shapes_graph_uri}>
@@ -230,14 +234,10 @@ def get_number_of_property_paths_for_node_shape(shape_name: str, shapes_graph_ur
     """
     
     logger.debug("Executing SPARQL query to count property paths", extra={'query': query})
-    sparql.setQuery(query)
-
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
 
     try:
         # Execute the query and process the results
-        results = sparql.query().convert()
+        results = executor.execute_query(query, shapes_graph_uri, "count_property_paths")
 
         # Extract the count of unique paths
         path_count = int(results["results"]["bindings"][0]["pathCount"]["value"])
@@ -249,7 +249,7 @@ def get_number_of_property_paths_for_node_shape(shape_name: str, shapes_graph_ur
         raise RuntimeError(f"Error querying property paths: {str(e)}")
 
 
-def get_number_of_constraints_for_node_shape(node_shape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> int:
+def get_number_of_constraints_for_node_shape(node_shape_name: str, shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI, executor: Optional[SparqlQueryExecutor] = None) -> int:
     """
     Query the Virtuoso SPARQL endpoint to get the number of unique constraints
     (sh:sourceConstraintComponent) associated with the given Node Shape from the Validation Report.
@@ -258,23 +258,25 @@ def get_number_of_constraints_for_node_shape(node_shape_name: str, shapes_graph_
         node_shape_name (str): The URI of the Node Shape to query.
         shapes_graph_uri (str): The URI of the Shapes Graph. Default is "http://ex.org/ShapesGraph".
         validation_report_uri (str): The URI of the Validation Report. Default is "http://ex.org/ValidationReport".
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         int: The number of unique constraints associated with the Node Shape.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     # Step 1: Query the Shapes Graph to get the Property Shapes associated with the Node Shape
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?propertyShape
         FROM <{shapes_graph_uri}>
         WHERE {{
             <{node_shape_name}> <http://www.w3.org/ns/shacl#property> ?propertyShape .
         }}
-    """)
-    sparql.setReturnFormat(JSON)
+    """
 
     try:
-        shapes_results = sparql.query().convert()
+        shapes_results = executor.execute_query(query, shapes_graph_uri, "get_property_shapes_for_constraints")
     except Exception as e:
         raise RuntimeError(f"Error querying Shapes Graph: {str(e)}")
 
@@ -289,7 +291,7 @@ def get_number_of_constraints_for_node_shape(node_shape_name: str, shapes_graph_
     property_shapes_values = " ".join([f"<{uri}>" for uri in property_shapes])
 
     # Step 2: Query the Validation Report to count the unique constraints
-    sparql.setQuery(f"""
+    query = f"""
         SELECT (COUNT(DISTINCT ?constraintComponent) AS ?constraintCount)
         FROM <{validation_report_uri}>
         WHERE {{
@@ -297,9 +299,9 @@ def get_number_of_constraints_for_node_shape(node_shape_name: str, shapes_graph_
                        <http://www.w3.org/ns/shacl#sourceConstraintComponent> ?constraintComponent .
             VALUES ?propertyShape {{ {property_shapes_values} }}
         }}
-    """)
+    """
     try:
-        validation_results = sparql.query().convert()
+        validation_results = executor.execute_query(query, validation_report_uri, "count_unique_constraints")
     except Exception as e:
         raise RuntimeError(f"Error querying Validation Report: {str(e)}")
 

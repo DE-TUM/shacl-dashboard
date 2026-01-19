@@ -1,10 +1,10 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
 from typing import List, Dict, Optional, Any
 import logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
+from sparql_executor import SparqlQueryExecutor, get_default_executor
 import requests
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,8 @@ def generate_validation_details_report(
     validation_report_uri: str = VALIDATION_REPORT_URI,
     shapes_graph_uri: str = SHAPES_GRAPH_URI,
     limit: int = 10,
-    offset: int = 0
+    offset: int = 0,
+    executor: Optional[SparqlQueryExecutor] = None
 ) -> Dict[str, Any]:
     """
     Generate a detailed validation report with prefixes, violations, and shape details.
@@ -40,18 +41,22 @@ def generate_validation_details_report(
         shapes_graph_uri (str): The URI of the Shapes Graph to query.
         limit (int): Maximum number of violations to return. Default is 10.
         offset (int): Offset for the violations to return. Default is 0.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
 
     Returns:
         Dict[str, Any]: A dictionary containing 'prefixes' and 'violations' keys with detailed violation information.
     """
     from .utility_functions import get_prefixes_from_endpoint, parse_rdf_list
     
+    if executor is None:
+        executor = get_default_executor()
+    
     # Step 1: Fetch prefixes
+    from config import ENDPOINT_URL
     prefixes = get_prefixes_from_endpoint(ENDPOINT_URL)
 
     # Step 2: Query validation report for violations
-    sparql = SPARQLWrapper(ENDPOINT_URL)
-    sparql.setQuery(f"""
+    query = f"""
         SELECT DISTINCT ?violation ?focusNode ?resultPath ?value ?message ?sourceShape ?severity ?constraintComponent
         FROM <{validation_report_uri}>
         WHERE {{
@@ -66,9 +71,8 @@ def generate_validation_details_report(
         }}
         LIMIT {limit}
         OFFSET {offset}
-    """)
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
+    """
+    results = executor.execute_query(query, validation_report_uri, "get_validation_violations")
 
     # Process violations and fetch shape details
     violations = []
@@ -82,7 +86,7 @@ def generate_validation_details_report(
         constraint_component = result["constraintComponent"]["value"]
 
         # Query shapes graph for shape details
-        sparql.setQuery(f"""
+        query = f"""
             SELECT DISTINCT ?nodeShape ?targetClass ?targetNode ?targetSubjectsOf ?targetObjectsOf
             FROM <{shapes_graph_uri}>
             WHERE {{
@@ -92,8 +96,8 @@ def generate_validation_details_report(
                 OPTIONAL {{ ?nodeShape <http://www.w3.org/ns/shacl#targetSubjectsOf> ?targetSubjectsOf . }}
                 OPTIONAL {{ ?nodeShape <http://www.w3.org/ns/shacl#targetObjectsOf> ?targetObjectsOf . }}
             }}
-        """)
-        shape_details_results = sparql.query().convert()
+        """
+        shape_details_results = executor.execute_query(query, shapes_graph_uri, "get_shape_details")
 
         shape_details_bindings = shape_details_results["results"]["bindings"]
 
@@ -105,14 +109,14 @@ def generate_validation_details_report(
         }
 
         # Fetch all triples for the property shape
-        sparql.setQuery(f"""
+        query = f"""
             SELECT ?predicate ?object
             FROM <{shapes_graph_uri}>
             WHERE {{
                 <{source_shape}> ?predicate ?object .
             }}
-        """)
-        property_shape_results = sparql.query().convert()
+        """
+        property_shape_results = executor.execute_query(query, shapes_graph_uri, "get_property_shape_triples")
 
         for triple in property_shape_results["results"]["bindings"]:
             predicate = triple["predicate"]["value"]

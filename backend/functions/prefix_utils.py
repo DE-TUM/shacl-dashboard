@@ -12,8 +12,11 @@ Key functions:
 """
 
 import re
+import logging
 from pathlib import Path
 from typing import Dict
+
+logger = logging.getLogger(__name__)
 
 # Global cache for extracted prefixes
 _cached_prefixes: Dict[str, str] = {}

@@ -11,52 +11,58 @@ Functions:
 - get_violations_per_focus_node: Count violations for each focus node
 """
 
-from SPARQLWrapper import SPARQLWrapper, JSON
 import sys
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import logging
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from sparql_executor import SparqlQueryExecutor, get_default_executor
 
 logger = logging.getLogger(__name__)
 
 
-def get_violations_per_node_shape(shapes_graph_uri: str = SHAPES_GRAPH_URI, validation_report_uri: str = VALIDATION_REPORT_URI) -> List[Dict[str, Any]]:
+def get_violations_per_node_shape(
+    shapes_graph_uri: str = SHAPES_GRAPH_URI,
+    validation_report_uri: str = VALIDATION_REPORT_URI,
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[Dict[str, Any]]:
     """
-    Query the Virtuoso SPARQL endpoint to calculate the number of violations for each Node Shape
+    Query the SPARQL endpoint to calculate the number of violations for each Node Shape
     in the Shapes Graph, based on the associated Property Shapes in the Validation Report.
 
     Args:
-        shapes_graph_uri (str): The URI of the Shapes Graph to query. Default is "http://ex.org/ShapesGraph".
-        validation_report_uri (str): The URI of the Validation Report to query. Default is "http://ex.org/ValidationReport".
+        shapes_graph_uri: The URI of the Shapes Graph to query.
+        validation_report_uri: The URI of the Validation Report to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[Dict[str, Any]]: A list of dictionaries with keys 'NodeShapeName' and 'NumViolations'.
+        A list of dictionaries with keys 'NodeShapeName' and 'NumViolations'.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_violations_per_node_shape", extra={
         'shapes_graph_uri': shapes_graph_uri,
         'validation_report_uri': validation_report_uri
     })
     
-    # Configure SPARQL query to get Node Shapes and their associated Property Shapes
-    sparql = SPARQLWrapper(ENDPOINT_URL)
+    # Get Node Shapes and their associated Property Shapes
     query = f"""
-        SELECT DISTINCT ?nodeShape ?propertyShape
-        FROM <{shapes_graph_uri}>
-        WHERE {{
-            ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> ;
-                       <http://www.w3.org/ns/shacl#property> ?propertyShape .
-        }}
+    SELECT DISTINCT ?nodeShape ?propertyShape
+    FROM <{shapes_graph_uri}>
+    WHERE {{
+        ?nodeShape a <http://www.w3.org/ns/shacl#NodeShape> ;
+                   <http://www.w3.org/ns/shacl#property> ?propertyShape .
+    }}
     """
     
-    logger.debug("Querying node shapes and property shapes", extra={'query': query})
-    sparql.setQuery(query)
-
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-    shapes_results = sparql.query().convert()
+    shapes_results = executor.execute_query(
+        query,
+        graph_uri=shapes_graph_uri,
+        operation_name="get_node_shapes_and_properties"
+    )
 
     # Process Node Shapes and their Property Shapes
     node_shapes_map = {}
@@ -76,21 +82,21 @@ def get_violations_per_node_shape(shapes_graph_uri: str = SHAPES_GRAPH_URI, vali
     for node_shape, property_shapes in node_shapes_map.items():
         property_shapes_values = " ".join([f"<{uri}>" for uri in property_shapes])
         violation_query = f"""
-            SELECT (COUNT(?violation) AS ?violationCount)
-            FROM <{validation_report_uri}>
-            WHERE {{
-                ?violation <http://www.w3.org/ns/shacl#sourceShape> ?propertyShape .
-                VALUES ?propertyShape {{ {property_shapes_values} }}
-            }}
+        SELECT (COUNT(?violation) AS ?violationCount)
+        FROM <{validation_report_uri}>
+        WHERE {{
+            ?violation <http://www.w3.org/ns/shacl#sourceShape> ?propertyShape .
+            VALUES ?propertyShape {{ {property_shapes_values} }}
+        }}
         """
-        logger.debug(f"Querying violations for node shape: {node_shape}")
-        sparql.setQuery(violation_query)
-        validation_results = sparql.query().convert()
+        
+        violation_count = executor.execute_count_query(
+            violation_query,
+            graph_uri=validation_report_uri,
+            operation_name="get_violations_for_node_shape",
+            count_var="violationCount"
+        )
 
-        # Extract the violation count for the current Node Shape
-        violation_count = int(validation_results["results"]["bindings"][0]["violationCount"]["value"])
-
-        # Append the result to the list
         violations_per_node_shape.append({
             "NodeShapeName": node_shape,
             "NumViolations": violation_count
@@ -100,41 +106,42 @@ def get_violations_per_node_shape(shapes_graph_uri: str = SHAPES_GRAPH_URI, vali
     return violations_per_node_shape
 
 
-def get_violations_per_path(validation_report_uri: str = VALIDATION_REPORT_URI) -> List[Dict[str, Any]]:
+def get_violations_per_path(
+    validation_report_uri: str = VALIDATION_REPORT_URI,
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[Dict[str, Any]]:
     """
-    Query the Virtuoso SPARQL endpoint to calculate the number of violations for each unique sh:resultPath
+    Query the SPARQL endpoint to calculate the number of violations for each unique sh:resultPath
     in the Validation Report.
 
     Args:
-        validation_report_uri (str): The URI of the Validation Report to query. Default is "http://ex.org/ValidationReport".
+        validation_report_uri: The URI of the Validation Report to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[Dict[str, Any]]: A list of dictionaries with keys 'PathName' and 'NumViolations'.
+        A list of dictionaries with keys 'PathName' and 'NumViolations'.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_violations_per_path", extra={'validation_report_uri': validation_report_uri})
     
-    # Configure SPARQL query to count violations per result path
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query = f"""
-        SELECT ?path (COUNT(?violation) AS ?violationCount)
-        FROM <{validation_report_uri}>
-        WHERE {{
-            ?violation <http://www.w3.org/ns/shacl#resultPath> ?path .
-        }}
-        GROUP BY ?path
-        ORDER BY DESC(?violationCount)
+    SELECT ?path (COUNT(?violation) AS ?violationCount)
+    FROM <{validation_report_uri}>
+    WHERE {{
+        ?violation <http://www.w3.org/ns/shacl#resultPath> ?path .
+    }}
+    GROUP BY ?path
+    ORDER BY DESC(?violationCount)
     """
     
-    logger.debug("Querying violations per path", extra={'query': query})
-    sparql.setQuery(query)
+    results = executor.execute_query(
+        query,
+        graph_uri=validation_report_uri,
+        operation_name="get_violations_per_path"
+    )
 
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-
-    # Execute the query and process the results
-    results = sparql.query().convert()
-
-    # Build the JSON list from the results
     violations_per_path = [
         {
             "PathName": result["path"]["value"],
@@ -147,41 +154,42 @@ def get_violations_per_path(validation_report_uri: str = VALIDATION_REPORT_URI) 
     return violations_per_path
 
 
-def get_violations_per_focus_node(validation_report_uri: str = VALIDATION_REPORT_URI) -> List[Dict[str, Any]]:
+def get_violations_per_focus_node(
+    validation_report_uri: str = VALIDATION_REPORT_URI,
+    executor: Optional[SparqlQueryExecutor] = None
+) -> List[Dict[str, Any]]:
     """
-    Query the Virtuoso SPARQL endpoint to calculate the number of violations for each unique sh:focusNode
+    Query the SPARQL endpoint to calculate the number of violations for each unique sh:focusNode
     in the Validation Report.
 
     Args:
-        validation_report_uri (str): The URI of the Validation Report to query. Default is "http://ex.org/ValidationReport".
+        validation_report_uri: The URI of the Validation Report to query.
+        executor: Optional SparqlQueryExecutor instance (uses default if not provided).
 
     Returns:
-        List[Dict[str, Any]]: A list of dictionaries with keys 'FocusNodeName' and 'NumViolations'.
+        A list of dictionaries with keys 'FocusNodeName' and 'NumViolations'.
     """
+    if executor is None:
+        executor = get_default_executor()
+    
     logger.info("Entering get_violations_per_focus_node", extra={'validation_report_uri': validation_report_uri})
     
-    # Configure SPARQL query to count violations per focus node
-    sparql = SPARQLWrapper(ENDPOINT_URL)
     query = f"""
-        SELECT ?focusNode (COUNT(?violation) AS ?violationCount)
-        FROM <{validation_report_uri}>
-        WHERE {{
-            ?violation <http://www.w3.org/ns/shacl#focusNode> ?focusNode .
-        }}
-        GROUP BY ?focusNode
-        ORDER BY DESC(?violationCount)
+    SELECT ?focusNode (COUNT(?violation) AS ?violationCount)
+    FROM <{validation_report_uri}>
+    WHERE {{
+        ?violation <http://www.w3.org/ns/shacl#focusNode> ?focusNode .
+    }}
+    GROUP BY ?focusNode
+    ORDER BY DESC(?violationCount)
     """
     
-    logger.debug("Querying violations per focus node", extra={'query': query})
-    sparql.setQuery(query)
+    results = executor.execute_query(
+        query,
+        graph_uri=validation_report_uri,
+        operation_name="get_violations_per_focus_node"
+    )
 
-    # Set the return format to JSON
-    sparql.setReturnFormat(JSON)
-
-    # Execute the query and process the results
-    results = sparql.query().convert()
-
-    # Build the JSON list from the results
     violations_per_focus_node = [
         {
             "FocusNodeName": result["focusNode"]["value"],
