@@ -145,6 +145,8 @@ import { ref, computed, onMounted } from 'vue';
 import ViolationTableRow from './ViolationTableRow.vue';
 import Filter from './Filter.vue';
 import * as api from '../../services/api.js';
+import { PAGINATION } from '@/constants/ui';
+import { logger } from '@/services/logger';
 
 const tableData = ref([]);
 const prefixes = ref({});
@@ -153,7 +155,7 @@ const allData = ref([]);
 const showFullPrefixes = ref(false); // Reactive toggle state
 
 const currentPage = ref(1);
-const itemsPerPage = 10;
+const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
 
 const totalPages = computed(() => Math.ceil(allData.value.length / itemsPerPage));
 const paginatedData = computed(() => {
@@ -229,7 +231,7 @@ const loadJsonData = async () => {
 
     tableData.value = [...allData.value];
   } catch (error) {
-    console.error('Error fetching validation data from API:', error);
+    logger.error('Error fetching validation data from API:', error);
   }
 };
 
@@ -293,7 +295,7 @@ const downloadCSV = () => {
     link.click();
     document.body.removeChild(link);
   } catch (error) {
-    console.error("Error generating CSV file:", error);
+    logger.error("Error generating CSV file:", error);
     alert("Failed to generate CSV file.");
   }
 };

@@ -1,6 +1,10 @@
 <template>
   <div class="propertypath-view p-4">
-    <button @click="goBack" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+    <button 
+      @click="goBack" 
+      class="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+      aria-label="Go back to previous page"
+    >
       Back to Overview
     </button>
 

@@ -52,6 +52,12 @@ const props = defineProps({
   data: {
     type: Object,
     required: true,
+    validator: (value) => {
+      return value && 
+             Array.isArray(value.labels) && 
+             Array.isArray(value.values) &&
+             value.labels.length === value.values.length;
+    }
   },
   title: {
     type: String,

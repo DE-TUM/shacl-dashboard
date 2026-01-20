@@ -8,7 +8,11 @@
     <!-- Error State -->
     <div v-else-if="error" class="text-center py-20">
       <p class="text-red-600 text-lg">{{ error }}</p>
-      <button @click="loadOverviewData" class="mt-4 px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600">
+      <button 
+        @click="loadOverviewData" 
+        class="mt-4 px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+        aria-label="Retry loading shapes overview data"
+      >
         Retry
       </button>
     </div>
@@ -152,166 +156,68 @@
 import HistogramChart from './../Charts/HistogramChart.vue';
 import ScatterPlotChart from './../Charts/ScatterPlotChart.vue';
 import { ref, computed, onMounted } from 'vue';
+import { logger } from '@/services/logger';
 import { useRouter } from 'vue-router';
 import { calculateShannonEntropy } from "./../../utils/utils";
-import {
-  getNodeShapesCountInGraph,
-  getNodeShapesWithViolationsCountOverview,
-  getMaxViolationsForNodeShape,
-  getAverageViolationsForNodeShapes,
-  getViolationsDistribution,
-  getCorrelationData,
-  getNodeShapeDetailsTable
-} from '../../services/api.js';
+import { useShapesStore } from '@/stores/shapes';
 import { usePrefixes } from '../../composables/usePrefixes.js';
 
+// Initialize stores
+const shapesStore = useShapesStore();
+
 // State
-const loading = ref(false);
-const error = ref(null);
+const loading = computed(() => shapesStore.overviewLoading);
+const error = computed(() => shapesStore.error);
 
 // Use prefixes composable for URI formatting
 const { loadPrefixes, formatURI } = usePrefixes();
 
-const shapeViolations2 = ref([
-  { name: "PersonShape", violations: { "sh:minCount": 20, "sh:datatype": 10 }, totalViolations: 30, constraints: 10 },
-  { name: "AddressShape", violations: { "sh:pattern": 5, "sh:datatype": 15, "sh:maxCount": 10 }, totalViolations: 30, constraints: 8 },
-  { name: "OrganizationShape", violations: { "sh:minCount": 25 }, totalViolations: 25, constraints: 5 },
-  { name: "EventShape", violations: { "sh:pattern": 10, "sh:minCount": 15, "sh:maxCount": 5 }, totalViolations: 30, constraints: 12 },
-  { name: "ProductShape", violations: { "sh:datatype": 20, "sh:pattern": 10 }, totalViolations: 30, constraints: 9 },
-  { name: "LocationShape", violations: { "sh:maxCount": 8, "sh:nodeKind": 5 }, totalViolations: 13, constraints: 7 },
-  { name: "BuildingShape", violations: { "sh:minCount": 12, "sh:pattern": 8 }, totalViolations: 20, constraints: 8 },
-  { name: "VehicleShape", violations: { "sh:datatype": 14, "sh:maxCount": 6 }, totalViolations: 20, constraints: 6 },
-  { name: "CityShape", violations: { "sh:pattern": 10, "sh:minCount": 5, "sh:maxExclusive": 10 }, totalViolations: 25, constraints: 10 },
-  { name: "CountryShape", violations: { "sh:minCount": 18, "sh:datatype": 12 }, totalViolations: 30, constraints: 9 },
-  { name: "SchoolShape", violations: { "sh:pattern": 15, "sh:datatype": 10 }, totalViolations: 25, constraints: 7 },
-  { name: "HospitalShape", violations: { "sh:minCount": 12, "sh:maxCount": 8 }, totalViolations: 20, constraints: 6 },
-  { name: "AirportShape", violations: { "sh:nodeKind": 7, "sh:maxExclusive": 10 }, totalViolations: 17, constraints: 8 },
-  { name: "UniversityShape", violations: { "sh:datatype": 25, "sh:pattern": 15 }, totalViolations: 40, constraints: 12 },
-  { name: "LibraryShape", violations: { "sh:minCount": 10, "sh:datatype": 10 }, totalViolations: 20, constraints: 7 },
-  { name: "ParkShape", violations: { "sh:pattern": 8, "sh:maxCount": 7 }, totalViolations: 15, constraints: 5 },
-  { name: "MuseumShape", violations: { "sh:minCount": 15, "sh:nodeKind": 10 }, totalViolations: 25, constraints: 10 },
-  { name: "BridgeShape", violations: { "sh:pattern": 12, "sh:datatype": 8 }, totalViolations: 20, constraints: 6 },
-  { name: "RiverShape", violations: { "sh:minCount": 8, "sh:maxExclusive": 6 }, totalViolations: 14, constraints: 8 },
-  { name: "StreetShape", violations: { "sh:nodeKind": 10, "sh:pattern": 5 }, totalViolations: 15, constraints: 6 },
-  { name: "EmployeeShape", violations: { "sh:minCount": 2,  }, totalViolations: 5, constraints: 10 },
-  { name: "DepartmentShape", violations: { "sh:datatype": 3 }, totalViolations: 3, constraints: 8 },
-  { name: "ProjectShape", violations: { "sh:maxCount": 1 }, totalViolations: 1, constraints: 12 },
-  { name: "TaskShape", violations: { "sh:pattern": 2 }, totalViolations: 4, constraints: 7 },
-  { name: "TeamShape", violations: { "sh:nodeKind": 3 }, totalViolations: 3, constraints: 15 }
-]);
-
-const zeroViolationShapes = ref([
-  { name: "CustomerShape", violations: {}, totalViolations: 0, constraints: 8 },
-  { name: "OrderShape", violations: {}, totalViolations: 0, constraints: 6 },
-  { name: "InvoiceShape", violations: {}, totalViolations: 0, constraints: 10 },
-  { name: "ReceiptShape", violations: {}, totalViolations: 0, constraints: 7 },
-  { name: "PaymentShape", violations: {}, totalViolations: 0, constraints: 9 },
-  { name: "AccountShape", violations: {}, totalViolations: 0, constraints: 5 },
-  { name: "VendorShape", violations: {}, totalViolations: 0, constraints: 6 },
-  { name: "SupplierShape", violations: {}, totalViolations: 0, constraints: 8 },
-  { name: "WarehouseShape", violations: {}, totalViolations: 0, constraints: 12 },
-  { name: "InventoryShape", violations: {}, totalViolations: 0, constraints: 10 },
-  { name: "LogisticsShape", violations: {}, totalViolations: 0, constraints: 11 },
-  { name: "ShipmentShape", violations: {}, totalViolations: 0, constraints: 6 },
-  { name: "RegionShape", violations: {}, totalViolations: 0, constraints: 9 },
-  { name: "SectorShape", violations: {}, totalViolations: 0, constraints: 7 },
-  { name: "DistrictShape", violations: {}, totalViolations: 0, constraints: 10 }
-]);
-
-const realViolations = ref([
-{'violation_entropy': 0.39, 'num_violations': 729, 'num_constraints': 22}, 
-{'violation_entropy': 0.0, 'num_violations': 718, 'num_constraints': 8}, 
-{'violation_entropy': 0.18, 'num_violations': 1896, 'num_constraints': 65}, 
-{'violation_entropy': 0.7, 'num_violations': 830, 'num_constraints': 25}, 
-{'violation_entropy': 0.13, 'num_violations': 1203, 'num_constraints': 22}, 
-{'violation_entropy': 0.0, 'num_violations': 1045, 'num_constraints': 17}, 
-{'violation_entropy': 0.82, 'num_violations': 576, 'num_constraints': 25}, 
-{'violation_entropy': 0.22, 'num_violations': 1283, 'num_constraints': 23}, 
-{'violation_entropy': 0.4, 'num_violations': 384, 'num_constraints': 24}, 
-{'violation_entropy': 0.2, 'num_violations': 1165, 'num_constraints': 27}, 
-{'violation_entropy': 0.5, 'num_violations': 892, 'num_constraints': 55}, 
-{'violation_entropy': 0.63, 'num_violations': 387, 'num_constraints': 24}, 
-{'violation_entropy': 0.0, 'num_violations': 0, 'num_constraints': 16}, 
-{'violation_entropy': 0.13, 'num_violations': 656, 'num_constraints': 15}, 
-{'violation_entropy': 0.14, 'num_violations': 732, 'num_constraints': 22}, 
-{'violation_entropy': 0.0, 'num_violations': 642, 'num_constraints': 21}, 
-{'violation_entropy': 0.49, 'num_violations': 1452, 'num_constraints': 58}, 
-{'violation_entropy': 0.04, 'num_violations': 997, 'num_constraints': 48}, 
-{'violation_entropy': 0.45, 'num_violations': 1507, 'num_constraints': 75}, 
-{'violation_entropy': 0.55, 'num_violations': 1086, 'num_constraints': 63}, 
-{'violation_entropy': 0.18, 'num_violations': 968, 'num_constraints': 40}, 
-{'violation_entropy': 0.24, 'num_violations': 1941, 'num_constraints': 38}, 
-{'violation_entropy': 0.0, 'num_violations': 0, 'num_constraints': 22}, 
-{'violation_entropy': 0.43, 'num_violations': 34, 'num_constraints': 19}, 
-{'violation_entropy': 0.0, 'num_violations': 41, 'num_constraints': 20}, 
-{'violation_entropy': 0.4, 'num_violations': 2379, 'num_constraints': 49}, 
-{'violation_entropy': 0.29, 'num_violations': 2241, 'num_constraints': 29}, 
-{'violation_entropy': 0.23, 'num_violations': 949, 'num_constraints': 24}, 
-{'violation_entropy': 0.0, 'num_violations': 0, 'num_constraints': 39}, 
-{'violation_entropy': 0.02, 'num_violations': 659, 'num_constraints': 32}])
-
-
-const shapeViolations = computed(() => [...shapeViolations2.value, ...zeroViolationShapes.value]);
-
-// Scatter plot data - will be loaded from API
-const coveragePlotData = ref({
-  datasets: [{
-    label: "Shapes",
-    data: []
-  }]
-});
-
-const scatterPlotData = ref({
-  datasets: [{
-    label: "Shapes",
-    data: []
-  }]
-});
-
-
 // Router for navigation
 const router = useRouter();
 
-// Tags data - will be loaded from API
-const tags = ref([
-  { title: "Total Node Shapes", value: 0 },
-  { title: "Node Shapes with Violations (%)", value: "0%" },
-  { title: "Max Violations per Node Shape", value: 0 },
-  { title: "Avg Violations per Node Shape", value: 0 },
+// Tags data - computed from store
+const tags = computed(() => [
+  { title: "Total Node Shapes", value: shapesStore.totalNodeShapes },
+  { title: "Node Shapes with Violations (%)", value: `${shapesStore.violationPercentage}%` },
+  { title: "Max Violations per Node Shape", value: shapesStore.maxViolationsPerShape },
+  { title: "Avg Violations per Node Shape", value: shapesStore.avgViolationsPerShape },
 ]);
 
-const normalizedViolationBins = [0, 0.5, 1, 1.5, 2, 2.5, 3]; // Define bins for the histogram
+// Chart data - computed from store
+const normalizedHistogramViolationData = computed(() => shapesStore.violationsDistribution || { labels: [], datasets: [] });
 
-// Chart data - will be loaded from API
-const normalizedHistogramViolationData = ref({
-  labels: [],
-  datasets: []
+const coveragePlotData = computed(() => {
+  if (!shapesStore.correlationData) {
+    return { datasets: [{ label: "Shapes", data: [] }] };
+  }
+  return {
+    datasets: [{
+      label: "Shapes",
+      data: shapesStore.correlationData.map(item => ({
+        x: item.num_constraints,
+        y: item.num_constraints > 0 ? item.num_violations / item.num_constraints : 0,
+        label: "",
+        hasZeroViolations: item.num_violations === 0
+      }))
+    }]
+  };
 });
 
-
-
-const normalizedHistogramData = {
-  labels: normalizedViolationBins.map((bin, index) =>
-    index < normalizedViolationBins.length - 1
-      ? `${bin} - ${normalizedViolationBins[index + 1]}`
-      : `${bin}+`
-  ),
-  datasets: [
-    {
-      label: "Normalized Violations",
-      data: normalizedViolationBins.map((bin, index) => {
-        const lowerBound = bin;
-        const upperBound = normalizedViolationBins[index + 1] || Infinity;
-
-        return shapeViolations.value.filter(
-          (shape) =>
-            shape.totalViolations / shape.constraints >= lowerBound &&
-            shape.totalViolations / shape.constraints < upperBound
-        ).length;
-      })
-    },
-  ],
-};
+const scatterPlotData = computed(() => {
+  if (!shapesStore.correlationData) {
+    return { datasets: [{ label: "Shapes", data: [] }] };
+  }
+  return {
+    datasets: [{
+      label: "Shapes",
+      data: shapesStore.correlationData.map(item => ({
+        x: item.violation_entropy,
+        y: item.num_constraints > 0 ? item.num_violations / item.num_constraints : 0,
+        label: ""
+      }))
+    }]
+  };
+});
 
 const columns = ref([
   { label: "Node Shape Name", field: "name" },
@@ -323,115 +229,45 @@ const columns = ref([
   { label: "Violation-to-Constraint Ratio", field: "violationToConstraintRatio" },
 ]);
 
-// Table data - will be loaded from API
-const shapes = ref([]);
+// Table data - computed from store with formatted URIs
+const shapes = computed(() => {
+  return (shapesStore.nodeShapes || []).map(shape => ({
+    ...shape,
+    originalName: shape.name,  // Keep full URI for navigation
+    name: formatURI(shape.name),  // Display prefixed version
+    mostViolatedConstraint: formatURI(shape.mostViolatedConstraint)
+  }));
+});
 
-// Load all overview data from API
+// Load all overview data from store
 const loadOverviewData = async () => {
-  loading.value = true;
-  error.value = null;
-
   try {
     // Load prefixes (cached after first call)
     await loadPrefixes();
 
-    // Load tags data in parallel
-    const [totalShapesData, shapesWithViolationsData, maxViolationsData, avgViolationsData] = 
-      await Promise.all([
-        getNodeShapesCountInGraph(),
-        getNodeShapesWithViolationsCountOverview(),
-        getMaxViolationsForNodeShape(),
-        getAverageViolationsForNodeShapes()
-      ]);
-
-    // Update tags
-    const totalShapes = totalShapesData.nodeShapeCount || 0;
-    tags.value[0].value = totalShapes;
-    
-    const violationsCount = shapesWithViolationsData.nodeShapesWithViolationsCount || 0;
-    const percentage = totalShapes > 0 
-      ? ((violationsCount / totalShapes) * 100).toFixed(1)
-      : 0;
-    tags.value[1].value = `${percentage}%`;
-    
-    tags.value[2].value = maxViolationsData.violationCount || 0;
-    tags.value[3].value = avgViolationsData.averageViolations || 0;
-
-    // Load chart data in parallel
-    const [histogramData, correlationData, tableData] = await Promise.all([
-      getViolationsDistribution(10),
-      getCorrelationData(),
-      getNodeShapeDetailsTable()
-    ]);
-
-    // Update histogram
-    normalizedHistogramViolationData.value = histogramData;
-
-    // Update scatter plots from correlation data
-    coveragePlotData.value = {
-      datasets: [{
-        label: "Shapes",
-        data: correlationData.map(item => ({
-          x: item.num_constraints,
-          y: item.num_constraints > 0 ? item.num_violations / item.num_constraints : 0,
-          label: "",
-          hasZeroViolations: item.num_violations === 0
-        }))
-      }]
-    };
-
-    scatterPlotData.value = {
-      datasets: [{
-        label: "Shapes",
-        data: correlationData.map(item => ({
-          x: item.violation_entropy,
-          y: item.num_constraints > 0 ? item.num_violations / item.num_constraints : 0,
-          label: ""
-        }))
-      }]
-    };
-
-    // Format URIs with prefixes AND store original
-    shapes.value = (tableData.nodeShapes || []).map(shape => ({
-      ...shape,
-      originalName: shape.name,  // Keep full URI for navigation
-      name: formatURI(shape.name),  // Display prefixed version
-      mostViolatedConstraint: formatURI(shape.mostViolatedConstraint)
-    }));
+    // Load all data from store (store handles API calls and caching)
+    await shapesStore.loadOverview();
+    await shapesStore.loadChartData();
+    await shapesStore.loadShapesTable();
 
   } catch (err) {
-    console.error('Error loading overview data:', err);
-    error.value = 'Failed to load overview data. Please try again.';
-  } finally {
-    loading.value = false;
+    logger.error('Error loading overview data:', err);
   }
 };
-const currentPage = ref(1);
-const pageSize = ref(10);
-const totalPages = computed(() => Math.ceil(shapes.value.length / pageSize.value));
 
-const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  return shapes.value.slice(start, start + pageSize.value);
-});
+// Replace with composables
+import { usePagination } from '@/composables/usePagination';
+import { useSorting } from '@/composables/useSorting';
 
-const sortedPaginatedData = computed(() => {
-  const data = paginatedData.value;
-  if (sortKey.value) {
-    return [...data].sort((a, b) => {
-      const result = a[sortKey.value].toString().localeCompare(b[sortKey.value].toString(), undefined, { numeric: true });
-      return sortOrder.value === "asc" ? result : -result;
-    });
-  }
-  return data;
-});
+const { currentPage, totalPages, paginatedData, prevPage, nextPage } = usePagination(shapes, 10);
+const { sortKey, sortOrder, sortedData, sortBy } = useSorting(paginatedData);
 
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
-};
+// Use sortedData instead of sortedPaginatedData
+const sortedPaginatedData = sortedData;
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
+// Sorting wrapper for column clicks
+const sortColumn = (column) => {
+  sortBy(column.field);
 };
 
 // Use originalName (full URI) for navigation, not the prefixed name
@@ -439,18 +275,6 @@ const goToShape = (shape) => {
   // URL-encode the shape URI to handle special characters and slashes
   const encodedShapeId = encodeURIComponent(shape.originalName);
   router.push({ name: "ShapeView", params: { shapeId: encodedShapeId } });
-};
-
-const sortKey = ref("");
-const sortOrder = ref("asc");
-
-const sortColumn = (column) => {
-  if (sortKey.value === column.field) {
-    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
-  } else {
-    sortKey.value = column.field;
-    sortOrder.value = "asc";
-  }
 };
 
 // Load data on mount

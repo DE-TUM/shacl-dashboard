@@ -22,7 +22,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // Import components
-import LandingPage from "@/components/LandingPage.vue"; // Your landing page component
 import MainContent from "@/components/Layout/MainContent.vue"; // Home component
 
 import ShapeOverview from "@/components/Overviews/ShapeOverview.vue";
@@ -36,7 +35,6 @@ import PropertyPathView from "@/components/Views/PropertyPathView.vue";
 import AboutUs from "@/components/Overviews/AboutUs.vue";
 
 const routes = [
-  //{ path: "/", name: "LandingPage", component: LandingPage }, // Landing page route
   { path: "/", name: "Home", component: MainContent }, // Main content after landing page
   { path: "/shapes", name: "ShapeOverview", component: ShapeOverview },
   { path: "/shapes/:shapeId", name: "ShapeView", component: ShapeView },

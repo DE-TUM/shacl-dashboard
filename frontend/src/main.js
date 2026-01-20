@@ -15,8 +15,11 @@
  * and FontAwesome configured, ready to render the application on the #app DOM element.
  */
 import './assets/main.css';
+import './assets/theme.css';
 
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import { logger } from './services/logger';
 import App from './App.vue';
 import { createVuetify } from 'vuetify';
 import 'vuetify/styles';
@@ -45,11 +48,24 @@ const vuetify = createVuetify({
   directives,
 });
 
+// Initialize Pinia
+const pinia = createPinia();
+
 // Create the Vue app
 const app = createApp(App);
 
-// Use Vuetify and the router
+// Global error handler
+app.config.errorHandler = (err, instance, info) => {
+  logger.error('Global error:', err);
+  logger.error('Component:', instance);
+  logger.error('Error info:', info);
+  // TODO: Add user notification when UI notification system is available
+  // showUserNotification('Something went wrong. Please try again.');
+};
+
+// Use Vuetify, Pinia, and the router
 app.use(vuetify);
+app.use(pinia);
 app.use(router);
 
 // Register FontAwesomeIcon globally

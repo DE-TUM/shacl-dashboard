@@ -28,6 +28,7 @@
  */
 import { ref } from 'vue';
 import { getValidationDetailsReport } from '../services/api.js';
+import { logger } from '@/services/logger';
 
 // Singleton cache - shared across all component instances
 const prefixesCache = ref(null);
@@ -114,7 +115,7 @@ export function usePrefixes() {
       return prefixesCache.value;
     } catch (error) {
       loadError.value = error;
-      console.error('Failed to load prefixes:', error);
+      logger.error('Failed to load prefixes:', error);
       prefixesCache.value = {}; // Set empty object as fallback
       return {};
     } finally {

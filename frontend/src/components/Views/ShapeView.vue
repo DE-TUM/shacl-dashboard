@@ -30,10 +30,15 @@
   <!-- Center: Title and Toggle Definition -->
   <div class="flex flex-col items-center flex-grow text-center">
     <h1 class="text-2xl font-semibold text-gray-800">NodeShape: {{ shapeName }}</h1>
-    <div class="text-blue-600 text-sm cursor-pointer mt-1" @click="toggleDefinition">
+    <button 
+      class="text-blue-600 text-sm cursor-pointer mt-1 bg-transparent border-none hover:underline focus:outline-none focus:ring-2 focus:ring-blue-300 rounded px-2 py-1" 
+      @click="toggleDefinition"
+      :aria-expanded="showDefinition"
+      aria-label="Toggle shape definition visibility"
+    >
       <span v-if="showDefinition">Hide Definition</span>
       <span v-else>Show Definition</span>
-    </div>
+    </button>
   </div>
 
   <!-- Right: Placeholder for Balance -->
@@ -77,7 +82,7 @@
         </div>
         <div>
           <h3 class="text-sm font-medium text-gray-500 mb-1">{{ metric.titleMaxViolated }}</h3>
-          <p class="text-xl font-medium" :style="{ color: 'rgb(227,114,34)' }">{{ metric.maxViolated }}</p>
+          <p class="text-xl font-medium text-primary">{{ metric.maxViolated }}</p>
         </div>
       </div>
     </div>
@@ -148,7 +153,9 @@
  * and shape definition, metrics cards showing violation statistics, visualization charts 
  * (heatmap and pareto), and a property shapes table with detailed violation information.
  */
-import { ref, onMounted, computed } from "vue";
+import { inject, ref, computed, onMounted } from 'vue';
+import { logger } from '@/services/logger';
+import { COLORS } from '@/constants/theme';
 import { useRoute, useRouter } from "vue-router";
 import ScatterPlotChart from "./../Charts/ScatterPlotChart.vue";
 import HeatmapChart from "./../Charts/HeatmapChart.vue";
@@ -168,6 +175,9 @@ import { usePrefixes } from '../../composables/usePrefixes.js';
 
 const route = useRoute();
 const router = useRouter();
+
+// Inject global error handler
+const errorHandler = inject('errorHandler');
 
 const shapeId = ref(""); // Store the full URI from route
 const shapeName = ref(""); // Store the formatted display name
@@ -263,7 +273,10 @@ const loadShapeData = async (shapeId) => {
       getPropertyPathsCountForNodeShape(shapeId),
       getConstraintCountForNodeShape(shapeId),
       getViolationsPerConstraintTypeForPropertyShape(shapeId),
-      getShapeDefinition(shapeId).catch(() => null)
+      getShapeDefinition(shapeId).catch((err) => {
+        logger.warn('Shape definition not available:', err);
+        return null;
+      })
     ]);
 
     // Update refs with API data - format the shapeName with prefix
@@ -354,8 +367,16 @@ const loadShapeData = async (shapeId) => {
     }
 
   } catch (err) {
-    console.error('Error loading shape data:', err);
+    logger.error('Error loading shape data:', err);
     error.value = 'Failed to load shape data. Please try again.';
+    
+    // Show user-facing error notification
+    if (errorHandler) {
+      errorHandler.handleError(err, {
+        context: 'Shape View',
+        customMessage: 'Failed to load shape data. Please refresh the page or try again later.'
+      });
+    }
   } finally {
     loading.value = false;
   }

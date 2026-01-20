@@ -35,10 +35,11 @@
  */
 import { ref, onMounted } from 'vue';
 import SideBar from './SideBar.vue'; // Import the SideBar component
+import { SIDEBAR, BREAKPOINTS } from '@/constants/ui';
 
 const isMobile = ref(false); // Track screen size for responsiveness
 const activeView = ref("Home"); // Track the currently selected view
-const sidebarWidth = ref(60); // Default collapsed sidebar width
+const sidebarWidth = ref(SIDEBAR.COLLAPSED); // Default collapsed sidebar width
 const emit = defineEmits(['updateView']);
 
 const handleViewUpdate = (view) => {
@@ -54,7 +55,7 @@ const updateSidebarWidth = (width) => {
 // Watch window resize to toggle between mobile and desktop
 onMounted(() => {
   const handleResize = () => {
-    isMobile.value = window.innerWidth <= 600; // Adjust breakpoint as needed
+    isMobile.value = window.innerWidth <= BREAKPOINTS.MOBILE;
   };
 
   window.addEventListener("resize", handleResize);
@@ -93,7 +94,7 @@ onMounted(() => {
   width: 100%;
   overflow-y: auto;
   padding: 0;
-  background-color: #efefef !important;
+  background-color: var(--color-background-secondary, #efefef);
 }
 
 .v-row {
@@ -113,7 +114,7 @@ onMounted(() => {
   }
 
   .v-col {
-    padding-left: 10px;
+    padding-left: var(--spacing-sm, 10px);
   }
 }
 </style>

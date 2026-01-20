@@ -18,7 +18,12 @@
     </td>
 
     <td class="text-right px-6 py-4 border-b border-gray-300">
-      <button @click.stop="toggleDetails" class="toggle-btn">
+      <button 
+        @click.stop="toggleDetails" 
+        class="toggle-btn"
+        :aria-expanded="showDetails"
+        aria-label="Toggle violation details"
+      >
         <span v-if="showDetails" class="triangle-down"></span>
         <span v-else class="triangle-left"></span>
       </button>

@@ -201,8 +201,21 @@ import ToggleQuestionMark from "../Reusable/ToggleQuestionMark.vue";
 import * as d3 from "d3-scale";
 
 const props = defineProps({
-  title: { type: String, default: "Violation Heatmap" },
-  data: { type: Array, required: true },
+  title: { 
+    type: String, 
+    default: "Violation Heatmap" 
+  },
+  data: { 
+    type: Array, 
+    required: true,
+    validator: (value) => {
+      return Array.isArray(value) && value.every(item => 
+        item &&
+        typeof item.PropertyShape === 'string' &&
+        Array.isArray(item.Constraints)
+      );
+    }
+  },
 });
 
 // Ensure margin is defined before being used

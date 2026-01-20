@@ -1,0 +1,232 @@
+/**
+ * CSS Custom Properties (Variables)
+ * 
+ * Centralized theme variables for consistent styling across the application.
+ * These variables replace hardcoded colors and magic numbers throughout components.
+ * 
+ * Usage in Vue components:
+ * <style scoped>
+ * .my-element {
+ *   background-color: var(--color-background);
+ *   color: var(--color-text-primary);
+ * }
+ * </style>
+ */
+
+:root {
+  /* ========================================
+     Color Palette - Primary
+     ======================================== */
+  --color-primary: rgb(227, 114, 34);  /* Updated to match brand orange */
+  --color-primary-hover: rgb(207, 94, 14);
+  --color-primary-light: rgb(247, 134, 54);
+  --color-primary-dark: rgb(187, 74, 0);
+  
+  --color-secondary: #0466C8;
+  --color-secondary-hover: #0346A5;
+  --color-secondary-light: #0583F2;
+  --color-secondary-dark: #023E7D;
+  
+  /* ========================================
+     Color Palette - Semantic
+     ======================================== */
+  --color-success: #10b981;
+  --color-success-light: #34d399;
+  --color-success-dark: #059669;
+  
+  --color-warning: #f59e0b;
+  --color-warning-light: #fbbf24;
+  --color-warning-dark: #d97706;
+  
+  --color-error: #ef4444;
+  --color-error-light: #f87171;
+  --color-error-dark: #dc2626;
+  
+  --color-info: #3b82f6;
+  --color-info-light: #60a5fa;
+  --color-info-dark: #2563eb;
+  
+  /* ========================================
+     Backgrounds
+     ======================================== */
+  --color-background: #ffffff;
+  --color-background-secondary: #efefef;
+  --color-background-tertiary: #f9f9f9;
+  --color-background-gray: #f9fafb;
+  --color-background-hover: #f0f8ff;
+  --color-background-hover-subtle: #f0f4f8;
+  --color-background-card: #f7f7f7;
+  
+  /* ========================================
+     Text Colors
+     ======================================== */
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-text-muted: #828282;
+  --color-text-light: #d1d5db;
+  --color-text-white: #ffffff;
+  --color-text-link: #1976D2;
+  --color-text-link-hover: #1565C0;
+  
+  /* ========================================
+     Borders
+     ======================================== */
+  --color-border: #ddd;
+  --color-border-light: #e5e7eb;
+  --color-border-dark: #9ca3af;
+  --color-border-focus: #1976D2;
+  
+  /* ========================================
+     Shadows
+     ======================================== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* ========================================
+     Spacing (8px base)
+     ======================================== */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 3rem;      /* 48px */
+  --spacing-3xl: 4rem;      /* 64px */
+  
+  /* ========================================
+     Border Radius
+     ======================================== */
+  --radius-sm: 0.125rem;    /* 2px */
+  --radius-md: 0.25rem;     /* 4px */
+  --radius-lg: 0.5rem;      /* 8px */
+  --radius-xl: 0.75rem;     /* 12px */
+  --radius-2xl: 1rem;       /* 16px */
+  --radius-full: 9999px;
+  
+  /* ========================================
+     Typography
+     ======================================== */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-base: 1rem;    /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem;  /* 36px */
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* ========================================
+     Transitions
+     ======================================== */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+  
+  /* ========================================
+     Z-index Layers
+     ======================================== */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  
+  /* ========================================
+     Sidebar
+     ======================================== */
+  --sidebar-width-collapsed: 60px;
+  --sidebar-width-expanded: 250px;
+  --sidebar-transition: 0.3s ease-in-out;
+  
+  /* ========================================
+     Table
+     ======================================== */
+  --table-row-hover: var(--color-background-hover);
+  --table-row-stripe: var(--color-background-gray);
+  --table-border: var(--color-border-light);
+  --table-header-bg: var(--color-background-tertiary);
+  
+  /* ========================================
+     Form Elements
+     ======================================== */
+  --input-border: var(--color-border);
+  --input-border-focus: var(--color-border-focus);
+  --input-bg: var(--color-background);
+  --input-padding: 0.5rem 0.75rem;
+  --input-radius: var(--radius-md);
+  
+  /* ========================================
+     Buttons
+     ======================================== */
+  --button-padding: 0.5rem 1rem;
+  --button-radius: var(--radius-md);
+  --button-transition: var(--transition-fast);
+  
+  /* ========================================
+     Cards
+     ======================================== */
+  --card-bg: var(--color-background);
+  --card-border: var(--color-border-light);
+  --card-radius: var(--radius-lg);
+  --card-shadow: var(--shadow-sm);
+  --card-padding: var(--spacing-lg);
+}
+
+/* ========================================
+   Dark Mode Support (Optional)
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #1f2937;
+    --color-background-secondary: #111827;
+    --color-background-tertiary: #374151;
+    --color-background-gray: #1f2937;
+    --color-background-hover: #374151;
+    --color-background-hover-subtle: #2d3748;
+    --color-background-card: #1f2937;
+    
+    --color-text-primary: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-tertiary: #9ca3af;
+    --color-text-muted: #6b7280;
+    
+    --color-border: #374151;
+    --color-border-light: #4b5563;
+    --color-border-dark: #6b7280;
+  }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.bg-primary { background-color: var(--color-primary) !important; }
+.bg-secondary { background-color: var(--color-secondary) !important; }
+.bg-success { background-color: var(--color-success) !important; }
+.bg-warning { background-color: var(--color-warning) !important; }
+.bg-error { background-color: var(--color-error) !important; }
+.bg-info { background-color: var(--color-info) !important; }
+
+.text-primary { color: var(--color-text-primary) !important; }
+.text-secondary { color: var(--color-text-secondary) !important; }
+.text-muted { color: var(--color-text-muted) !important; }
+
+.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow-md { box-shadow: var(--shadow-md) !important; }
+.shadow-lg { box-shadow: var(--shadow-lg) !important; }

@@ -9,10 +9,18 @@
           @update:model="value => updateDropdown(index + 1, value)"
         />
       </template>
-      <button @click="saveSelection" class="save-button mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+      <button 
+        @click="saveSelection" 
+        class="save-button mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        aria-label="Save filter selections"
+      >
         Save Selection
       </button>
-      <button @click="resetFilters" class="reset-button mt-4 px-4 py-2 bg-gray-200 text-gray-500 rounded hover:bg-gray-400">
+      <button 
+        @click="resetFilters" 
+        class="reset-button mt-4 px-4 py-2 bg-gray-200 text-gray-500 rounded hover:bg-gray-400"
+        aria-label="Reset all filters"
+      >
         Reset All Filters
       </button>
     </div>

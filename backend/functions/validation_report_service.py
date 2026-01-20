@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Optional, Any
 import logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES, ENDPOINT_URL
 from sparql_executor import SparqlQueryExecutor, get_default_executor
 from validators import validate_graph_uri, validate_positive_int, ValidationError
 import requests

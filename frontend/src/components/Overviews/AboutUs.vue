@@ -81,6 +81,7 @@
  */
   import ExternalLink from "../Reusable/ExternalLink.vue"; // Adjust the path as necessary
   import { onMounted, ref, onBeforeUnmount, nextTick } from "vue";
+  import { logger } from '@/services/logger';
   import * as d3 from 'd3';
   import PersonCard from "../Reusable/PersonCard.vue";
   
@@ -182,7 +183,7 @@
   
     // Check if container exists
     if (!container) {
-      console.error("Container element not found.");
+      logger.error("Container element not found.");
       return;
     }
   
@@ -223,7 +224,7 @@
     // Get professor's bounding box relative to the container
     const professorCard = container.querySelector(".professor-card");
     if (!professorCard) {
-      console.error("Professor card not found.");
+      logger.error("Professor card not found.");
       return;
     }
     const professorBox = professorCard.getBoundingClientRect();
@@ -237,7 +238,7 @@
     // Get student cards
     const studentCards = container.querySelectorAll(".student-card");
     if (studentCards.length === 0) {
-      console.error("No student cards found.");
+      logger.error("No student cards found.");
       return;
     }
   

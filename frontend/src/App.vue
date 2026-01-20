@@ -2,32 +2,38 @@
   <v-app>
     <!-- Always Render the Main Layout -->
     <MainLayout />
+    
+    <!-- Global Error Notification -->
+    <ErrorNotification
+      :show="showError"
+      :message="errorMessage"
+      :severity="errorSeverity"
+      @close="clearError"
+    />
   </v-app>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { provide } from 'vue';
 import MainLayout from './components/Layout/MainLayout.vue';
-import LandingPage from './components/LandingPage.vue'; // Make sure you import the LandingPage component
-import { useRouter } from 'vue-router';
+import ErrorNotification from './components/Common/ErrorNotification.vue';
+import { useErrorHandler } from './composables/useErrorHandler';
 
-// Router for navigation
-const router = useRouter();
-// State to track if the user is on the landing page
-const isLandingPage = ref(true);
+// Initialize global error handler
+const {
+  error,
+  errorMessage,
+  errorSeverity,
+  showError,
+  handleError,
+  clearError
+} = useErrorHandler();
 
-// Function to switch to the main layout
-const handleEnterClick = () => {
-  router.push({ name: "Home" }); 
-  isLandingPage.value = false; // Switch to main layout when ENTER is clicked
-};
-
-const handleViewUpdate = (view) => {
-  // Emit the selected view to the parent to update the content dynamically
-  if (view === 'LandingPage') {
-    isLandingPage.value = true; // Switch to landing page when Log out is clicked
-  }
-};
+// Provide error handler to all child components
+provide('errorHandler', {
+  handleError,
+  clearError
+});
 </script>
 
 
@@ -44,17 +50,13 @@ html, body, #app {
 v-app {
   height: 100%;
   width: 100%;
-  padding: 0 !important;
+  padding: 0;
   display: flex; /* Ensures flex layout works for full container size */
-
 }
 
 .v-application, .v-application-wrapper {
-  width: 100vw !important;
-  max-width: 100vw !important;
+  width: 100vw;
+  max-width: 100vw;
   min-height: 100vh;
 }
-
-
-
 </style>

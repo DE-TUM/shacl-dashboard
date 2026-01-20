@@ -25,12 +25,6 @@
           </div>
         </router-link>
       </li>
-
-      <!-- Logout button -->
-      <!-- <li @click="handleLogout" class="logout-item">
-        <FontAwesomeIcon :icon="faPowerOff" class="menu-icon" />
-        <span v-if="isExpanded" class="menu-text">Log out</span>
-      </li> -->
     </ul>
 
     <!-- Confirmation Modal -->
@@ -70,27 +64,19 @@ import { ref, defineProps, watch } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faHome, faShapes, faProjectDiagram, faRoute, faPuzzlePiece, faPowerOff, faInfo } from '@fortawesome/free-solid-svg-icons';
 import ConfirmationModal from './../Reusable/ConfirmationModal.vue';
+import { SIDEBAR } from '@/utils/constants';
 
 const emit = defineEmits(['updateView', 'sidebarWidthChanged']);
 const confirmationModal = ref(null);
 const activeView = ref('Home');
 const isExpanded = ref(false);
-const sidebarWidth = ref(60);
+const sidebarWidth = ref(SIDEBAR.COLLAPSED_WIDTH);
 
 const menuItems = [
   { name: 'Home', label: 'Home', icon: faHome, route: '/' },
   { name: 'Shape View', label: 'Shapes', icon: faShapes, route: '/shapes' },
   { name: 'About Us', label: 'About Us', icon: faInfo, route: '/about-us' }
 ];
-
-// const menuItems = [
-//   { name: 'Home', label: 'Home', icon: faHome, route: '/' },
-//   { name: 'Shape View', label: 'Shapes', icon: faShapes, route: '/shapes' },
-//   { name: 'Focus Node View', label: 'Focus Nodes', icon: faProjectDiagram, route: '/focus-nodes' },
-//   { name: 'Property Path View', label: 'Property Paths', icon: faRoute, route: '/property-paths' },
-//   { name: 'Constraint View', label: 'Constraints', icon: faPuzzlePiece, route: '/constraints' },
-//   { name: 'About Us', label: 'About Us', icon: faInfo, route: '/about-us' }
-// ];
 
 
 const buttonClicked = (viewName, navigate) => {
@@ -108,7 +94,7 @@ const logoutConfirmed = () => {
 };
 
 watch(isExpanded, (newValue) => {
-  sidebarWidth.value = newValue ? 250 : 60;
+  sidebarWidth.value = newValue ? SIDEBAR.EXPANDED_WIDTH : SIDEBAR.COLLAPSED_WIDTH;
   emit('sidebarWidthChanged', sidebarWidth.value);
 });
 </script>

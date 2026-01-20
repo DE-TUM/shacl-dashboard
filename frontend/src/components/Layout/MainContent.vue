@@ -94,13 +94,18 @@
  * at the top, a visualization section with multiple histograms in the middle, and a 
  * comprehensive data table showing validation details at the bottom.
  */
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import HistogramChart from "./../Charts/HistogramChart.vue";
 import PieChart from "./../Charts/PieChart.vue";
 import Tag from "./../Reusable/Tag.vue";
 import ViolationTable from "./../Reusable/ViolationTable.vue";
-import * as api from "../../services/api.js";
+import { useViolationsStore } from '@/stores/violations';
 import { usePrefixes } from '../../composables/usePrefixes.js';
+import { logger } from '@/services/logger';
+import * as api from '@/services/api';
+
+// Use stores
+const violationsStore = useViolationsStore();
 
 // Use prefixes composable for URI formatting
 const { loadPrefixes, formatURI: formatUri } = usePrefixes();
@@ -289,7 +294,7 @@ onMounted(async () => {
     };
     
   } catch (error) {
-    console.error("Error loading homepage data:", error);
+    logger.error("Error loading homepage data:", error);
     // Set error state in tags
     tags.value = tags.value.map(tag => ({
       ...tag,

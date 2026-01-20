@@ -176,6 +176,8 @@
   import Filter from './Filter.vue';
   import { getNodeShapeWithViolations } from '../../services/api.js';
   import { usePrefixes } from '../../composables/usePrefixes.js';
+  import { logger } from '../../services/logger.js';
+  import { PAGINATION } from '@/constants/ui';
 
   // Define props
   const props = defineProps({
@@ -198,6 +200,19 @@
 
   const sortKey = ref(null);
   const sortOrder = ref('asc'); // Default sort order is ascending
+  
+  // Pagination
+  const currentPage = ref(1);
+  const itemsPerPage = PAGINATION.DEFAULT_PAGE_SIZE;
+  const totalPages = computed(() => Math.ceil(tablesData.value.length / itemsPerPage));
+  
+  const prevPage = () => {
+    if (currentPage.value > 1) currentPage.value--;
+  };
+  
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) currentPage.value++;
+  };
 
   const columns = ref([
     { label: "Property Shape Name", field: "propertyShapeName" },
@@ -223,7 +238,7 @@
   // Load property shapes data with violations from API
   const loadPropertyShapes = async () => {
     if (!props.nodeShape) {
-      console.warn('No nodeShape provided to ShapesTable');
+      logger.warn('No nodeShape provided to ShapesTable');
       return;
     }
 
@@ -249,7 +264,7 @@
       }));
 
     } catch (err) {
-      console.error('Error fetching property shapes:', err);
+      logger.error('Error fetching property shapes:', err);
       error.value = 'Failed to load property shapes data. Please try again.';
       tablesData.value = [];
     } finally {
@@ -259,7 +274,7 @@
 
   const sortedPaginatedData = computed(() => {
   if (!tablesData.value || tablesData.value.length === 0) {
-    console.warn("No data available in tablesData!");
+    logger.warn("No data available in tablesData!");
     return [];
   }
 
@@ -345,10 +360,10 @@
         });
 
       } else {
-        console.error('Failed to load JSON data.');
+        logger.error('Failed to load JSON data.');
       }
     } catch (error) {
-      console.error('Error fetching JSON data:', error);
+      logger.error('Error fetching JSON data:', error);
     }
   
   };
@@ -391,7 +406,7 @@
     link.click();
     document.body.removeChild(link);
   } catch (error) {
-    console.error("Error generating CSV file:", error);
+    logger.error("Error generating CSV file:", error);
     alert("Failed to generate CSV file.");
   }
 };
