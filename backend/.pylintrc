@@ -1,0 +1,124 @@
+[MASTER]
+# Python code to execute, usually for sys.path manipulation
+init-hook='import sys; sys.path.append(".")'
+
+# Use multiple processes to speed up Pylint
+jobs=4
+
+# Pickle collected data for later comparisons
+persistent=yes
+
+[MESSAGES CONTROL]
+# Disable specific warnings that are too strict or not relevant
+disable=
+    C0103,  # invalid-name (allow short variable names)
+    C0114,  # missing-module-docstring (some modules are self-explanatory)
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring (we have comprehensive docstrings already)
+    R0913,  # too-many-arguments (SPARQL queries often need many parameters)
+    R0914,  # too-many-locals (complex functions may need many variables)
+    W0511,  # fixme (TODO comments are fine)
+    R0801,  # duplicate-code (some duplication is acceptable)
+    C0301,  # line-too-long (black handles this)
+
+[REPORTS]
+# Set the output format
+output-format=colorized
+
+# Include message's id in output
+include-ids=yes
+
+# Reports should include full reports or only the messages
+reports=no
+
+[BASIC]
+# Good variable names which should always be accepted
+good-names=i,j,k,ex,Run,_,e,f,g,id,logger,app,bp
+
+# Regular expression matching correct function names
+function-rgx=[a-z_][a-z0-9_]{2,50}$
+
+# Regular expression matching correct variable names
+variable-rgx=[a-z_][a-z0-9_]{2,50}$
+
+# Regular expression matching correct constant names
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+
+# Regular expression matching correct attribute names
+attr-rgx=[a-z_][a-z0-9_]{2,50}$
+
+# Regular expression matching correct argument names
+argument-rgx=[a-z_][a-z0-9_]{2,50}$
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=120
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# String used as indentation unit
+indent-string='    '
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=8
+
+# Maximum number of attributes for a class
+max-attributes=10
+
+# Minimum number of public methods for a class
+min-public-methods=1
+
+# Maximum number of public methods for a class
+max-public-methods=25
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of branch for function / method body
+max-branches=15
+
+# Maximum number of statements in function / method body
+max-statements=60
+
+# Maximum number of parents for a class
+max-parents=7
+
+# Maximum number of boolean expressions in an if statement
+max-bool-expr=5
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=8
+
+# Ignore comments when computing similarities
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities
+ignore-imports=yes
+
+[TYPECHECK]
+# List of decorators that produce context managers
+contextmanager-decorators=contextlib.contextmanager
+
+[IMPORTS]
+# Deprecated modules which should not be used
+deprecated-modules=optparse,tkinter.tix
+
+[CLASSES]
+# List of method names used to declare instance attributes
+defining-attr-methods=__init__,__new__,setUp
+
+# List of valid names for the first argument in a class method
+valid-classmethod-first-arg=cls
+
+# List of valid names for the first argument in a metaclass class method
+valid-metaclass-classmethod-first-arg=mcs
+
+[EXCEPTIONS]
+# Exceptions that will emit a warning when being caught
+overgeneral-exceptions=builtins.Exception

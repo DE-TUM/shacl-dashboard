@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, Response
+from flask import Blueprint, jsonify, Response, request
 from SPARQLWrapper import SPARQLWrapper
 from config import ENDPOINT_URL
 import sys
@@ -18,9 +18,39 @@ Endpoints:
 - /health: Basic health check for the application
 - /health/ready: Readiness probe (checks if app can serve traffic)
 - /health/live: Liveness probe (checks if app is running)
+- /health/cache: Cache statistics and management
+- /metrics: Prometheus metrics endpoint
 """
 
 health_bp = Blueprint('health', __name__)
+
+
+@health_bp.route('/metrics', methods=['GET'])
+def metrics() -> Response:
+    """
+    Prometheus metrics endpoint.
+    
+    Returns Prometheus-formatted metrics for monitoring application performance.
+    
+    Metrics include:
+    - HTTP request count and duration by endpoint
+    - SPARQL query execution time by operation
+    - Error counts by type
+    - Cache hit/miss statistics
+    - Active requests gauge
+    
+    Returns:
+        Response: Prometheus text format metrics
+    """
+    try:
+        from metrics import get_metrics_manager
+        metrics_manager = get_metrics_manager()
+        data, content_type = metrics_manager.generate_metrics()
+        return Response(data, mimetype=content_type)
+    except Exception as e:
+        logger.error(f"Failed to generate metrics: {str(e)}")
+        return Response(f"# Error generating metrics: {str(e)}\n", mimetype="text/plain")
+
 
 
 @health_bp.route('/health', methods=['GET'])
@@ -108,3 +138,69 @@ def liveness_check() -> Response:
         'status': 'alive',
         'service': 'shacl-dashboard-backend'
     }), 200
+
+
+@health_bp.route('/health/cache', methods=['GET'])
+def cache_stats() -> Response:
+    """
+    Cache statistics endpoint.
+    
+    Returns statistics about the cache usage and configuration.
+    
+    Returns:
+        Response: JSON response with cache statistics.
+            Format: {'backend': 'memory'|'redis', 'enabled': true|false, 'entries': N, ...}
+    """
+    try:
+        from cache_manager import get_cache_manager
+        cache = get_cache_manager()
+        stats = cache.get_stats()
+        return jsonify(stats), 200
+    except Exception as e:
+        logger.error(f"Failed to get cache stats: {str(e)}")
+        return jsonify({
+            'error': 'Failed to retrieve cache statistics',
+            'details': str(e)
+        }), 500
+
+
+@health_bp.route('/health/cache/clear', methods=['POST'])
+def clear_cache() -> Response:
+    """
+    Clear cache endpoint.
+    
+    Clears all or specific cache entries. Requires a pattern parameter
+    to specify which entries to clear (default: 'shacl_cache:*').
+    
+    Query Parameters:
+        pattern (optional): Pattern to match cache keys (default: 'shacl_cache:*')
+    
+    Returns:
+        Response: JSON response with number of entries cleared.
+            Format: {'status': 'cleared', 'count': N, 'pattern': '...'}
+    """
+    try:
+        from cache_manager import get_cache_manager
+        cache = get_cache_manager()
+        
+        if not cache.enabled:
+            return jsonify({
+                'status': 'disabled',
+                'message': 'Caching is disabled'
+            }), 200
+        
+        pattern = request.args.get('pattern', 'shacl_cache:*')
+        count = cache.clear(pattern)
+        
+        return jsonify({
+            'status': 'cleared',
+            'count': count,
+            'pattern': pattern
+        }), 200
+    except Exception as e:
+        logger.error(f"Failed to clear cache: {str(e)}")
+        return jsonify({
+            'error': 'Failed to clear cache',
+            'details': str(e)
+        }), 500
+

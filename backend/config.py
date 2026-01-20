@@ -47,6 +47,40 @@ class Config:
     SPARQL_TIMEOUT: int = int(os.getenv("SPARQL_TIMEOUT", "30"))  # Query timeout in seconds
     SPARQL_MAX_RETRIES: int = int(os.getenv("SPARQL_MAX_RETRIES", "3"))  # Maximum retry attempts
     SPARQL_RETRY_DELAY: float = float(os.getenv("SPARQL_RETRY_DELAY", "1.0"))  # Initial retry delay in seconds
+    SPARQL_CONNECTION_POOL_SIZE: int = int(os.getenv("SPARQL_CONNECTION_POOL_SIZE", "5"))  # Connection pool size
+    SPARQL_USE_CONNECTION_POOL: bool = os.getenv("SPARQL_USE_CONNECTION_POOL", "true").lower() == "true"  # Enable connection pooling
+    
+    # Caching Configuration
+    CACHE_ENABLED: bool = os.getenv("CACHE_ENABLED", "true").lower() == "true"  # Enable query result caching
+    CACHE_BACKEND: str = os.getenv("CACHE_BACKEND", "memory")  # Options: 'memory' or 'redis'
+    CACHE_DEFAULT_TTL: int = int(os.getenv("CACHE_DEFAULT_TTL", "300"))  # Default cache TTL in seconds (5 minutes)
+    CACHE_REDIS_HOST: str = os.getenv("CACHE_REDIS_HOST", "localhost")  # Redis host for caching
+    CACHE_REDIS_PORT: int = int(os.getenv("CACHE_REDIS_PORT", "6379"))  # Redis port
+    CACHE_REDIS_DB: int = int(os.getenv("CACHE_REDIS_DB", "0"))  # Redis database number
+    
+    # Metrics Configuration
+    METRICS_ENABLED: bool = os.getenv("METRICS_ENABLED", "true").lower() == "true"  # Enable Prometheus metrics
+    
+    # Rate Limiting Configuration
+    RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
+    RATE_LIMIT_DEFAULT: str = os.getenv("RATE_LIMIT_DEFAULT", "200 per hour")  # Default rate limit for all routes
+    RATE_LIMIT_STORAGE_URL: str = os.getenv("RATE_LIMIT_STORAGE_URL", "memory://")  # Use Redis for production: "redis://localhost:6379"
+    
+    # Security Headers Configuration
+    SECURITY_HEADERS_ENABLED: bool = os.getenv("SECURITY_HEADERS_ENABLED", "true").lower() == "true"
+    # Content Security Policy - restrict sources for scripts, styles, etc.
+    CSP_POLICY: Dict[str, Any] = {
+        'default-src': "'self'",
+        'script-src': ["'self'", "'unsafe-inline'"],  # Vue.js may need unsafe-inline
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", "data:"],
+        'font-src': "'self'",
+        'connect-src': "'self'",
+        'frame-ancestors': "'none'",
+    }
+    HSTS_MAX_AGE: int = 31536000  # HTTP Strict Transport Security: 1 year
+    HSTS_INCLUDE_SUBDOMAINS: bool = True
+    FORCE_HTTPS: bool = os.getenv("FORCE_HTTPS", "false").lower() == "true"  # Set to true in production
     
     # Triple store type - used to handle store-specific operations
     TRIPLE_STORE_TYPE: str = "virtuoso"  # Options: "virtuoso", "fuseki", "stardog", etc.
@@ -202,6 +236,23 @@ USE_JSON_LOGGING = Config.USE_JSON_LOGGING
 SPARQL_TIMEOUT = Config.SPARQL_TIMEOUT
 SPARQL_MAX_RETRIES = Config.SPARQL_MAX_RETRIES
 SPARQL_RETRY_DELAY = Config.SPARQL_RETRY_DELAY
+SPARQL_CONNECTION_POOL_SIZE = Config.SPARQL_CONNECTION_POOL_SIZE
+SPARQL_USE_CONNECTION_POOL = Config.SPARQL_USE_CONNECTION_POOL
+CACHE_ENABLED = Config.CACHE_ENABLED
+CACHE_BACKEND = Config.CACHE_BACKEND
+CACHE_DEFAULT_TTL = Config.CACHE_DEFAULT_TTL
+CACHE_REDIS_HOST = Config.CACHE_REDIS_HOST
+CACHE_REDIS_PORT = Config.CACHE_REDIS_PORT
+CACHE_REDIS_DB = Config.CACHE_REDIS_DB
+METRICS_ENABLED = Config.METRICS_ENABLED
+RATE_LIMIT_ENABLED = Config.RATE_LIMIT_ENABLED
+RATE_LIMIT_DEFAULT = Config.RATE_LIMIT_DEFAULT
+RATE_LIMIT_STORAGE_URL = Config.RATE_LIMIT_STORAGE_URL
+SECURITY_HEADERS_ENABLED = Config.SECURITY_HEADERS_ENABLED
+CSP_POLICY = Config.CSP_POLICY
+HSTS_MAX_AGE = Config.HSTS_MAX_AGE
+HSTS_INCLUDE_SUBDOMAINS = Config.HSTS_INCLUDE_SUBDOMAINS
+FORCE_HTTPS = Config.FORCE_HTTPS
 TRIPLE_STORE_TYPE = Config.TRIPLE_STORE_TYPE
 SHAPES_GRAPH_URI = Config.SHAPES_GRAPH_URI
 VALIDATION_REPORT_URI = Config.VALIDATION_REPORT_URI

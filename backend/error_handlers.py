@@ -3,35 +3,77 @@ Error Handling Utilities Module
 
 This module provides decorators and utilities for consistent error handling
 across API routes in the SHACL Dashboard application.
+
+For standardized error codes and messages, see error_codes.py
 """
 
 import logging
 from functools import wraps
 from flask import jsonify
-from config import HTTP_BAD_REQUEST, HTTP_NOT_FOUND, HTTP_INTERNAL_SERVER_ERROR
+from config import HTTP_BAD_REQUEST, HTTP_NOT_FOUND, HTTP_INTERNAL_SERVER_ERROR, HTTP_FORBIDDEN
+from error_codes import ErrorCodes, format_error_response, get_http_status_for_error_code
 
 logger = logging.getLogger(__name__)
 
 
 class ValidationError(Exception):
-    """Raised when input validation fails."""
-    pass
+    """
+    Raised when input validation fails.
+    
+    Attributes:
+        message: Human-readable error message
+        error_code: Optional error code from ErrorCodes
+        details: Optional additional details dictionary
+    """
+    def __init__(self, message: str, error_code: str = None, details: dict = None):
+        super().__init__(message)
+        self.message = message
+        self.error_code = error_code or ErrorCodes.VAL_INVALID_PARAMETER
+        self.details = details or {}
 
 
 class ResourceNotFoundError(Exception):
-    """Raised when a requested resource is not found."""
-    pass
+    """
+    Raised when a requested resource is not found.
+    
+    Attributes:
+        message: Human-readable error message
+        error_code: Optional error code from ErrorCodes
+        resource_type: Type of resource (e.g., 'graph', 'shape')
+    """
+    def __init__(self, message: str, error_code: str = None, resource_type: str = None):
+        super().__init__(message)
+        self.message = message
+        self.error_code = error_code or ErrorCodes.RES_GRAPH_NOT_FOUND
+        self.resource_type = resource_type
+
+
+class QueryExecutionError(Exception):
+    """
+    Raised when a SPARQL query execution fails.
+    
+    Attributes:
+        message: Human-readable error message
+        error_code: Optional error code from ErrorCodes
+        query_info: Optional query details
+    """
+    def __init__(self, message: str, error_code: str = None, query_info: str = None):
+        super().__init__(message)
+        self.message = message
+        self.error_code = error_code or ErrorCodes.QRY_EXECUTION_FAILED
+        self.query_info = query_info
 
 
 def handle_api_errors(f):
     """
-    Decorator to handle errors consistently across API routes.
+    Decorator to handle errors consistently across API routes with standardized error codes.
     
-    Catches specific exceptions and returns appropriate HTTP responses:
-    - ValidationError: 400 Bad Request
-    - ResourceNotFoundError: 404 Not Found
-    - ValueError, KeyError, TypeError: 400 Bad Request
-    - Other exceptions: 500 Internal Server Error
+    Catches specific exceptions and returns appropriate HTTP responses with error codes:
+    - ValidationError: 400 Bad Request (with error code)
+    - ResourceNotFoundError: 404 Not Found (with error code)
+    - QueryExecutionError: 500 Internal Server Error (with error code)
+    - ValueError, KeyError, TypeError: 400 Bad Request (generic)
+    - Other exceptions: 500 Internal Server Error (generic, no stack trace exposed)
     
     Usage:
         @app.route('/api/endpoint')
@@ -39,23 +81,58 @@ def handle_api_errors(f):
         def my_endpoint():
             # Your code here
             pass
+    
+    Returns:
+        JSON response with structure:
+        {
+            "error_code": "ERROR_CODE",
+            "message": "User-friendly error message"
+        }
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
             return f(*args, **kwargs)
         except ValidationError as e:
-            logger.warning("Validation error in %s: %s", f.__name__, str(e))
-            return jsonify({'error': str(e)}), HTTP_BAD_REQUEST
+            logger.warning(
+                "Validation error in %s: %s (code: %s)", 
+                f.__name__, e.message, e.error_code,
+                extra={'error_code': e.error_code, 'details': e.details}
+            )
+            error_response = format_error_response(e.error_code, e.details)
+            return jsonify(error_response), get_http_status_for_error_code(e.error_code)
+            
         except ResourceNotFoundError as e:
-            logger.warning("Resource not found in %s: %s", f.__name__, str(e))
-            return jsonify({'error': str(e)}), HTTP_NOT_FOUND
+            logger.warning(
+                "Resource not found in %s: %s (code: %s)", 
+                f.__name__, e.message, e.error_code,
+                extra={'error_code': e.error_code, 'resource_type': e.resource_type}
+            )
+            error_response = format_error_response(e.error_code, {'resource': e.message})
+            return jsonify(error_response), get_http_status_for_error_code(e.error_code)
+            
+        except QueryExecutionError as e:
+            logger.error(
+                "Query execution error in %s: %s (code: %s)", 
+                f.__name__, e.message, e.error_code,
+                extra={'error_code': e.error_code, 'query_info': e.query_info}
+            )
+            error_response = format_error_response(e.error_code)
+            return jsonify(error_response), get_http_status_for_error_code(e.error_code)
+            
         except (ValueError, KeyError, TypeError) as e:
             logger.warning("Invalid input in %s: %s", f.__name__, str(e))
-            return jsonify({'error': f'Invalid input: {str(e)}'}), HTTP_BAD_REQUEST
+            error_response = format_error_response(
+                ErrorCodes.VAL_INVALID_PARAMETER,
+                {'param': 'input', 'details': str(e)}
+            )
+            return jsonify(error_response), HTTP_BAD_REQUEST
+            
         except Exception as e:
+            # Never expose internal details to the client
             logger.exception("Unexpected error in %s", f.__name__)
-            return jsonify({'error': 'Internal server error'}), HTTP_INTERNAL_SERVER_ERROR
+            error_response = format_error_response(ErrorCodes.SYS_INTERNAL_ERROR)
+            return jsonify(error_response), HTTP_INTERNAL_SERVER_ERROR
     
     return decorated_function
 
@@ -78,22 +155,38 @@ def validate_uri(uri: str, param_name: str = "URI") -> str:
         ValidationError: If the URI is invalid or contains potentially malicious content
     """
     if not uri or not isinstance(uri, str):
-        raise ValidationError(f"{param_name} must be a non-empty string")
+        raise ValidationError(
+            f"{param_name} must be a non-empty string",
+            error_code=ErrorCodes.VAL_INVALID_URI,
+            details={'param': param_name, 'details': 'URI must be a non-empty string'}
+        )
     
     uri = uri.strip()
     
     if not uri:
-        raise ValidationError(f"{param_name} cannot be empty")
+        raise ValidationError(
+            f"{param_name} cannot be empty",
+            error_code=ErrorCodes.VAL_INVALID_URI,
+            details={'param': param_name, 'details': 'URI cannot be empty or whitespace'}
+        )
     
     # Basic URI validation - should start with http:// or https://
     if not (uri.startswith('http://') or uri.startswith('https://')):
-        raise ValidationError(f"{param_name} must be a valid HTTP(S) URI")
+        raise ValidationError(
+            f"{param_name} must be a valid HTTP(S) URI",
+            error_code=ErrorCodes.VAL_INVALID_URI,
+            details={'param': param_name, 'details': 'URI must start with http:// or https://'}
+        )
     
     # Check for dangerous characters that could be used for SPARQL injection
     dangerous_chars = ['<', '>', '"', '{', '}', '|', '\\', '^', '`', '\n', '\r', '\t']
     for char in dangerous_chars:
         if char in uri:
-            raise ValidationError(f"{param_name} contains invalid character: {repr(char)}")
+            raise ValidationError(
+                f"{param_name} contains invalid character: {repr(char)}",
+                error_code=ErrorCodes.SEC_INJECTION_DETECTED,
+                details={'param': param_name, 'details': f'Contains dangerous character: {repr(char)}'}
+            )
     
     # Check for SPARQL keywords that could indicate injection attempts
     sparql_keywords = [
@@ -103,15 +196,27 @@ def validate_uri(uri: str, param_name: str = "URI") -> str:
     uri_upper = uri.upper()
     for keyword in sparql_keywords:
         if f' {keyword} ' in uri_upper or uri_upper.endswith(f' {keyword}'):
-            raise ValidationError(f"{param_name} contains suspicious SPARQL keyword: {keyword}")
+            raise ValidationError(
+                f"{param_name} contains suspicious SPARQL keyword: {keyword}",
+                error_code=ErrorCodes.SEC_INJECTION_DETECTED,
+                details={'param': param_name, 'details': f'Contains SPARQL keyword: {keyword}'}
+            )
     
     # Check for comment patterns that could be used to bypass validation
     if '--' in uri or '#' in uri or '/*' in uri:
-        raise ValidationError(f"{param_name} contains suspicious comment pattern")
+        raise ValidationError(
+            f"{param_name} contains suspicious comment pattern",
+            error_code=ErrorCodes.SEC_INJECTION_DETECTED,
+            details={'param': param_name, 'details': 'Contains comment pattern'}
+        )
     
     # Limit URI length to prevent DoS attacks
     if len(uri) > 2048:
-        raise ValidationError(f"{param_name} exceeds maximum length of 2048 characters")
+        raise ValidationError(
+            f"{param_name} exceeds maximum length of 2048 characters",
+            error_code=ErrorCodes.VAL_OUT_OF_RANGE,
+            details={'param': param_name, 'range': '1-2048 characters'}
+        )
     
     return uri
 
@@ -134,15 +239,27 @@ def validate_positive_integer(value: any, param_name: str = "value", allow_none:
     if value is None:
         if allow_none:
             return None
-        raise ValidationError(f"{param_name} is required")
+        raise ValidationError(
+            f"{param_name} is required",
+            error_code=ErrorCodes.VAL_MISSING_PARAMETER,
+            details={'param': param_name}
+        )
     
     try:
         int_value = int(value)
     except (ValueError, TypeError):
-        raise ValidationError(f"{param_name} must be a valid integer")
+        raise ValidationError(
+            f"{param_name} must be a valid integer",
+            error_code=ErrorCodes.VAL_INVALID_PARAMETER,
+            details={'param': param_name, 'details': 'Must be a valid integer'}
+        )
     
     if int_value < 0:
-        raise ValidationError(f"{param_name} must be a positive integer")
+        raise ValidationError(
+            f"{param_name} must be a positive integer",
+            error_code=ErrorCodes.VAL_OUT_OF_RANGE,
+            details={'param': param_name, 'range': '0 or greater'}
+        )
     
     return int_value
 

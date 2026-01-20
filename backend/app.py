@@ -7,7 +7,11 @@ import time
 
 # Import logging configuration
 from logging_config import setup_logging, get_logger, set_correlation_id, log_api_request, log_api_response
-from config import LOG_LEVEL, USE_JSON_LOGGING
+from config import (
+    LOG_LEVEL, USE_JSON_LOGGING, RATE_LIMIT_ENABLED, RATE_LIMIT_DEFAULT, 
+    RATE_LIMIT_STORAGE_URL, SECURITY_HEADERS_ENABLED, CSP_POLICY, 
+    HSTS_MAX_AGE, HSTS_INCLUDE_SUBDOMAINS, FORCE_HTTPS
+)
 
 # Setup structured logging
 setup_logging(log_level=LOG_LEVEL, use_json=USE_JSON_LOGGING)
@@ -42,6 +46,56 @@ app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')  # Use th
 from config import ALLOWED_ORIGINS
 CORS(app, origins=ALLOWED_ORIGINS)
 
+# Configure rate limiting (if enabled)
+if RATE_LIMIT_ENABLED:
+    try:
+        from flask_limiter import Limiter
+        from flask_limiter.util import get_remote_address
+        
+        limiter = Limiter(
+            app=app,
+            key_func=get_remote_address,
+            default_limits=[RATE_LIMIT_DEFAULT],
+            storage_uri=RATE_LIMIT_STORAGE_URL,
+            storage_options={},
+            # Exempt health check endpoints from rate limiting
+            default_limits_exempt_when=lambda: request.path.startswith('/health')
+        )
+        logger.info("Rate limiting enabled: %s", RATE_LIMIT_DEFAULT)
+    except ImportError:
+        logger.warning("Flask-Limiter not installed. Rate limiting disabled.")
+    except Exception as e:
+        logger.error("Failed to initialize rate limiter: %s", e)
+
+# Configure security headers (if enabled)
+if SECURITY_HEADERS_ENABLED:
+    try:
+        from flask_talisman import Talisman
+        
+        # Initialize Talisman with security headers
+        Talisman(
+            app,
+            force_https=FORCE_HTTPS,  # Set to True in production
+            strict_transport_security=True,
+            strict_transport_security_max_age=HSTS_MAX_AGE,
+            strict_transport_security_include_subdomains=HSTS_INCLUDE_SUBDOMAINS,
+            content_security_policy=CSP_POLICY,
+            content_security_policy_nonce_in=['script-src'],
+            referrer_policy='strict-origin-when-cross-origin',
+            feature_policy={
+                'geolocation': "'none'",
+                'microphone': "'none'",
+                'camera': "'none'",
+            },
+            # Don't apply to static files served from /assets
+            content_security_policy_report_only=False,
+        )
+        logger.info("Security headers enabled (HTTPS forced: %s)", FORCE_HTTPS)
+    except ImportError:
+        logger.warning("Flask-Talisman not installed. Security headers disabled.")
+    except Exception as e:
+        logger.error("Failed to initialize security headers: %s", e)
+
 
 # Middleware for request correlation IDs and logging
 @app.before_request
@@ -65,8 +119,8 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    """Log outgoing responses with execution time."""
-    # Log API responses (exclude static file requests)
+    """Log outgoing responses with execution time and track metrics."""
+    # Log API responses and track metrics (exclude static file requests and metrics endpoint)
     if request.path.startswith('/api/') and hasattr(g, 'start_time'):
         execution_time = time.time() - g.start_time
         log_api_response(logger, response.status_code, execution_time)
@@ -74,6 +128,20 @@ def after_request(response):
         # Add correlation ID to response headers
         if hasattr(g, 'correlation_id'):
             response.headers['X-Correlation-ID'] = g.correlation_id
+        
+        # Track metrics (skip metrics endpoint itself)
+        if not request.path.endswith('/metrics'):
+            try:
+                from metrics import get_metrics_manager
+                metrics = get_metrics_manager()
+                metrics.track_http_request(
+                    method=request.method,
+                    endpoint=request.path,
+                    status=response.status_code,
+                    duration=execution_time
+                )
+            except Exception as e:
+                logger.warning("Failed to track metrics: %s", e)
     
     return response
 
@@ -82,6 +150,10 @@ def after_request(response):
 from routes import blueprints
 for blueprint in blueprints:
     app.register_blueprint(blueprint, url_prefix='/api/v1')
+
+# Register Flask-RESTX API blueprint for Swagger/OpenAPI documentation
+from app_api import api_blueprint
+app.register_blueprint(api_blueprint)
 
 # Function to build the frontend (Vue.js)
 def build_frontend():

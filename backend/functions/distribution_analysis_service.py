@@ -22,6 +22,7 @@ import requests
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import ENDPOINT_URL, SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from validators import validate_graph_uri, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,14 @@ def distribution_of_violations_per_shape(
 
     Returns:
         Dict[str, Any]: A dictionary formatted for bar chart visualization with 'labels' and 'datasets' keys.
+    
+    Raises:
+        ValidationError: If any URI parameter is invalid.
     """
+    # Validate inputs at service layer
+    shapes_graph_uri = validate_graph_uri(shapes_graph_uri, "shapes_graph_uri")
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    
     from .violation_analysis_service import get_violations_per_node_shape
     
     # Step 1: Get the violation data for each Node Shape

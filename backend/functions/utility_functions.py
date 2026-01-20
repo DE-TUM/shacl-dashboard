@@ -58,15 +58,25 @@ def get_prefixes_from_endpoint(endpoint_url: str) -> Dict[str, str]:
 
 def parse_rdf_list(node_id: str, shapes_graph_uri: str, executor: Optional[SparqlQueryExecutor] = None) -> List[str]:
     """
-    Parse an RDF list given a node ID to extract the items in the list.
+    Parse an RDF list (rdf:List) to extract all items in sequential order.
+
+    This function traverses an RDF list structure using rdf:first and rdf:rest predicates
+    to extract all items. RDF lists are commonly used in SHACL for sh:in constraints.
 
     Args:
-        node_id (str): The node ID representing the RDF list.
-        shapes_graph_uri (str): The URI of the Shapes Graph.
-        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
+        node_id (str): The node ID or blank node representing the RDF list head 
+            (e.g., "nodeID://b12345" or "_:b12345").
+        shapes_graph_uri (str): The URI of the Shapes Graph containing the RDF list.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance. Uses default if not provided.
 
     Returns:
-        List[str]: A list of item URIs in the RDF list.
+        List[str]: A list of item URIs in the order they appear in the RDF list.
+
+    Example:
+        >>> # For sh:in with values ["red", "green", "blue"]
+        >>> items = parse_rdf_list("nodeID://b12345", "http://ex.org/shapes")
+        >>> print(items)
+        ['red', 'green', 'blue']
     """
     if executor is None:
         executor = get_default_executor()
@@ -90,15 +100,29 @@ def parse_rdf_list(node_id: str, shapes_graph_uri: str, executor: Optional[Sparq
 def benchmark_function_execution(func: callable, runs: int = 10, csv_filename: str = "execution_time_use_case_1_lkg3_schema2.csv") -> Dict[str, Any]:
     """
     Measures the execution time of a function over multiple runs in milliseconds,
-    and saves results to a CSV.
+    and saves results to a CSV file.
 
-    Parameters:
-        func (callable): The function to benchmark.
-        runs (int): Number of times to run the function.
-        csv_filename (str): Name of the CSV file to save results.
+    This function executes the provided function multiple times, measures each execution
+    time, calculates the average, and exports all results to a CSV file for analysis.
+
+    Args:
+        func (callable): The function to benchmark. Should be a no-argument function.
+        runs (int): Number of times to run the function. Default is 10.
+        csv_filename (str): Name of the CSV file to save results. Default is
+            "execution_time_use_case_1_lkg3_schema2.csv".
 
     Returns:
-        dict: A dictionary with 'times_ms', 'average_ms', and 'results'.
+        Dict[str, Any]: A dictionary containing:
+            - 'times_ms': List of execution times in milliseconds for each run
+            - 'average_ms': Average execution time across all runs
+            - 'results': List of return values from each function execution
+
+    Example:
+        >>> def my_query():
+        ...     return get_number_of_violations_in_validation_report()
+        >>> stats = benchmark_function_execution(my_query, runs=5, csv_filename="query_perf.csv")
+        >>> print(f"Average time: {stats['average_ms']:.2f}ms")
+        Average time: 245.67ms
     """
     execution_times_ms = []
     results = []

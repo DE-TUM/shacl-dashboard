@@ -5,6 +5,7 @@ import logging
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sparql_executor import SparqlQueryExecutor, get_default_executor
+from validators import validate_graph_uri, validate_node_shape_uri, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,13 @@ def get_all_shapes_names(
 
     Returns:
         A list of shape name URIs.
+    
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Service layer validation
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -81,7 +88,13 @@ def get_all_focus_node_names(
 
     Returns:
         A list of focus node URIs.
+    
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Service layer validation
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -120,7 +133,13 @@ def get_all_property_path_names(
 
     Returns:
         A list of property path URIs.
+    
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Service layer validation
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -159,7 +178,13 @@ def get_all_constraint_components_names(
 
     Returns:
         A list of constraint component URIs.
+    
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Service layer validation
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -200,7 +225,13 @@ def get_violations_for_shape_name(
 
     Returns:
         A list of violation dictionaries with keys: focusNode, resultMessage, resultPath, resultSeverity, constraintComponent.
+    
+    Raises:
+        ValidationError: If shape_name or graph_uri is invalid.
     """
+    # Service layer validation
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -210,7 +241,10 @@ def get_violations_for_shape_name(
 
     # Ensure the shape_name is a string
     if not isinstance(shape_name, str):
-        raise ValueError("Invalid input: shape_name must be a string or a JSON object with a 'shape' key.")
+        raise ValidationError("Invalid input: shape_name must be a string or a JSON object with a 'shape' key.")
+    
+    # Validate the shape_name URI
+    shape_name = validate_node_shape_uri(shape_name, "shape_name")
 
     query = f"""
     SELECT ?focusNode ?resultMessage ?resultPath ?resultSeverity ?constraintComponent
@@ -260,7 +294,13 @@ def get_number_of_shapes_in_shapes_graph(
 
     Returns:
         A dictionary with keys 'nodeShapes' and 'propertyShapes' containing their counts.
+    
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Service layer validation
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -304,7 +344,13 @@ def get_number_of_violations_in_validation_report(
 
     Returns:
         The number of violations (sh:ValidationResult instances).
+    
+    Raises:
+        ValidationError: If graph_uri is invalid.
     """
+    # Service layer validation
+    graph_uri = validate_graph_uri(graph_uri, "graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     

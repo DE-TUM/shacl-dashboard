@@ -5,6 +5,7 @@ import logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, SHACL_FEATURES
 from sparql_executor import SparqlQueryExecutor, get_default_executor
+from validators import validate_graph_uri, validate_positive_int, ValidationError
 import requests
 
 logger = logging.getLogger(__name__)
@@ -34,17 +35,39 @@ def generate_validation_details_report(
     executor: Optional[SparqlQueryExecutor] = None
 ) -> Dict[str, Any]:
     """
-    Generate a detailed validation report with prefixes, violations, and shape details.
+    Generate a comprehensive validation report with prefixes, violations, and shape details.
+
+    This function queries both the validation report and shapes graph to build a detailed
+    report containing validation violations along with complete shape metadata, property
+    shape definitions, and namespace prefixes for easier human interpretation.
 
     Args:
-        validation_report_uri (str): The URI of the Validation Report to query.
+        validation_report_uri (str): The URI of the Validation Report to query. 
+            Default is from config.VALIDATION_REPORT_URI.
         shapes_graph_uri (str): The URI of the Shapes Graph to query.
-        limit (int): Maximum number of violations to return. Default is 10.
-        offset (int): Offset for the violations to return. Default is 0.
-        executor (Optional[SparqlQueryExecutor]): Optional executor instance.
+            Default is from config.SHAPES_GRAPH_URI.
+        limit (int): Maximum number of violations to return per request. Default is 10.
+        offset (int): Number of violations to skip (for pagination). Default is 0.
+        executor (Optional[SparqlQueryExecutor]): Optional executor instance. Uses default if not provided.
 
     Returns:
-        Dict[str, Any]: A dictionary containing 'prefixes' and 'violations' keys with detailed violation information.
+        Dict[str, Any]: A comprehensive dictionary containing:
+            - '@prefixes': Dict mapping prefix names to namespace URIs
+            - 'violations': List of violation dictionaries, each with:
+                - 'violationN': Dict with 'full_validation_details' and 'shape_details'
+                - Full details include focus node, path, value, message, severity, etc.
+                - Shape details include node shape, target class, and all property constraints
+
+    Raises:
+        SPARQLWrapperException: If SPARQL query execution fails.
+        ValidationError: If graph URIs are invalid.
+
+    Example:
+        >>> report = generate_validation_details_report(limit=5, offset=0)
+        >>> print(report['@prefixes']['sh'])  # 'http://www.w3.org/ns/shacl#'
+        >>> print(len(report['violations']))  # 5
+        >>> violation = report['violations'][0]['violation1']
+        >>> print(violation['full_validation_details']['Message'])
     """
     from .utility_functions import get_prefixes_from_endpoint, parse_rdf_list
     

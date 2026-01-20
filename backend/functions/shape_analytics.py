@@ -32,14 +32,22 @@ def get_distribution_of_violations_per_constraint(
     """
     Generate data for the "Distribution of Violations per Constraint" plot in a single SPARQL query.
 
+    This function calculates the ratio of violations to constraints for each Node Shape
+    and creates a frequency distribution binned into the specified number of bins.
+
     Args:
         shapes_graph_uri (str): The URI of the Shapes Graph to query.
         validation_report_uri (str): The URI of the Validation Report to query.
-        shacl_features (set): The set of SHACL constraint predicates.
         num_bins (int): Number of bins for the plot. Default is 10.
 
     Returns:
-        dict: A dictionary containing labels and datasets for the plot.
+        Dict[str, Any]: A dictionary containing 'labels' (list of bin ranges) and 
+            'datasets' (list with frequency data for the plot).
+
+    Example:
+        >>> result = get_distribution_of_violations_per_constraint(num_bins=5)
+        >>> print(result['labels'])  # ['0-19', '20-39', '40-59', '60-79', '80-99']
+        >>> print(result['datasets'][0]['data'])  # [5, 10, 3, 2, 0]
     """
 
     # Convert SHACL_FEATURES set to a SPARQL-friendly FILTER list

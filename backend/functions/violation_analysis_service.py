@@ -19,6 +19,7 @@ import logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
 from sparql_executor import SparqlQueryExecutor, get_default_executor
+from validators import validate_graph_uri, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,14 @@ def get_violations_per_node_shape(
 
     Returns:
         A list of dictionaries with keys 'NodeShapeName' and 'NumViolations'.
+    
+    Raises:
+        ValidationError: If any URI parameter is invalid.
     """
+    # Validate inputs at service layer
+    shapes_graph_uri = validate_graph_uri(shapes_graph_uri, "shapes_graph_uri")
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -120,7 +128,13 @@ def get_violations_per_path(
 
     Returns:
         A list of dictionaries with keys 'PathName' and 'NumViolations'.
+    
+    Raises:
+        ValidationError: If validation_report_uri is invalid.
     """
+    # Validate input at service layer
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
@@ -168,7 +182,13 @@ def get_violations_per_focus_node(
 
     Returns:
         A list of dictionaries with keys 'FocusNodeName' and 'NumViolations'.
+    
+    Raises:
+        ValidationError: If validation_report_uri is invalid.
     """
+    # Validate input at service layer
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    
     if executor is None:
         executor = get_default_executor()
     

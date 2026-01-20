@@ -2,7 +2,7 @@ import sys
 import os
 from typing import Dict, Any, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
+from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI, ENDPOINT_URL
 from sparql_executor import SparqlQueryExecutor, get_default_executor
 import requests
 import logging

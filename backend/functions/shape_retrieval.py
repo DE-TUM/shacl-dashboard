@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import SHAPES_GRAPH_URI, VALIDATION_REPORT_URI
 from sparql_executor import SparqlQueryExecutor, get_default_executor
+from validators import validate_graph_uri, ValidationError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,14 @@ def map_property_shapes_to_node_shapes(validation_report_uri: str = "http://ex.o
 
     Returns:
         List[Dict[str, str]]: A list of dictionaries mapping property shape URIs to node shape URIs.
+    
+    Raises:
+        ValidationError: If any URI parameter is invalid.
     """
+    # Validate inputs at service layer
+    validation_report_uri = validate_graph_uri(validation_report_uri, "validation_report_uri")
+    shapes_graph_uri = validate_graph_uri(shapes_graph_uri, "shapes_graph_uri")
+    
     if executor is None:
         executor = get_default_executor()
     
