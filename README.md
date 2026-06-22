@@ -33,16 +33,6 @@ SHACL Dashboard follows a client-server architecture:
 - Docker and Docker Compose (recommended)
 - Alternatively: Node.js 18+, Python 3.8+, and Virtuoso
 
-### Using Docker (Recommended)
-
-```bash
-git clone https://github.com/yourusername/shacl-dashboard.git
-cd shacl-dashboard
-docker-compose up -d
-```
-
-The dashboard will be available at http://localhost:80
-
 ### Manual Setup
 
 1. Start Virtuoso:
